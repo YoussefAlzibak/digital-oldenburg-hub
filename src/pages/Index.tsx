@@ -335,56 +335,72 @@ const Index = () => {
               <div className="h-10 w-10 bg-[hsl(var(--brand-primary))] rounded-lg flex items-center justify-center shadow-lg">
                 <div className="h-6 w-6 bg-white rounded-sm"></div>
               </div>
-              <span className="text-2xl font-black text-[hsl(var(--brand-secondary))] tracking-tight">UNICUM TEC</span>
+              <span className="text-2xl font-bold text-[hsl(var(--brand-secondary))]">Unicum Tec</span>
             </div>
             <nav className="hidden md:flex items-center space-x-8 animate-fade-right">
-              <a href="#services" className="text-gray-700 hover:text-[hsl(var(--brand-primary))] transition-colors font-semibold uppercase tracking-wide text-sm">
+              <a href="#services" className="text-gray-600 hover:text-[hsl(var(--brand-primary))] transition-colors font-medium">
                 Services
               </a>
-              <a href="#portfolio" className="text-gray-700 hover:text-[hsl(var(--brand-primary))] transition-colors font-semibold uppercase tracking-wide text-sm">
+              <a href="#portfolio" className="text-gray-600 hover:text-[hsl(var(--brand-primary))] transition-colors font-medium">
                 Portfolio
               </a>
-              <a href="#team" className="text-gray-700 hover:text-[hsl(var(--brand-primary))] transition-colors font-semibold uppercase tracking-wide text-sm">
-                Team
+              <a href="#about" className="text-gray-600 hover:text-[hsl(var(--brand-primary))] transition-colors font-medium">
+                Über uns
               </a>
-              <a href="#contact" className="text-gray-700 hover:text-[hsl(var(--brand-primary))] transition-colors font-semibold uppercase tracking-wide text-sm">
+              <a href="#contact" className="text-gray-600 hover:text-[hsl(var(--brand-primary))] transition-colors font-medium">
                 Kontakt
               </a>
-              <Button className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90 text-white px-8 py-3 rounded-full font-bold uppercase tracking-wide text-sm transition-all hover:scale-105 shadow-lg">
-                Angebot Anfordern
+              <Button className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90 text-white px-6 py-2.5 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg">
+                Beratung anfragen
               </Button>
             </nav>
           </div>
         </div>
       </header>
 
-      {/* Hero Section - Dark Theme */}
+      {/* Hero Section - Improved Layout */}
       <section className="relative hero-dark min-h-screen flex items-center overflow-hidden">
-        <div className="absolute inset-0 floating-circles">
-          <div className="floating-circle"></div>
-          <div className="floating-circle"></div>
-          <div className="floating-circle"></div>
+        <div className="absolute inset-0 floating-shapes">
+          <div className="geometric-shape hexagon shape-1"></div>
+          <div className="geometric-shape triangle shape-2"></div>
+          <div className="geometric-shape diamond shape-3"></div>
+          <div className="geometric-shape rectangle shape-4"></div>
+          <div className="geometric-shape hexagon shape-5" style={{background: 'hsl(var(--brand-accent) / 0.6)'}}></div>
+          <div className="geometric-shape triangle shape-6" style={{borderBottomColor: 'hsl(var(--brand-primary) / 0.8)'}}></div>
         </div>
         
         <div className="container mx-auto px-6 relative z-10">
-          <div className="max-w-4xl">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 animate-fade-up">
               <h1 className="text-hero-primary">
-                WIR SIND
+                Digitale Excellence
                 <br />
-                <span className="text-hero-accent">UNICUM TEC</span>
+                <span className="text-hero-accent">für Ihren Erfolg</span>
               </h1>
-              <p className="text-xl md:text-2xl text-gray-300 max-w-2xl leading-relaxed animate-fade-up delay-200">
-                Digitale Exzellenz trifft Innovation. Wir transformieren Ihr Business durch modernste Technologien und strategisches Design.
+              <p className="text-xl text-gray-300 max-w-2xl leading-relaxed animate-fade-up delay-200">
+                Unicum Tec - Ihre Full-Service Digitalagentur in Oldenburg. Wir transformieren Geschäftsprozesse durch innovative Webdesign-Lösungen, professionelle CRM-Systeme und modernste IT-Services.
               </p>
               <div className="flex flex-col sm:flex-row gap-6 animate-fade-up delay-400">
-                <Button size="lg" className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90 text-white px-12 py-4 text-lg font-bold rounded-full uppercase tracking-wide transition-all hover:scale-105 shadow-xl">
-                  Projekt Starten
+                <Button size="lg" className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90 text-white px-10 py-4 text-lg font-semibold rounded-lg transition-all hover:scale-105 shadow-xl">
+                  Portfolio entdecken
                   <ArrowRight className="ml-3 h-5 w-5" />
                 </Button>
-                <Button variant="outline" size="lg" className="px-12 py-4 text-lg border-2 border-white text-white hover:bg-white hover:text-[hsl(var(--brand-secondary))] font-bold rounded-full uppercase tracking-wide transition-all hover:scale-105">
-                  Portfolio Ansehen
+                <Button variant="outline" size="lg" className="px-10 py-4 text-lg border-2 border-white text-white hover:bg-white hover:text-[hsl(var(--brand-secondary))] font-semibold rounded-lg transition-all hover:scale-105">
+                  Kostenlose Beratung
                 </Button>
+              </div>
+            </div>
+            <div className="hidden lg:block animate-fade-up delay-600">
+              <div className="relative">
+                <img 
+                  src={heroImage} 
+                  alt="Modern digital agency workspace" 
+                  className="rounded-2xl shadow-2xl"
+                />
+                <div className="absolute -bottom-6 -right-6 bg-[hsl(var(--brand-primary))] text-white p-6 rounded-xl shadow-xl">
+                  <div className="text-3xl font-bold">150+</div>
+                  <div className="text-sm">Erfolgreiche Projekte</div>
+                </div>
               </div>
             </div>
           </div>

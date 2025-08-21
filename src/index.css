@@ -314,94 +314,133 @@ All colors MUST be HSL.
   .delay-300 { animation-delay: 300ms; }
   .delay-400 { animation-delay: 400ms; }
 
-  /* Geometric elements for hero section */
-  .floating-circles {
+  /* Enhanced geometric elements for hero section */
+  .floating-shapes {
     position: absolute;
     top: 0;
     right: 0;
-    width: 50%;
+    width: 60%;
     height: 100%;
     overflow: hidden;
     pointer-events: none;
   }
 
-  .floating-circles::before,
-  .floating-circles::after {
-    content: '';
+  .geometric-shape {
     position: absolute;
-    border-radius: 50%;
-    background: hsl(var(--brand-primary) / 0.8);
-    animation: float 6s ease-in-out infinite;
-  }
-
-  .floating-circles::before {
-    width: 200px;
-    height: 200px;
-    top: 20%;
-    right: 10%;
-    animation-delay: 0s;
-  }
-
-  .floating-circles::after {
-    width: 120px;
-    height: 120px;
-    top: 60%;
-    right: 30%;
-    animation-delay: 2s;
-  }
-
-  .floating-circle {
-    position: absolute;
-    border-radius: 50%;
-    background: hsl(var(--brand-primary) / 0.6);
     animation: float 8s ease-in-out infinite;
   }
 
-  .floating-circle:nth-child(1) {
-    width: 80px;
+  /* Hexagon shapes */
+  .hexagon {
+    width: 100px;
+    height: 57.73px;
+    background: hsl(var(--brand-primary) / 0.7);
+    margin: 28.87px 0;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+
+  .hexagon:before,
+  .hexagon:after {
+    content: "";
+    position: absolute;
+    width: 0;
+    border-left: 50px solid transparent;
+    border-right: 50px solid transparent;
+  }
+
+  /* Triangle shapes */
+  .triangle {
+    width: 0;
+    height: 0;
+    border-left: 40px solid transparent;
+    border-right: 40px solid transparent;
+    border-bottom: 70px solid hsl(var(--brand-accent) / 0.6);
+  }
+
+  /* Diamond shapes */
+  .diamond {
+    width: 60px;
+    height: 60px;
+    background: hsl(var(--brand-primary) / 0.8);
+    transform: rotate(45deg);
+  }
+
+  /* Rectangle shapes */
+  .rectangle {
+    width: 120px;
     height: 80px;
+    background: hsl(var(--brand-primary) / 0.5);
+    border-radius: 8px;
+  }
+
+  /* Position specific shapes */
+  .shape-1 {
     top: 15%;
+    right: 20%;
+    animation-delay: 0s;
+  }
+
+  .shape-2 {
+    top: 35%;
     right: 45%;
+    animation-delay: 2s;
+  }
+
+  .shape-3 {
+    top: 60%;
+    right: 15%;
+    animation-delay: 4s;
+  }
+
+  .shape-4 {
+    top: 25%;
+    right: 60%;
     animation-delay: 1s;
   }
 
-  .floating-circle:nth-child(2) {
-    width: 60px;
-    height: 60px;
-    top: 40%;
-    right: 15%;
-    animation-delay: 3s;
-    background: hsl(var(--brand-accent) / 0.7);
-  }
-
-  .floating-circle:nth-child(3) {
-    width: 140px;
-    height: 140px;
+  .shape-5 {
     top: 70%;
     right: 50%;
-    animation-delay: 4s;
-    background: hsl(var(--brand-primary) / 0.4);
+    animation-delay: 3s;
   }
 
-  /* Dark hero section styling */
+  .shape-6 {
+    top: 45%;
+    right: 30%;
+    animation-delay: 5s;
+  }
+
+  /* Enhanced float animation */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    33% {
+      transform: translateY(-20px) rotate(120deg);
+    }
+    66% {
+      transform: translateY(-10px) rotate(240deg);
+    }
+  }
+
+  /* Dark hero section with better gradient */
   .hero-dark {
     background: linear-gradient(135deg, 
       hsl(var(--dark-bg)) 0%,
-      hsl(var(--brand-secondary)) 100%
+      hsl(var(--brand-secondary)) 50%,
+      hsl(var(--dark-bg)) 100%
     );
     color: white;
   }
 
-  /* Modern typography */
+  /* Improved typography */
   .text-hero-primary {
-    @apply text-5xl md:text-7xl font-black leading-none tracking-tight;
-    text-transform: uppercase;
+    @apply text-4xl md:text-6xl font-bold leading-tight tracking-tight;
   }
 
   .text-hero-accent {
-    @apply text-5xl md:text-7xl font-black leading-none tracking-tight;
+    @apply text-4xl md:text-6xl font-bold leading-tight tracking-tight;
     color: hsl(var(--brand-primary));
-    text-transform: uppercase;
   }
 
   .gradient-text {

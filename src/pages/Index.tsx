@@ -154,69 +154,86 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+      <header className="glass border-b sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg"></div>
-              <span className="text-xl font-bold">Unicum Tec</span>
+            <div className="flex items-center space-x-2 animate-fade-in-left">
+              <div className="h-8 w-8 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg animate-float"></div>
+              <span className="text-xl font-bold gradient-text">Unicum Tec</span>
             </div>
-            <nav className="hidden md:flex items-center space-x-6">
-              <a href="#services" className="text-muted-foreground hover:text-foreground transition-colors">Services</a>
-              <a href="#portfolio" className="text-muted-foreground hover:text-foreground transition-colors">Portfolio</a>
-              <a href="#about" className="text-muted-foreground hover:text-foreground transition-colors">Über uns</a>
-              <a href="#contact" className="text-muted-foreground hover:text-foreground transition-colors">Kontakt</a>
-              <Button>Beratung anfragen</Button>
+            <nav className="hidden md:flex items-center space-x-6 animate-fade-in-right">
+              <a href="#services" className="text-muted-foreground hover:text-[hsl(var(--brand-primary))] transition-colors relative group">
+                Services
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] transition-all duration-300 group-hover:w-full"></span>
+              </a>
+              <a href="#portfolio" className="text-muted-foreground hover:text-[hsl(var(--brand-primary))] transition-colors relative group">
+                Portfolio
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] transition-all duration-300 group-hover:w-full"></span>
+              </a>
+              <a href="#about" className="text-muted-foreground hover:text-[hsl(var(--brand-primary))] transition-colors relative group">
+                Über uns
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] transition-all duration-300 group-hover:w-full"></span>
+              </a>
+              <a href="#contact" className="text-muted-foreground hover:text-[hsl(var(--brand-primary))] transition-colors relative group">
+                Kontakt
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] transition-all duration-300 group-hover:w-full"></span>
+              </a>
+              <Button className="bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] text-white hover-scale shadow-lg">
+                Beratung anfragen
+              </Button>
             </nav>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-24 bg-gradient-to-br from-[hsl(var(--brand-primary)/0.05)] to-[hsl(var(--brand-secondary)/0.05)]">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] bg-clip-text text-transparent">
+      <section className="relative py-32 section-gradient section-pattern overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--brand-primary)/0.05)] via-transparent to-[hsl(var(--brand-secondary)/0.05)]"></div>
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <h1 className="text-5xl md:text-7xl font-bold mb-8 gradient-text animate-fade-in-up">
             Full-Service Digitalagentur
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-4xl mx-auto animate-fade-in-up stagger-1 leading-relaxed">
             Unicum Tec - Ihre Full-Service Digitalagentur in Oldenburg. Wir transformieren Ihre Geschäftsprozesse durch innovative Webdesign-Lösungen, professionelle CRM-Systeme und modernste IT-Services.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] text-white">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in-up stagger-2">
+            <Button size="lg" className="bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] text-white hover-scale shadow-xl px-8 py-6 text-lg">
               Unsere Projekte
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button variant="outline" size="lg">
+            <Button variant="outline" size="lg" className="hover-lift border-2 px-8 py-6 text-lg">
               Beratung anfragen
             </Button>
           </div>
         </div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-background to-transparent"></div>
       </section>
 
       {/* Services Section */}
       <section id="services" className="py-24 bg-background">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Unsere Services</h2>
-            <p className="text-xl text-muted-foreground">Full-Service Lösungen für Ihre digitale Transformation</p>
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up gradient-text">Unsere Services</h2>
+            <p className="text-xl text-muted-foreground animate-fade-in-up stagger-1 max-w-3xl mx-auto">Full-Service Lösungen für Ihre digitale Transformation</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
             {services.map((service, index) => (
-              <Card key={index} className="p-6 hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-background to-muted/20">
-                <CardHeader className="pb-4">
-                  <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg flex items-center justify-center mb-4">
-                    <service.icon className="h-6 w-6 text-white" />
+              <Card key={index} className={`p-8 hover-lift glass-card border-0 animate-fade-in-up stagger-${index + 1} group`}>
+                <CardHeader className="pb-6">
+                  <div className="h-16 w-16 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-xl flex items-center justify-center mb-6 group-hover:animate-float shadow-lg">
+                    <service.icon className="h-8 w-8 text-white" />
                   </div>
-                  <CardTitle className="text-xl mb-2">{service.title}</CardTitle>
-                  <CardDescription className="text-muted-foreground">
+                  <CardTitle className="text-2xl mb-4 group-hover:text-[hsl(var(--brand-primary))] transition-colors">{service.title}</CardTitle>
+                  <CardDescription className="text-muted-foreground text-lg leading-relaxed">
                     {service.description}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <ul className="space-y-2">
+                  <ul className="space-y-4">
                     {service.features.map((feature, i) => (
-                      <li key={i} className="flex items-center space-x-2">
-                        <CheckCircle className="h-4 w-4 text-[hsl(var(--brand-primary))]" />
-                        <span className="text-sm">{feature}</span>
+                      <li key={i} className="flex items-center space-x-3 group/item">
+                        <CheckCircle className="h-5 w-5 text-[hsl(var(--brand-success))] group-hover/item:scale-110 transition-transform" />
+                        <span className="text-base">{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -228,19 +245,23 @@ const Index = () => {
       </section>
 
       {/* Portfolio Section */}
-      <section id="portfolio" className="py-24 bg-muted/50">
+      <section id="portfolio" className="py-24 section-gradient section-pattern">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Unser Portfolio</h2>
-            <p className="text-xl text-muted-foreground mb-8">Erfolgreiche Projekte aus Webdesign, CRM-Integration und IT-Services</p>
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up gradient-text">Unser Portfolio</h2>
+            <p className="text-xl text-muted-foreground mb-12 animate-fade-in-up stagger-1 max-w-4xl mx-auto">Erfolgreiche Projekte aus Webdesign, CRM-Integration und IT-Services</p>
             
-            <div className="flex flex-wrap justify-center gap-2 mb-8">
+            <div className="flex flex-wrap justify-center gap-3 mb-12 animate-fade-in-up stagger-2">
               {["Alle", "E-Commerce", "Corporate", "SaaS"].map((tab) => (
                 <Button
                   key={tab}
                   variant={activeTab === tab ? "default" : "outline"}
                   onClick={() => setActiveTab(tab)}
-                  className="rounded-full"
+                  className={`rounded-full px-6 py-2 transition-all duration-300 ${
+                    activeTab === tab 
+                      ? "bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] text-white shadow-lg" 
+                      : "hover-scale"
+                  }`}
                 >
                   {tab}
                 </Button>
@@ -252,21 +273,22 @@ const Index = () => {
             {projects
               .filter(project => activeTab === "Alle" || project.category === activeTab)
               .map((project, index) => (
-                <Card key={index} className="overflow-hidden hover:shadow-lg transition-all duration-300">
-                  <div className="aspect-video bg-gradient-to-br from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] flex items-center justify-center">
-                    <Monitor className="h-12 w-12 text-[hsl(var(--brand-primary))]" />
+                <Card key={index} className={`overflow-hidden hover-lift glass-card group animate-scale-in stagger-${index + 1}`}>
+                  <div className="aspect-video bg-gradient-to-br from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] flex items-center justify-center relative overflow-hidden">
+                    <Monitor className="h-16 w-16 text-[hsl(var(--brand-primary))] group-hover:scale-110 transition-transform duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <CardTitle className="text-lg">{project.title}</CardTitle>
-                      <Badge variant="secondary">{project.category}</Badge>
+                  <CardHeader className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <CardTitle className="text-xl group-hover:text-[hsl(var(--brand-primary))] transition-colors">{project.title}</CardTitle>
+                      <Badge variant="secondary" className="bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)]">{project.category}</Badge>
                     </div>
-                    <CardDescription>{project.description}</CardDescription>
+                    <CardDescription className="leading-relaxed">{project.description}</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-6 pt-0">
                     <div className="flex flex-wrap gap-2">
                       {project.tags.map((tag, i) => (
-                        <Badge key={i} variant="outline" className="text-xs">
+                        <Badge key={i} variant="outline" className="text-xs hover-scale">
                           {tag}
                         </Badge>
                       ))}
@@ -281,29 +303,30 @@ const Index = () => {
       {/* Testimonials Section */}
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Was unsere Kunden sagen</h2>
-            <p className="text-xl text-muted-foreground">Echtes Feedback von zufriedenen Kunden aus Oldenburg und Umgebung</p>
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up gradient-text">Was unsere Kunden sagen</h2>
+            <p className="text-xl text-muted-foreground animate-fade-in-up stagger-1 max-w-3xl mx-auto">Echtes Feedback von zufriedenen Kunden aus Oldenburg und Umgebung</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="p-6 hover:shadow-lg transition-all duration-300">
-                <CardContent className="pt-6">
-                  <div className="flex items-center mb-4">
-                    <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-full flex items-center justify-center text-white font-bold">
+              <Card key={index} className={`p-8 hover-lift glass-card relative group animate-fade-in-up stagger-${index + 1}`}>
+                <div className="absolute -top-4 -left-4 w-8 h-8 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-full opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                <CardContent className="pt-8">
+                  <div className="flex items-center mb-6">
+                    <div className="h-16 w-16 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
                       {testimonial.initials}
                     </div>
-                    <div className="ml-4">
-                      <h4 className="font-semibold">{testimonial.name}</h4>
+                    <div className="ml-6">
+                      <h4 className="font-semibold text-lg">{testimonial.name}</h4>
                       <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                     </div>
                   </div>
-                  <blockquote className="text-muted-foreground italic">
+                  <blockquote className="text-muted-foreground italic text-lg leading-relaxed mb-6">
                     "{testimonial.text}"
                   </blockquote>
-                  <div className="flex mt-4">
+                  <div className="flex">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-[hsl(var(--brand-accent))] text-[hsl(var(--brand-accent))]" />
+                      <Star key={i} className="h-5 w-5 fill-[hsl(var(--brand-accent))] text-[hsl(var(--brand-accent))] group-hover:scale-110 transition-transform duration-300" style={{transitionDelay: `${i * 50}ms`}} />
                     ))}
                   </div>
                 </CardContent>
@@ -314,41 +337,42 @@ const Index = () => {
       </section>
 
       {/* Blog Section */}
-      <section className="py-24 bg-muted/50">
+      <section className="py-24 section-gradient section-pattern">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Unser Blog</h2>
-            <p className="text-xl text-muted-foreground">Aktuelle Insights, Trends und Best Practices aus der digitalen Welt</p>
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up gradient-text">Unser Blog</h2>
+            <p className="text-xl text-muted-foreground animate-fade-in-up stagger-1 max-w-3xl mx-auto">Aktuelle Insights, Trends und Best Practices aus der digitalen Welt</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogPosts.map((post, index) => (
-              <Card key={index} className="overflow-hidden hover:shadow-lg transition-all duration-300">
-                <div className="aspect-video bg-gradient-to-br from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] flex items-center justify-center">
-                  <Globe className="h-12 w-12 text-[hsl(var(--brand-primary))]" />
+              <Card key={index} className={`overflow-hidden hover-lift glass-card group animate-fade-in-up stagger-${index + 1}`}>
+                <div className="aspect-video bg-gradient-to-br from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] flex items-center justify-center relative overflow-hidden">
+                  <Globe className="h-16 w-16 text-[hsl(var(--brand-primary))] group-hover:animate-float transition-all duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="secondary">{post.category}</Badge>
+                <CardHeader className="p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <Badge variant="secondary" className="bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)]">{post.category}</Badge>
                     <span className="text-sm text-muted-foreground">{post.date}</span>
                   </div>
-                  <CardTitle className="text-lg hover:text-[hsl(var(--brand-primary))] transition-colors cursor-pointer">
+                  <CardTitle className="text-xl hover:text-[hsl(var(--brand-primary))] transition-colors cursor-pointer group-hover:gradient-text">
                     {post.title}
                   </CardTitle>
-                  <CardDescription>{post.excerpt}</CardDescription>
+                  <CardDescription className="leading-relaxed">{post.excerpt}</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6 pt-0">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">{post.readTime}</span>
-                    <Button variant="ghost" size="sm">
-                      Weiterlesen <ArrowRight className="ml-2 h-4 w-4" />
+                    <Button variant="ghost" size="sm" className="hover-scale group/btn">
+                      Weiterlesen <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                     </Button>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
-          <div className="text-center mt-12">
-            <Button variant="outline">Alle Artikel anzeigen</Button>
+          <div className="text-center mt-16">
+            <Button variant="outline" className="hover-lift px-8 py-3">Alle Artikel anzeigen</Button>
           </div>
         </div>
       </section>
@@ -356,34 +380,34 @@ const Index = () => {
       {/* About Section */}
       <section id="about" className="py-24 bg-background">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Über uns</h2>
-              <p className="text-xl text-muted-foreground mb-6">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="animate-fade-in-left">
+              <h2 className="text-4xl md:text-5xl font-bold mb-8 gradient-text">Über uns</h2>
+              <p className="text-2xl text-muted-foreground mb-8 font-medium">
                 Ihr Partner für digitalen Erfolg in Oldenburg
               </p>
-              <p className="text-muted-foreground mb-8">
+              <p className="text-lg text-muted-foreground mb-12 leading-relaxed">
                 Mit über 5 Jahren Erfahrung in der digitalen Welt verbinden wir kreatives Webdesign mit strategischem CRM-Management. Unsere Mission: Ihre Kundenkommunikation zu optimieren und messbare Ergebnisse zu erzielen.
               </p>
-              <div className="grid grid-cols-3 gap-6">
+              <div className="grid grid-cols-3 gap-8">
                 {stats.map((stat, index) => (
-                  <div key={index} className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold text-[hsl(var(--brand-primary))]">{stat.number}</div>
-                    <div className="text-sm text-muted-foreground">{stat.label}</div>
+                  <div key={index} className={`text-center hover-scale animate-fade-in-up stagger-${index + 1}`}>
+                    <div className="text-3xl md:text-4xl font-bold gradient-text mb-2">{stat.number}</div>
+                    <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <Badge variant="secondary" className="w-fit">Webdesign</Badge>
-                <Badge variant="secondary" className="w-fit">CRM-Integration</Badge>
-                <Badge variant="secondary" className="w-fit">UI/UX Design</Badge>
+            <div className="grid grid-cols-2 gap-6 animate-fade-in-right">
+              <div className="space-y-6">
+                <Badge variant="secondary" className="w-fit hover-scale bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] px-4 py-2">Webdesign</Badge>
+                <Badge variant="secondary" className="w-fit hover-scale bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] px-4 py-2">CRM-Integration</Badge>
+                <Badge variant="secondary" className="w-fit hover-scale bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] px-4 py-2">UI/UX Design</Badge>
               </div>
-              <div className="space-y-4">
-                <Badge variant="secondary" className="w-fit">Marketing Automation</Badge>
-                <Badge variant="secondary" className="w-fit">Data Analytics</Badge>
-                <Badge variant="secondary" className="w-fit">API Development</Badge>
+              <div className="space-y-6">
+                <Badge variant="secondary" className="w-fit hover-scale bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] px-4 py-2">Marketing Automation</Badge>
+                <Badge variant="secondary" className="w-fit hover-scale bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] px-4 py-2">Data Analytics</Badge>
+                <Badge variant="secondary" className="w-fit hover-scale bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] px-4 py-2">API Development</Badge>
               </div>
             </div>
           </div>
@@ -391,21 +415,21 @@ const Index = () => {
       </section>
 
       {/* Guarantees Section */}
-      <section className="py-24 bg-muted/50">
+      <section className="py-24 section-gradient section-pattern">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Vertrauen durch Qualität</h2>
-            <p className="text-xl text-muted-foreground">Ihre Sicherheit ist unser Versprechen. Mit Zertifikaten, Garantien und transparenten Prozessen.</p>
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up gradient-text">Vertrauen durch Qualität</h2>
+            <p className="text-xl text-muted-foreground animate-fade-in-up stagger-1 max-w-3xl mx-auto">Ihre Sicherheit ist unser Versprechen. Mit Zertifikaten, Garantien und transparenten Prozessen.</p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {guarantees.map((guarantee, index) => (
-              <Card key={index} className="text-center p-6 hover:shadow-lg transition-all duration-300">
-                <CardContent className="pt-6">
-                  <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <guarantee.icon className="h-6 w-6 text-white" />
+              <Card key={index} className={`text-center p-8 hover-lift glass-card group animate-scale-in stagger-${index + 1}`}>
+                <CardContent className="pt-8">
+                  <div className="h-16 w-16 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-xl flex items-center justify-center mx-auto mb-6 group-hover:animate-float shadow-lg">
+                    <guarantee.icon className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="font-semibold mb-2">{guarantee.label}</h3>
-                  <p className="text-sm text-muted-foreground">{guarantee.description}</p>
+                  <h3 className="font-semibold mb-3 text-lg group-hover:text-[hsl(var(--brand-primary))] transition-colors">{guarantee.label}</h3>
+                  <p className="text-base text-muted-foreground leading-relaxed">{guarantee.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -416,62 +440,69 @@ const Index = () => {
       {/* Contact Section */}
       <section id="contact" className="py-24 bg-background">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Kontakt</h2>
-            <p className="text-xl text-muted-foreground">Bereit für Ihr digitales Projekt? Lassen Sie uns sprechen!</p>
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up gradient-text">Kontakt</h2>
+            <p className="text-xl text-muted-foreground animate-fade-in-up stagger-1 max-w-3xl mx-auto">Bereit für Ihr digitales Projekt? Lassen Sie uns sprechen!</p>
           </div>
-          <div className="grid lg:grid-cols-2 gap-12">
-            <div>
-              <h3 className="text-2xl font-bold mb-6">Starten Sie Ihr Projekt</h3>
+          <div className="grid lg:grid-cols-2 gap-16">
+            <div className="animate-fade-in-left">
+              <h3 className="text-3xl font-bold mb-8 gradient-text">Starten Sie Ihr Projekt</h3>
               <form className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <Input placeholder="Vorname" />
-                  <Input placeholder="Nachname" />
+                <div className="grid grid-cols-2 gap-6">
+                  <Input placeholder="Vorname" className="h-12 hover-lift" />
+                  <Input placeholder="Nachname" className="h-12 hover-lift" />
                 </div>
-                <Input placeholder="E-Mail-Adresse" type="email" />
-                <Input placeholder="Telefon" type="tel" />
-                <Textarea placeholder="Beschreiben Sie Ihr Projekt..." className="h-32" />
-                <Button className="w-full bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] text-white">
+                <Input placeholder="E-Mail-Adresse" type="email" className="h-12 hover-lift" />
+                <Input placeholder="Telefon" type="tel" className="h-12 hover-lift" />
+                <Textarea placeholder="Beschreiben Sie Ihr Projekt..." className="h-40 hover-lift" />
+                <Button className="w-full bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] text-white hover-scale shadow-xl h-12 text-lg font-semibold">
                   Anfrage senden
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </form>
             </div>
-            <div className="space-y-8">
+            <div className="space-y-12 animate-fade-in-right">
               <div>
-                <h3 className="text-2xl font-bold mb-6">Kontaktinformationen</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <MapPin className="h-5 w-5 text-[hsl(var(--brand-primary))]" />
-                    <span>Oldenburg, Niedersachsen</span>
+                <h3 className="text-3xl font-bold mb-8">Kontaktinformationen</h3>
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-4 hover-scale">
+                    <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg flex items-center justify-center">
+                      <MapPin className="h-6 w-6 text-white" />
+                    </div>
+                    <span className="text-lg">Oldenburg, Niedersachsen</span>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <Mail className="h-5 w-5 text-[hsl(var(--brand-primary))]" />
-                    <span>info@unicumtec.de</span>
+                  <div className="flex items-center space-x-4 hover-scale">
+                    <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg flex items-center justify-center">
+                      <Mail className="h-6 w-6 text-white" />
+                    </div>
+                    <span className="text-lg">info@unicumtec.de</span>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <Phone className="h-5 w-5 text-[hsl(var(--brand-primary))]" />
-                    <span>+49 (0) 441 XXX XXX</span>
+                  <div className="flex items-center space-x-4 hover-scale">
+                    <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg flex items-center justify-center">
+                      <Phone className="h-6 w-6 text-white" />
+                    </div>
+                    <span className="text-lg">+49 (0) 441 XXX XXX</span>
                   </div>
                 </div>
               </div>
               <div>
-                <h4 className="text-lg font-semibold mb-4">Warum Unicum Tec?</h4>
-                <ul className="space-y-3">
-                  <li className="flex items-center space-x-2">
-                    <CheckCircle className="h-5 w-5 text-[hsl(var(--brand-primary))]" />
-                    <span>Lokaler Partner in Oldenburg</span>
+                <h4 className="text-2xl font-semibold mb-6">Warum Unicum Tec?</h4>
+                <ul className="space-y-4">
+                  <li className="flex items-center space-x-4 hover-scale">
+                    <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
+                    <span className="text-lg">Lokaler Partner in Oldenburg</span>
                   </li>
-                  <li className="flex items-center space-x-2">
-                    <CheckCircle className="h-5 w-5 text-[hsl(var(--brand-primary))]" />
-                    <span>5+ Jahre Erfahrung</span>
+                  <li className="flex items-center space-x-4 hover-scale">
+                    <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
+                    <span className="text-lg">5+ Jahre Erfahrung</span>
                   </li>
-                  <li className="flex items-center space-x-2">
-                    <CheckCircle className="h-5 w-5 text-[hsl(var(--brand-primary))]" />
-                    <span>98% Kundenzufriedenheit</span>
+                  <li className="flex items-center space-x-4 hover-scale">
+                    <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
+                    <span className="text-lg">98% Kundenzufriedenheit</span>
                   </li>
-                  <li className="flex items-center space-x-2">
-                    <CheckCircle className="h-5 w-5 text-[hsl(var(--brand-primary))]" />
-                    <span>30 Tage Geld-zurück-Garantie</span>
+                  <li className="flex items-center space-x-4 hover-scale">
+                    <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
+                    <span className="text-lg">30 Tage Geld-zurück-Garantie</span>
                   </li>
                 </ul>
               </div>

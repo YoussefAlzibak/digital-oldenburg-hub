@@ -19,7 +19,19 @@ import {
   Award,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  MessageCircle,
+  Target,
+  Lightbulb,
+  Rocket,
+  Code,
+  Palette,
+  BarChart,
+  Euro,
+  ChevronDown,
+  Calendar,
+  FileText,
+  Users2
 } from "lucide-react";
 import { useState } from "react";
 
@@ -29,9 +41,22 @@ import webdesignService from "@/assets/webdesign-service.webp";
 import crmService from "@/assets/crm-service.webp";
 import itService from "@/assets/it-service.webp";
 import printService from "@/assets/print-service.webp";
+import portfolioEcommerce from "@/assets/portfolio-ecommerce.webp";
+import portfolioCorporate from "@/assets/portfolio-corporate.webp";
+import portfolioSaas from "@/assets/portfolio-saas.webp";
+import portfolioMobile from "@/assets/portfolio-mobile.webp";
+import portfolioSmarthome from "@/assets/portfolio-smarthome.webp";
+import teamImage from "@/assets/team-image.webp";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("Alle");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+    service: ""
+  });
+  const [activeFAQ, setActiveFAQ] = useState<number | null>(null);
 
   const services = [
     {
@@ -83,24 +108,43 @@ const Index = () => {
   const projects = [
     {
       title: "E-Commerce Dashboard",
-      description: "Vollständige CRM-Integration für Online-Shop mit automatisierten Workflows und Analytics.",
+      description: "Vollständige CRM-Integration für Online-Shop mit automatisierten Workflows und Analytics. Über 300% Umsatzsteigerung durch optimierte Conversion-Funnel.",
       category: "E-Commerce",
-      tags: ["React", "Node.js", "CRM"],
-      image: "/placeholder.svg"
+      tags: ["React", "Node.js", "HubSpot CRM", "Analytics"],
+      image: portfolioEcommerce,
+      metrics: { conversion: "+300%", users: "50k+", revenue: "€2.5M+" }
     },
     {
-      title: "Corporate Website",
-      description: "Moderne Corporate Website mit integriertem Lead-Management-System.",
+      title: "Corporate Website Redesign",
+      description: "Moderne Corporate Website mit integriertem Lead-Management-System. Vollständig responsive und SEO-optimiert.",
       category: "Corporate", 
-      tags: ["HTML5", "CSS3", "JavaScript"],
-      image: "/placeholder.svg"
+      tags: ["HTML5", "CSS3", "JavaScript", "SEO"],
+      image: portfolioCorporate,
+      metrics: { performance: "98/100", leads: "+250%", bounce: "-45%" }
     },
     {
-      title: "SaaS Platform",
-      description: "Benutzerfreundliches Dashboard für SaaS-Anwendung mit erweiterten CRM-Features.",
+      title: "SaaS Platform UI/UX",
+      description: "Benutzerfreundliches Dashboard für SaaS-Anwendung mit erweiterten CRM-Features und Echtzeit-Analytics.",
       category: "SaaS",
-      tags: ["Vue.js", "API", "Analytics"],
-      image: "/placeholder.svg"
+      tags: ["Vue.js", "API", "Analytics", "UX Design"],
+      image: portfolioSaas,
+      metrics: { retention: "+85%", satisfaction: "4.9/5", efficiency: "+60%" }
+    },
+    {
+      title: "Mobile App Development",
+      description: "Native Mobile App mit innovativer Benutzerführung und nahtloser Backend-Integration.",
+      category: "Mobile",
+      tags: ["React Native", "API", "Push Notifications"],
+      image: portfolioMobile,
+      metrics: { downloads: "100k+", rating: "4.8/5", retention: "78%" }
+    },
+    {
+      title: "Smart Home Dashboard",
+      description: "Intelligente Hausautomation mit IoT-Integration und benutzerfreundlicher Steuerung aller Geräte.",
+      category: "IoT",
+      tags: ["IoT", "Smart Home", "Automation", "Security"],
+      image: portfolioSmarthome,
+      metrics: { devices: "500+", efficiency: "+40%", security: "99.9%" }
     }
   ];
 
@@ -160,6 +204,125 @@ const Index = () => {
     { icon: CheckCircle, label: "DSGVO", description: "100% Datenschutz-konform" },
     { icon: Clock, label: "24/7 Support", description: "Rund um die Uhr für Sie da" },
     { icon: Award, label: "Geld-zurück", description: "30 Tage Garantie" }
+  ];
+
+  const processes = [
+    { 
+      icon: MessageCircle, 
+      title: "Beratung", 
+      description: "Kostenloses Erstgespräch zur Analyse Ihrer Anforderungen",
+      number: "01"
+    },
+    { 
+      icon: Target, 
+      title: "Konzept", 
+      description: "Maßgeschneidertes Lösungskonzept mit klaren Zielen",
+      number: "02"
+    },
+    { 
+      icon: Code, 
+      title: "Entwicklung", 
+      description: "Agile Entwicklung mit regelmäßigen Updates",
+      number: "03"
+    },
+    { 
+      icon: Rocket, 
+      title: "Launch", 
+      description: "Erfolgreicher Go-Live mit umfassendem Support",
+      number: "04"
+    }
+  ];
+
+  const team = [
+    {
+      name: "Maxim Schulz",
+      role: "Geschäftsführer & Lead Developer",
+      specialties: ["Full-Stack Development", "CRM Integration", "Project Management"],
+      image: teamImage
+    },
+    {
+      name: "Sarah Schmidt",
+      role: "UI/UX Designerin",
+      specialties: ["User Experience", "Interface Design", "Brand Identity"],
+      image: teamImage
+    },
+    {
+      name: "Tom Weber",
+      role: "IT-Consultant",
+      specialties: ["Smart Home", "Network Security", "System Administration"],
+      image: teamImage
+    }
+  ];
+
+  const pricing = [
+    {
+      name: "Starter",
+      price: "ab 899€",
+      description: "Perfekt für kleine Unternehmen",
+      features: [
+        "Responsive Website (bis 5 Seiten)",
+        "SEO-Grundoptimierung",
+        "Kontaktformular",
+        "1 Monat Support",
+        "Mobile-optimiert"
+      ],
+      highlight: false
+    },
+    {
+      name: "Professional",
+      price: "ab 2.499€",
+      description: "Für wachsende Unternehmen",
+      features: [
+        "CRM-Integration (HubSpot)",
+        "E-Commerce Funktionen",
+        "Analytics & Tracking",
+        "3 Monate Support",
+        "Lead-Management",
+        "Marketing Automation"
+      ],
+      highlight: true
+    },
+    {
+      name: "Enterprise",
+      price: "Individuell",
+      description: "Maßgeschneiderte Lösungen",
+      features: [
+        "Vollumfängliche Digitalisierung",
+        "API-Entwicklung",
+        "Smart Home Integration",
+        "24/7 Premium Support",
+        "Dedizierter Account Manager",
+        "Unbegrenzte Anpassungen"
+      ],
+      highlight: false
+    }
+  ];
+
+  const faqs = [
+    {
+      question: "Wie lange dauert die Entwicklung einer Website?",
+      answer: "Die Entwicklungszeit variiert je nach Projektumfang. Eine einfache Website (Starter-Paket) ist in 2-3 Wochen fertig, während komplexere CRM-Integrationen 6-8 Wochen benötigen."
+    },
+    {
+      question: "Bieten Sie auch Wartung und Support an?",
+      answer: "Ja, wir bieten umfassende Wartung und Support-Pakete. Je nach gewähltem Paket ist Support von 1 Monat bis zu 24/7 Premium Support enthalten."
+    },
+    {
+      question: "Können Sie bestehende Systeme integrieren?",
+      answer: "Absolut! Wir sind Experten in der Integration von CRM-Systemen wie HubSpot, E-Commerce-Plattformen und anderen Geschäftssystemen."
+    },
+    {
+      question: "Was kostet eine CRM-Integration?",
+      answer: "CRM-Integrationen sind ab dem Professional-Paket (2.499€) enthalten. Individuelle Lösungen werden nach Aufwand berechnet."
+    },
+    {
+      question: "Arbeiten Sie nur in Oldenburg?",
+      answer: "Nein, wir arbeiten deutschlandweit remote. Unser Hauptsitz ist in Oldenburg, aber wir betreuen Kunden in ganz Deutschland."
+    },
+    {
+      question: "Gibt es eine Geld-zurück-Garantie?",
+      answer: "Ja, wir bieten eine 30-Tage Geld-zurück-Garantie. Sollten Sie nicht zufrieden sein, erstatten wir Ihnen den vollen Betrag."
+    }
   ];
 
   return (
@@ -290,7 +453,7 @@ const Index = () => {
             </p>
             
             <div className="flex flex-wrap justify-center gap-4 mb-16 animate-fade-up delay-300">
-              {["Alle", "E-Commerce", "Corporate", "SaaS"].map((tab) => (
+              {["Alle", "E-Commerce", "Corporate", "SaaS", "Mobile", "IoT"].map((tab) => (
                 <Button
                   key={tab}
                   variant={activeTab === tab ? "default" : "outline"}
@@ -312,8 +475,13 @@ const Index = () => {
               .filter(project => activeTab === "Alle" || project.category === activeTab)
               .map((project, index) => (
                 <Card key={index} className={`card-clean group animate-fade-up delay-${index * 100} overflow-hidden`}>
-                  <div className="aspect-video bg-gray-100 flex items-center justify-center relative overflow-hidden">
-                    <Monitor className="h-16 w-16 text-[hsl(var(--brand-primary))] group-hover:scale-110 transition-transform duration-300" />
+                  <div className="aspect-video relative overflow-hidden">
+                    <img 
+                      src={project.image} 
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
                   </div>
                   <CardHeader className="p-6">
                     <div className="flex items-center justify-between mb-3">
@@ -329,13 +497,23 @@ const Index = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="p-6 pt-0">
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 mb-4">
                       {project.tags.map((tag, i) => (
                         <Badge key={i} variant="outline" className="text-xs font-medium border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))]">
                           {tag}
                         </Badge>
                       ))}
                     </div>
+                    {project.metrics && (
+                      <div className="grid grid-cols-3 gap-2 pt-4 border-t border-gray-100">
+                        {Object.entries(project.metrics).map(([key, value], i) => (
+                          <div key={i} className="text-center">
+                            <div className="text-sm font-bold text-[hsl(var(--brand-primary))]">{value}</div>
+                            <div className="text-xs text-gray-500 capitalize">{key}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -416,6 +594,162 @@ const Index = () => {
           </div>
           <div className="text-center mt-16">
             <Button variant="outline" className="hover-lift px-8 py-3">Alle Artikel anzeigen</Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Team Section */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-20">
+            <h2 className="text-heading text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up">Unser Team</h2>
+            <p className="text-subheading text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto">
+              Experten mit Leidenschaft für digitale Innovation
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+            {team.map((member, index) => (
+              <Card key={index} className={`card-clean text-center p-8 group animate-fade-up delay-${index * 100}`}>
+                <div className="relative mb-8">
+                  <img 
+                    src={member.image} 
+                    alt={member.name}
+                    className="w-32 h-32 rounded-full mx-auto object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-[hsl(var(--brand-primary))] text-white px-4 py-1">
+                      {member.role.split(' ')[0]}
+                    </Badge>
+                  </div>
+                </div>
+                <CardHeader className="p-0 mb-6">
+                  <CardTitle className="text-xl mb-2 text-[hsl(var(--brand-secondary))]">
+                    {member.name}
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 font-medium">
+                    {member.role}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {member.specialties.map((specialty, i) => (
+                      <Badge key={i} variant="outline" className="text-xs border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))]">
+                        {specialty}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Process Section */}
+      <section className="py-24 bg-gray-50">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-20">
+            <h2 className="text-heading text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up">Unser Prozess</h2>
+            <p className="text-subheading text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto">
+              Von der ersten Idee bis zum erfolgreichen Launch - so arbeiten wir
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {processes.map((process, index) => (
+              <Card key={index} className={`card-clean text-center p-8 group animate-fade-up delay-${index * 100} relative`}>
+                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                  <div className="w-12 h-12 bg-[hsl(var(--brand-primary))] rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    {process.number}
+                  </div>
+                </div>
+                <CardContent className="pt-8">
+                  <div className="h-16 w-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-6 group-hover:bg-[hsl(var(--brand-primary))] transition-colors duration-300">
+                    <process.icon className="h-8 w-8 text-[hsl(var(--brand-primary))] group-hover:text-white transition-colors duration-300" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-4 text-[hsl(var(--brand-secondary))]">{process.title}</h3>
+                  <p className="text-gray-600 leading-relaxed">{process.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-20">
+            <h2 className="text-heading text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up">Transparente Preise</h2>
+            <p className="text-subheading text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto">
+              Wählen Sie das Paket, das zu Ihren Anforderungen passt
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {pricing.map((plan, index) => (
+              <Card key={index} className={`${plan.highlight ? 'ring-2 ring-[hsl(var(--brand-primary))] scale-105' : ''} card-clean p-8 group animate-fade-up delay-${index * 100} relative`}>
+                {plan.highlight && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-[hsl(var(--brand-primary))] text-white px-4 py-2">
+                      Beliebteste Wahl
+                    </Badge>
+                  </div>
+                )}
+                <CardHeader className="text-center p-0 mb-8">
+                  <CardTitle className="text-2xl mb-2 text-[hsl(var(--brand-secondary))]">{plan.name}</CardTitle>
+                  <div className="text-4xl font-bold text-[hsl(var(--brand-primary))] mb-2">{plan.price}</div>
+                  <CardDescription className="text-gray-600">{plan.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <ul className="space-y-4 mb-8">
+                    {plan.features.map((feature, i) => (
+                      <li key={i} className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-[hsl(var(--brand-success))]" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button className={`w-full ${plan.highlight ? 'button-primary' : 'border-2 border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))] hover:text-white'}`}>
+                    {plan.name === 'Enterprise' ? 'Beratung anfragen' : 'Paket wählen'}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-24 bg-gray-50">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-20">
+            <h2 className="text-heading text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up">Häufige Fragen</h2>
+            <p className="text-subheading text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto">
+              Alles was Sie über unsere Services wissen müssen
+            </p>
+          </div>
+          
+          <div className="max-w-4xl mx-auto">
+            {faqs.map((faq, index) => (
+              <Card key={index} className={`card-clean mb-4 overflow-hidden animate-fade-up delay-${index * 50}`}>
+                <button
+                  onClick={() => setActiveFAQ(activeFAQ === index ? null : index)}
+                  className="w-full p-6 text-left hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold text-[hsl(var(--brand-secondary))]">{faq.question}</h3>
+                    <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${activeFAQ === index ? 'rotate-180' : ''}`} />
+                  </div>
+                </button>
+                {activeFAQ === index && (
+                  <div className="px-6 pb-6">
+                    <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
+                  </div>
+                )}
+              </Card>
+            ))}
           </div>
         </div>
       </section>

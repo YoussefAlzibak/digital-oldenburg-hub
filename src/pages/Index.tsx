@@ -35,7 +35,8 @@ import {
   ChevronDown,
   Calendar,
   FileText,
-  Users2
+  Users2,
+  Cookie
 } from "lucide-react";
 import { useState } from "react";
 
@@ -998,13 +999,13 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="h-8 w-8 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg"></div>
-                <span className="text-xl font-bold">Unicum Tec</span>
-              </div>
-              <p className="text-background/70 mb-4">
-                Ihre Full-Service Digitalagentur für Webdesign, CRM-Systeme und IT-Services in Oldenburg.
-              </p>
+              <h4 className="font-semibold mb-4">Unternehmen</h4>
+              <ul className="space-y-2 text-background/70">
+                <li>Über uns</li>
+                <li>Portfolio</li>
+                <li>Blog</li>
+                <li>Karriere</li>
+              </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Services</h4>
@@ -1016,15 +1017,6 @@ const Index = () => {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Unternehmen</h4>
-              <ul className="space-y-2 text-background/70">
-                <li>Über uns</li>
-                <li>Portfolio</li>
-                <li>Blog</li>
-                <li>Karriere</li>
-              </ul>
-            </div>
-            <div>
               <h4 className="font-semibold mb-4">Kontakt</h4>
               <ul className="space-y-2 text-background/70">
                 <li>Oldenburg, Niedersachsen</li>
@@ -1032,6 +1024,25 @@ const Index = () => {
                 <li>+49 (0) 441 XXX XXX</li>
               </ul>
             </div>
+              <div>
+                <h4 className="font-semibold mb-4">Rechtliches</h4>
+                <ul className="space-y-2 text-background/70">
+                  <li>Datenschutz</li>
+                  <li>Impressum</li>
+                  <li>AGB</li>
+                  <li>
+                    <button 
+                      onClick={() => {
+                        localStorage.removeItem('cookie-consent');
+                        window.location.reload();
+                      }}
+                      className="hover:text-background transition-colors"
+                    >
+                      Cookie-Einstellungen
+                    </button>
+                  </li>
+                </ul>
+              </div>
           </div>
           <div className="border-t border-background/20 mt-8 pt-8 text-center text-background/70">
             <p>&copy; 2024 Unicum Tec. Alle Rechte vorbehalten. | Datenschutz | Impressum | AGB</p>

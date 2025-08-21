@@ -14,7 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      appointments: {
+        Row: {
+          client_confirmed: boolean | null
+          consultant_confirmed: boolean | null
+          consultant_notes: string | null
+          contact_request_id: string | null
+          created_at: string
+          duration_minutes: number
+          id: string
+          meeting_link: string | null
+          meeting_type: string
+          scheduled_date: string
+          scheduled_time: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_confirmed?: boolean | null
+          consultant_confirmed?: boolean | null
+          consultant_notes?: string | null
+          contact_request_id?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          meeting_link?: string | null
+          meeting_type?: string
+          scheduled_date: string
+          scheduled_time: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_confirmed?: boolean | null
+          consultant_confirmed?: boolean | null
+          consultant_notes?: string | null
+          contact_request_id?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          meeting_link?: string | null
+          meeting_type?: string
+          scheduled_date?: string
+          scheduled_time?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_contact_request_id_fkey"
+            columns: ["contact_request_id"]
+            isOneToOne: false
+            referencedRelation: "contact_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_requests: {
+        Row: {
+          budget_range: string | null
+          company: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          name: string
+          phone: string | null
+          preferred_date: string | null
+          preferred_time: string | null
+          service_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          budget_range?: string | null
+          company?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          phone?: string | null
+          preferred_date?: string | null
+          preferred_time?: string | null
+          service_type: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          budget_range?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string | null
+          preferred_date?: string | null
+          preferred_time?: string | null
+          service_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

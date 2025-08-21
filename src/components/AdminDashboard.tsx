@@ -6,10 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, Mail, Phone, MapPin, CheckCircle, XCircle, Eye, BarChart3, Users, Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar, Clock, Mail, Phone, MapPin, CheckCircle, XCircle, Eye, BarChart3, Users, Calendar as CalendarIcon, Settings } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AppointmentCalendar from './AppointmentCalendar';
+import SMTPSettings from './SMTPSettings';
 
 interface ContactRequest {
   id: string;
@@ -246,7 +247,7 @@ export default function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="requests" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="requests">
             <Users className="h-4 w-4 mr-2" />
             Anfragen ({contactRequests.length})
@@ -262,6 +263,10 @@ export default function AdminDashboard() {
           <TabsTrigger value="analytics">
             <BarChart3 className="h-4 w-4 mr-2" />
             Analytics
+          </TabsTrigger>
+          <TabsTrigger value="email-settings">
+            <Settings className="h-4 w-4 mr-2" />
+            E-Mail
           </TabsTrigger>
         </TabsList>
 
@@ -519,6 +524,10 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="email-settings" className="space-y-4">
+          <SMTPSettings />
         </TabsContent>
       </Tabs>
 

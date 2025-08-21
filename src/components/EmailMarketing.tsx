@@ -21,7 +21,7 @@ import {
   Target, 
   TrendingUp,
   List,
-  FileText,
+  FileText, // For templates
   Zap,
   Play,
   Pause,
@@ -84,7 +84,7 @@ interface EmailAutomation {
   created_at: string;
 }
 
-export default function EmailMarketing() {
+export default function EmailMarketingSystem() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [lists, setLists] = useState<EmailList[]>([]);
   const [subscribers, setSubscribers] = useState<EmailSubscriber[]>([]);

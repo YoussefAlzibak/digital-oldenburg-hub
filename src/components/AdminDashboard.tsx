@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AppointmentCalendar from './AppointmentCalendar';
 import SMTPSettings from './SMTPSettings';
-import EmailMarketing from './EmailMarketing';
+import EmailMarketingSystem from './EmailMarketing';
 
 interface ContactRequest {
   id: string;
@@ -536,7 +536,7 @@ export default function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="email-marketing" className="space-y-4">
-          <EmailMarketing />
+          <EmailMarketingSystem />
         </TabsContent>
       </Tabs>
 

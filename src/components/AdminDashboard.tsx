@@ -6,9 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, Mail, Phone, MapPin, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { Calendar, Clock, Mail, Phone, MapPin, CheckCircle, XCircle, Eye, BarChart3, Users, Calendar as CalendarIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import AppointmentCalendar from './AppointmentCalendar';
 
 interface ContactRequest {
   id: string;
@@ -39,10 +40,48 @@ export default function AdminDashboard() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState<ContactRequest | null>(null);
+  const [stats, setStats] = useState({
+    totalRequests: 0,
+    totalAppointments: 0,
+    pendingRequests: 0,
+    confirmedAppointments: 0
+  });
   const { toast } = useToast();
 
   useEffect(() => {
     loadData();
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('admin-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'contact_requests'
+        },
+        () => {
+          console.log('Contact request updated, reloading data...');
+          loadData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public', 
+          table: 'appointments'
+        },
+        () => {
+          console.log('Appointment updated, reloading data...');
+          loadData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const loadData = async () => {
@@ -65,6 +104,17 @@ export default function AdminDashboard() {
 
       setContactRequests(requestsResponse.data || []);
       setAppointments(appointmentsResponse.data || []);
+
+      // Calculate stats
+      const requests = requestsResponse.data || [];
+      const appointments = appointmentsResponse.data || [];
+      
+      setStats({
+        totalRequests: requests.length,
+        totalAppointments: appointments.length,
+        pendingRequests: requests.filter(r => r.status === 'pending').length,
+        confirmedAppointments: appointments.filter(a => a.status === 'confirmed').length
+      });
     } catch (error: any) {
       toast({
         title: "Fehler beim Laden",
@@ -165,15 +215,53 @@ export default function AdminDashboard() {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
         <p className="text-muted-foreground">Verwaltung von Anfragen und Terminen</p>
+        
+        {/* Quick Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-primary">{stats.totalRequests}</div>
+              <div className="text-sm text-muted-foreground">Anfragen gesamt</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-orange-600">{stats.pendingRequests}</div>
+              <div className="text-sm text-muted-foreground">Ausstehend</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600">{stats.totalAppointments}</div>
+              <div className="text-sm text-muted-foreground">Termine gesamt</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-green-600">{stats.confirmedAppointments}</div>
+              <div className="text-sm text-muted-foreground">Bestätigt</div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       <Tabs defaultValue="requests" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="requests">
-            Beratungsanfragen ({contactRequests.length})
+            <Users className="h-4 w-4 mr-2" />
+            Anfragen ({contactRequests.length})
           </TabsTrigger>
           <TabsTrigger value="appointments">
+            <CalendarIcon className="h-4 w-4 mr-2" />
             Termine ({appointments.length})
+          </TabsTrigger>
+          <TabsTrigger value="calendar">
+            <Calendar className="h-4 w-4 mr-2" />
+            Kalender
+          </TabsTrigger>
+          <TabsTrigger value="analytics">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Analytics
           </TabsTrigger>
         </TabsList>
 
@@ -317,6 +405,119 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="calendar" className="space-y-4">
+          <AppointmentCalendar />
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Anfragen nach Status</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {['pending', 'in_progress', 'completed', 'cancelled'].map((status) => {
+                    const count = contactRequests.filter(r => r.status === status).length;
+                    const percentage = contactRequests.length > 0 ? (count / contactRequests.length) * 100 : 0;
+                    const labels: { [key: string]: string } = {
+                      pending: 'Ausstehend',
+                      in_progress: 'In Bearbeitung',
+                      completed: 'Abgeschlossen',
+                      cancelled: 'Abgebrochen'
+                    };
+                    
+                    return (
+                      <div key={status} className="flex items-center justify-between">
+                        <span className="text-sm">{labels[status]}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 bg-muted rounded-full h-2">
+                            <div 
+                              className="bg-primary h-2 rounded-full" 
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                          <span className="text-sm font-medium">{count}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Termine nach Typ</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {['online', 'phone', 'office', 'client'].map((type) => {
+                    const count = appointments.filter(a => a.meeting_type === type).length;
+                    const percentage = appointments.length > 0 ? (count / appointments.length) * 100 : 0;
+                    const labels: { [key: string]: string } = {
+                      online: 'Online',
+                      phone: 'Telefon',
+                      office: 'Büro',
+                      client: 'Kunde'
+                    };
+                    
+                    return (
+                      <div key={type} className="flex items-center justify-between">
+                        <span className="text-sm">{labels[type]}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 bg-muted rounded-full h-2">
+                            <div 
+                              className="bg-blue-500 h-2 rounded-full" 
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                          <span className="text-sm font-medium">{count}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Service-Anfragen</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {(() => {
+                    const services = contactRequests.reduce((acc: { [key: string]: number }, req) => {
+                      acc[req.service_type] = (acc[req.service_type] || 0) + 1;
+                      return acc;
+                    }, {});
+                    
+                    return Object.entries(services).map(([service, count]) => {
+                      const percentage = contactRequests.length > 0 ? (count / contactRequests.length) * 100 : 0;
+                      
+                      return (
+                        <div key={service} className="flex items-center justify-between">
+                          <span className="text-sm capitalize">{service}</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-20 bg-muted rounded-full h-2">
+                              <div 
+                                className="bg-green-500 h-2 rounded-full" 
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
+                            <span className="text-sm font-medium">{count}</span>
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
       </Tabs>

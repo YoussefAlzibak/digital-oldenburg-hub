@@ -3,6 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ConsultationRequestForm from "@/components/ConsultationRequestForm";
+import AppointmentBooking from "@/components/AppointmentBooking";
 import { 
   Globe, 
   Users, 
@@ -859,70 +862,96 @@ const Index = () => {
       <section id="contact" className="py-24 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up gradient-text">Kontakt</h2>
-            <p className="text-xl text-muted-foreground animate-fade-in-up stagger-1 max-w-3xl mx-auto">Bereit für Ihr digitales Projekt? Lassen Sie uns sprechen!</p>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up gradient-text">Kontakt & Beratung</h2>
+            <p className="text-xl text-muted-foreground animate-fade-in-up stagger-1 max-w-3xl mx-auto">
+              Kontaktieren Sie uns für eine kostenlose Beratung oder buchen Sie direkt einen Termin.
+            </p>
           </div>
-          <div className="grid lg:grid-cols-2 gap-16">
-            <div className="animate-fade-in-left">
-              <h3 className="text-3xl font-bold mb-8 gradient-text">Starten Sie Ihr Projekt</h3>
-              <form className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <Input placeholder="Vorname" className="h-12 hover-lift" />
-                  <Input placeholder="Nachname" className="h-12 hover-lift" />
+          
+          <div className="max-w-4xl mx-auto">
+            <Tabs defaultValue="consultation" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="consultation">Beratung anfragen</TabsTrigger>
+                <TabsTrigger value="appointment">Termin buchen</TabsTrigger>
+                <TabsTrigger value="contact">Kontakt</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="consultation" className="mt-6">
+                <ConsultationRequestForm />
+              </TabsContent>
+              
+              <TabsContent value="appointment" className="mt-6">
+                <AppointmentBooking />
+              </TabsContent>
+              
+              <TabsContent value="contact" className="mt-6">
+                <div className="animate-fade-in-left">
+                  <Card>
+                    <CardContent className="p-8">
+                      <h3 className="text-3xl font-bold mb-8 gradient-text">Nachricht senden</h3>
+                      <form className="space-y-6">
+                        <div className="grid grid-cols-2 gap-6">
+                          <Input placeholder="Vorname" className="h-12 hover-lift" />
+                          <Input placeholder="Nachname" className="h-12 hover-lift" />
+                        </div>
+                        <Input placeholder="E-Mail-Adresse" type="email" className="h-12 hover-lift" />
+                        <Input placeholder="Telefon" type="tel" className="h-12 hover-lift" />
+                        <Textarea placeholder="Beschreiben Sie Ihr Projekt..." className="h-40 hover-lift" />
+                        <Button className="w-full bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] text-white hover-scale shadow-xl h-12 text-lg font-semibold">
+                          Anfrage senden
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                      </form>
+                    </CardContent>
+                  </Card>
                 </div>
-                <Input placeholder="E-Mail-Adresse" type="email" className="h-12 hover-lift" />
-                <Input placeholder="Telefon" type="tel" className="h-12 hover-lift" />
-                <Textarea placeholder="Beschreiben Sie Ihr Projekt..." className="h-40 hover-lift" />
-                <Button className="w-full bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] text-white hover-scale shadow-xl h-12 text-lg font-semibold">
-                  Anfrage senden
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </form>
-            </div>
-            <div className="space-y-12 animate-fade-in-right">
-              <div>
-                <h3 className="text-3xl font-bold mb-8">Kontaktinformationen</h3>
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-4 hover-scale">
-                    <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg flex items-center justify-center">
-                      <MapPin className="h-6 w-6 text-white" />
-                    </div>
-                    <span className="text-lg">Oldenburg, Niedersachsen</span>
+              </TabsContent>
+            </Tabs>
+          </div>
+          
+          <div className="mt-20 space-y-12 animate-fade-in-right">
+            <div>
+              <h3 className="text-3xl font-bold mb-8 text-center">Kontaktinformationen</h3>
+              <div className="grid md:grid-cols-3 gap-8 text-center">
+                <div className="flex flex-col items-center space-y-4 hover-scale">
+                  <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg flex items-center justify-center">
+                    <MapPin className="h-6 w-6 text-white" />
                   </div>
-                  <div className="flex items-center space-x-4 hover-scale">
-                    <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg flex items-center justify-center">
-                      <Mail className="h-6 w-6 text-white" />
-                    </div>
-                    <span className="text-lg">info@unicumtec.de</span>
+                  <span className="text-lg">Oldenburg, Niedersachsen</span>
+                </div>
+                <div className="flex flex-col items-center space-y-4 hover-scale">
+                  <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg flex items-center justify-center">
+                    <Mail className="h-6 w-6 text-white" />
                   </div>
-                  <div className="flex items-center space-x-4 hover-scale">
-                    <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg flex items-center justify-center">
-                      <Phone className="h-6 w-6 text-white" />
-                    </div>
-                    <span className="text-lg">+49 (0) 441 XXX XXX</span>
+                  <span className="text-lg">info@unicumtec.de</span>
+                </div>
+                <div className="flex flex-col items-center space-y-4 hover-scale">
+                  <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg flex items-center justify-center">
+                    <Phone className="h-6 w-6 text-white" />
                   </div>
+                  <span className="text-lg">+49 (0) 441 XXX XXX</span>
                 </div>
               </div>
-              <div>
-                <h4 className="text-2xl font-semibold mb-6">Warum Unicum Tec?</h4>
-                <ul className="space-y-4">
-                  <li className="flex items-center space-x-4 hover-scale">
-                    <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
-                    <span className="text-lg">Lokaler Partner in Oldenburg</span>
-                  </li>
-                  <li className="flex items-center space-x-4 hover-scale">
-                    <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
-                    <span className="text-lg">5+ Jahre Erfahrung</span>
-                  </li>
-                  <li className="flex items-center space-x-4 hover-scale">
-                    <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
-                    <span className="text-lg">98% Kundenzufriedenheit</span>
-                  </li>
-                  <li className="flex items-center space-x-4 hover-scale">
-                    <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
-                    <span className="text-lg">30 Tage Geld-zurück-Garantie</span>
-                  </li>
-                </ul>
+            </div>
+            <div className="text-center">
+              <h4 className="text-2xl font-semibold mb-6">Warum Unicum Tec?</h4>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
+                <div className="flex items-center space-x-3 hover-scale">
+                  <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
+                  <span className="text-sm">Lokaler Partner in Oldenburg</span>
+                </div>
+                <div className="flex items-center space-x-3 hover-scale">
+                  <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
+                  <span className="text-sm">5+ Jahre Erfahrung</span>
+                </div>
+                <div className="flex items-center space-x-3 hover-scale">
+                  <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
+                  <span className="text-sm">98% Kundenzufriedenheit</span>
+                </div>
+                <div className="flex items-center space-x-3 hover-scale">
+                  <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
+                  <span className="text-sm">30 Tage Geld-zurück-Garantie</span>
+                </div>
               </div>
             </div>
           </div>

@@ -328,127 +328,152 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white/95 backdrop-blur-sm fixed top-0 w-full z-50 border-b border-gray-200">
+      <header className="bg-white/95 backdrop-blur-sm fixed top-0 w-full z-50 border-b border-white/10">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 animate-fade-left">
-              <div className="h-10 w-10 bg-[hsl(var(--brand-primary))] rounded-lg flex items-center justify-center">
+              <div className="h-10 w-10 bg-[hsl(var(--brand-primary))] rounded-lg flex items-center justify-center shadow-lg">
                 <div className="h-6 w-6 bg-white rounded-sm"></div>
               </div>
-              <span className="text-2xl font-bold text-[hsl(var(--brand-secondary))]">Unicum Tec</span>
+              <span className="text-2xl font-black text-[hsl(var(--brand-secondary))] tracking-tight">UNICUM TEC</span>
             </div>
             <nav className="hidden md:flex items-center space-x-8 animate-fade-right">
-              <a href="#services" className="text-gray-600 hover:text-[hsl(var(--brand-primary))] transition-colors font-medium">
+              <a href="#services" className="text-gray-700 hover:text-[hsl(var(--brand-primary))] transition-colors font-semibold uppercase tracking-wide text-sm">
                 Services
               </a>
-              <a href="#portfolio" className="text-gray-600 hover:text-[hsl(var(--brand-primary))] transition-colors font-medium">
+              <a href="#portfolio" className="text-gray-700 hover:text-[hsl(var(--brand-primary))] transition-colors font-semibold uppercase tracking-wide text-sm">
                 Portfolio
               </a>
-              <a href="#about" className="text-gray-600 hover:text-[hsl(var(--brand-primary))] transition-colors font-medium">
-                Über uns
+              <a href="#team" className="text-gray-700 hover:text-[hsl(var(--brand-primary))] transition-colors font-semibold uppercase tracking-wide text-sm">
+                Team
               </a>
-              <a href="#contact" className="text-gray-600 hover:text-[hsl(var(--brand-primary))] transition-colors font-medium">
+              <a href="#contact" className="text-gray-700 hover:text-[hsl(var(--brand-primary))] transition-colors font-semibold uppercase tracking-wide text-sm">
                 Kontakt
               </a>
-              <Button className="button-primary px-6 py-2.5">
-                Beratung anfragen
+              <Button className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90 text-white px-8 py-3 rounded-full font-bold uppercase tracking-wide text-sm transition-all hover:scale-105 shadow-lg">
+                Angebot Anfordern
               </Button>
             </nav>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-24 bg-gray-50 min-h-screen flex items-center overflow-hidden">
-        <div className="absolute inset-0">
-          <img 
-            src={heroImage} 
-            alt="Modern digital agency workspace" 
-            className="w-full h-full object-cover opacity-20"
-          />
-          <div className="absolute inset-0 bg-white/80"></div>
+      {/* Hero Section - Dark Theme */}
+      <section className="relative hero-dark min-h-screen flex items-center overflow-hidden">
+        <div className="absolute inset-0 floating-circles">
+          <div className="floating-circle"></div>
+          <div className="floating-circle"></div>
+          <div className="floating-circle"></div>
         </div>
         
-        <div className="container mx-auto px-6 text-center relative z-10">
-          <div className="max-w-4xl mx-auto space-y-8">
-            <h1 className="text-display text-[hsl(var(--brand-secondary))] animate-fade-up">
-              Digitale Excellence
-              <br />
-              <span className="text-[hsl(var(--brand-primary))]">für Ihren Erfolg</span>
-            </h1>
-            <p className="text-xl text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto leading-relaxed">
-              Unicum Tec - Ihre Full-Service Digitalagentur in Oldenburg. Wir transformieren Geschäftsprozesse durch innovative Webdesign-Lösungen, professionelle CRM-Systeme und modernste IT-Services.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-up delay-400">
-              <Button size="lg" className="button-primary px-10 py-4 text-lg">
-                Portfolio entdecken
-                <ArrowRight className="ml-3 h-5 w-5" />
-              </Button>
-              <Button variant="outline" size="lg" className="px-10 py-4 text-lg border-2 border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))] hover:text-white">
-                Kostenlose Beratung
-              </Button>
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="max-w-4xl">
+            <div className="space-y-8 animate-fade-up">
+              <h1 className="text-hero-primary">
+                WIR SIND
+                <br />
+                <span className="text-hero-accent">UNICUM TEC</span>
+              </h1>
+              <p className="text-xl md:text-2xl text-gray-300 max-w-2xl leading-relaxed animate-fade-up delay-200">
+                Digitale Exzellenz trifft Innovation. Wir transformieren Ihr Business durch modernste Technologien und strategisches Design.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-6 animate-fade-up delay-400">
+                <Button size="lg" className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90 text-white px-12 py-4 text-lg font-bold rounded-full uppercase tracking-wide transition-all hover:scale-105 shadow-xl">
+                  Projekt Starten
+                  <ArrowRight className="ml-3 h-5 w-5" />
+                </Button>
+                <Button variant="outline" size="lg" className="px-12 py-4 text-lg border-2 border-white text-white hover:bg-white hover:text-[hsl(var(--brand-secondary))] font-bold rounded-full uppercase tracking-wide transition-all hover:scale-105">
+                  Portfolio Ansehen
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Services Section */}
-      <section id="services" className="py-24 bg-white">
+      {/* Services Section - Modern Grid Layout */}
+      <section id="services" className="py-32 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
-            <h2 className="text-heading text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up">Premium Services</h2>
-            <p className="text-subheading text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto">
-              Maßgeschneiderte Lösungen für Ihre digitale Transformation
+            <h2 className="text-4xl md:text-5xl font-black text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up uppercase tracking-tight">
+              UNSERE SERVICES
+            </h2>
+            <p className="text-xl text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto font-medium">
+              Für euch entwickelt - Maßgeschneiderte Lösungen für Ihre digitale Transformation
             </p>
           </div>
           
-          <div className="grid lg:grid-cols-2 gap-12">
+          <div className="grid lg:grid-cols-2 gap-16">
             {services.map((service, index) => (
-              <Card key={index} className={`card-clean p-8 group animate-fade-up delay-${index * 100}`}>
-                <div className="flex flex-col lg:flex-row gap-6">
-                  <div className="lg:w-2/3">
-                    <CardHeader className="p-0 mb-6">
-                      <div className="h-16 w-16 bg-[hsl(var(--brand-primary))] rounded-lg flex items-center justify-center mb-6">
-                        <service.icon className="h-8 w-8 text-white" />
-                      </div>
-                      <CardTitle className="text-xl mb-4 text-[hsl(var(--brand-secondary))]">
-                        {service.title}
-                      </CardTitle>
-                      <CardDescription className="text-gray-600 text-base leading-relaxed">
-                        {service.description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                      <ul className="space-y-3">
-                        {service.features.map((feature, i) => (
-                          <li key={i} className="flex items-center space-x-3">
-                            <CheckCircle className="h-5 w-5 text-[hsl(var(--brand-success))]" />
-                            <span className="text-sm font-medium">{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </div>
-                  <div className="lg:w-1/3">
-                    <img 
-                      src={service.image} 
-                      alt={service.title}
-                      className="w-full h-48 object-cover rounded-lg"
-                    />
+              <Card key={index} className={`group cursor-pointer transition-all duration-300 hover:scale-105 animate-fade-up delay-${index * 100} bg-white border-0 shadow-xl hover:shadow-2xl rounded-2xl overflow-hidden`}>
+                <div className="relative h-64 overflow-hidden">
+                  <img 
+                    src={service.image} 
+                    alt={service.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <div className="absolute bottom-6 left-6">
+                    <div className="h-16 w-16 bg-[hsl(var(--brand-primary))] rounded-2xl flex items-center justify-center shadow-lg">
+                      <service.icon className="h-8 w-8 text-white" />
+                    </div>
                   </div>
                 </div>
+                <CardContent className="p-8">
+                  <CardTitle className="text-2xl mb-4 text-[hsl(var(--brand-secondary))] font-black uppercase tracking-tight">
+                    {service.title}
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 text-base leading-relaxed mb-6 font-medium">
+                    {service.description}
+                  </CardDescription>
+                  <ul className="space-y-3">
+                    {service.features.map((feature, i) => (
+                      <li key={i} className="flex items-center space-x-3">
+                        <div className="h-2 w-2 bg-[hsl(var(--brand-primary))] rounded-full"></div>
+                        <span className="text-sm font-semibold text-gray-700">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
               </Card>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Portfolio Section */}
-      <section id="portfolio" className="py-24 bg-gray-50">
+      {/* Client Logos Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h3 className="text-2xl font-black text-[hsl(var(--brand-secondary))] mb-4 uppercase tracking-tight">
+              Unsere Kund:innen
+            </h3>
+            <div className="w-24 h-1 bg-[hsl(var(--brand-primary))] mx-auto"></div>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center opacity-60">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center group animate-fade-up delay-100">
+                <div className="text-4xl font-black text-[hsl(var(--brand-primary))] mb-2 group-hover:scale-110 transition-transform">
+                  {stat.number}
+                </div>
+                <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Portfolio Section - Enhanced */}
+      <section id="portfolio" className="py-32 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
-            <h2 className="text-heading text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up">Erfolgreiche Projekte</h2>
-            <p className="text-subheading text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-black text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up uppercase tracking-tight">
+              ERFOLGREICHE PROJEKTE
+            </h2>
+            <p className="text-xl text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto font-medium">
               Innovative Lösungen, die begeistern und Ergebnisse liefern
             </p>
             
@@ -458,10 +483,10 @@ const Index = () => {
                   key={tab}
                   variant={activeTab === tab ? "default" : "outline"}
                   onClick={() => setActiveTab(tab)}
-                  className={`rounded-lg px-6 py-2 font-medium transition-all duration-300 ${
+                  className={`rounded-full px-8 py-3 font-bold uppercase tracking-wide text-sm transition-all duration-300 ${
                     activeTab === tab 
-                      ? "button-primary" 
-                      : "border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))] hover:text-white"
+                      ? "bg-[hsl(var(--brand-primary))] text-white shadow-lg scale-105" 
+                      : "border-2 border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))] hover:text-white hover:scale-105"
                   }`}
                 >
                   {tab}
@@ -474,42 +499,42 @@ const Index = () => {
             {projects
               .filter(project => activeTab === "Alle" || project.category === activeTab)
               .map((project, index) => (
-                <Card key={index} className={`card-clean group animate-fade-up delay-${index * 100} overflow-hidden`}>
+                <Card key={index} className={`group cursor-pointer transition-all duration-500 hover:scale-105 animate-fade-up delay-${index * 100} bg-white border-0 shadow-xl hover:shadow-2xl rounded-2xl overflow-hidden`}>
                   <div className="aspect-video relative overflow-hidden">
                     <img 
                       src={project.image} 
                       alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
-                  </div>
-                  <CardHeader className="p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <CardTitle className="text-lg text-[hsl(var(--brand-secondary))] group-hover:text-[hsl(var(--brand-primary))] transition-colors">
-                        {project.title}
-                      </CardTitle>
-                      <Badge variant="secondary" className="bg-gray-100 text-gray-700 font-medium">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute top-4 right-4">
+                      <Badge className="bg-[hsl(var(--brand-primary))] text-white font-bold uppercase tracking-wide">
                         {project.category}
                       </Badge>
                     </div>
-                    <CardDescription className="text-gray-600 leading-relaxed">
+                  </div>
+                  <CardContent className="p-8">
+                    <CardTitle className="text-xl mb-3 text-[hsl(var(--brand-secondary))] group-hover:text-[hsl(var(--brand-primary))] transition-colors font-black uppercase tracking-tight">
+                      {project.title}
+                    </CardTitle>
+                    <CardDescription className="text-gray-600 leading-relaxed mb-6 font-medium">
                       {project.description}
                     </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-6 pt-0">
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    
+                    <div className="flex flex-wrap gap-2 mb-6">
                       {project.tags.map((tag, i) => (
-                        <Badge key={i} variant="outline" className="text-xs font-medium border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))]">
+                        <Badge key={i} variant="outline" className="text-xs font-semibold border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))] bg-[hsl(var(--brand-primary))]/5">
                           {tag}
                         </Badge>
                       ))}
                     </div>
+                    
                     {project.metrics && (
-                      <div className="grid grid-cols-3 gap-2 pt-4 border-t border-gray-100">
+                      <div className="grid grid-cols-3 gap-2 pt-6 border-t border-gray-100">
                         {Object.entries(project.metrics).map(([key, value], i) => (
                           <div key={i} className="text-center">
-                            <div className="text-sm font-bold text-[hsl(var(--brand-primary))]">{value}</div>
-                            <div className="text-xs text-gray-500 capitalize">{key}</div>
+                            <div className="text-lg font-black text-[hsl(var(--brand-primary))]">{value}</div>
+                            <div className="text-xs text-gray-500 uppercase tracking-wide font-semibold">{key}</div>
                           </div>
                         ))}
                       </div>

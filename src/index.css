@@ -38,21 +38,26 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
     
-    /* Clean professional color system - no gradients */
-    --brand-primary: 240 100% 50%;
-    --brand-secondary: 220 15% 25%;
-    --brand-accent: 50 100% 50%;
+    /* Modern color system inspired by Digital Masters */
+    --brand-primary: 152 100% 45%; /* Grün */
+    --brand-secondary: 217 33% 17%; /* Dunkelblau */
+    --brand-accent: 152 100% 60%; /* Helles Grün */
     --brand-success: 142 76% 36%;
     --brand-warning: 38 92% 50%;
     --brand-error: 0 84% 60%;
     --brand-neutral: 220 15% 25%;
     
-    /* Simple solid backgrounds */
+    /* Dark theme colors */
+    --dark-bg: 217 33% 17%;
+    --dark-surface: 217 33% 20%;
+    --dark-border: 217 33% 25%;
+    
+    /* Enhanced backgrounds */
     --bg-primary: hsl(var(--brand-primary));
     --bg-secondary: hsl(var(--brand-secondary));
     --bg-accent: hsl(var(--brand-accent));
     --bg-light: 0 0% 98%;
-    --bg-dark: 220 15% 15%;
+    --bg-dark: hsl(var(--dark-bg));
     
     /* Clean shadow system */
     --shadow-xs: 0 1px 3px 0 rgb(0 0 0 / 0.1);
@@ -309,17 +314,94 @@ All colors MUST be HSL.
   .delay-300 { animation-delay: 300ms; }
   .delay-400 { animation-delay: 400ms; }
 
-  /* Enhanced typography */
-  .text-display {
-    @apply text-4xl md:text-6xl font-bold leading-tight;
+  /* Geometric elements for hero section */
+  .floating-circles {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
   }
 
-  .text-heading {
-    @apply text-2xl md:text-4xl font-bold;
+  .floating-circles::before,
+  .floating-circles::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: hsl(var(--brand-primary) / 0.8);
+    animation: float 6s ease-in-out infinite;
   }
 
-  .text-subheading {
-    @apply text-lg md:text-xl font-semibold;
+  .floating-circles::before {
+    width: 200px;
+    height: 200px;
+    top: 20%;
+    right: 10%;
+    animation-delay: 0s;
+  }
+
+  .floating-circles::after {
+    width: 120px;
+    height: 120px;
+    top: 60%;
+    right: 30%;
+    animation-delay: 2s;
+  }
+
+  .floating-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: hsl(var(--brand-primary) / 0.6);
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .floating-circle:nth-child(1) {
+    width: 80px;
+    height: 80px;
+    top: 15%;
+    right: 45%;
+    animation-delay: 1s;
+  }
+
+  .floating-circle:nth-child(2) {
+    width: 60px;
+    height: 60px;
+    top: 40%;
+    right: 15%;
+    animation-delay: 3s;
+    background: hsl(var(--brand-accent) / 0.7);
+  }
+
+  .floating-circle:nth-child(3) {
+    width: 140px;
+    height: 140px;
+    top: 70%;
+    right: 50%;
+    animation-delay: 4s;
+    background: hsl(var(--brand-primary) / 0.4);
+  }
+
+  /* Dark hero section styling */
+  .hero-dark {
+    background: linear-gradient(135deg, 
+      hsl(var(--dark-bg)) 0%,
+      hsl(var(--brand-secondary)) 100%
+    );
+    color: white;
+  }
+
+  /* Modern typography */
+  .text-hero-primary {
+    @apply text-5xl md:text-7xl font-black leading-none tracking-tight;
+    text-transform: uppercase;
+  }
+
+  .text-hero-accent {
+    @apply text-5xl md:text-7xl font-black leading-none tracking-tight;
+    color: hsl(var(--brand-primary));
+    text-transform: uppercase;
   }
 
   .gradient-text {

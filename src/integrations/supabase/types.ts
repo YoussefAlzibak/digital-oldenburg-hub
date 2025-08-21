@@ -118,6 +118,444 @@ export type Database = {
         }
         Relationships: []
       }
+      email_automation_steps: {
+        Row: {
+          automation_id: string
+          created_at: string
+          delay_minutes: number | null
+          html_content: string
+          id: string
+          is_active: boolean
+          step_number: number
+          subject: string
+          template_id: string | null
+          text_content: string | null
+        }
+        Insert: {
+          automation_id: string
+          created_at?: string
+          delay_minutes?: number | null
+          html_content: string
+          id?: string
+          is_active?: boolean
+          step_number: number
+          subject: string
+          template_id?: string | null
+          text_content?: string | null
+        }
+        Update: {
+          automation_id?: string
+          created_at?: string
+          delay_minutes?: number | null
+          html_content?: string
+          id?: string
+          is_active?: boolean
+          step_number?: number
+          subject?: string
+          template_id?: string | null
+          text_content?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_automation_steps_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "email_automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_automation_steps_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_automations: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          trigger_config: Json | null
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          trigger_config?: Json | null
+          trigger_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          trigger_config?: Json | null
+          trigger_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_campaigns: {
+        Row: {
+          bounced_count: number | null
+          clicked_count: number | null
+          created_at: string
+          delivered_count: number | null
+          html_content: string
+          id: string
+          list_id: string | null
+          name: string
+          opened_count: number | null
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          template_id: string | null
+          text_content: string | null
+          total_recipients: number | null
+          unsubscribed_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          bounced_count?: number | null
+          clicked_count?: number | null
+          created_at?: string
+          delivered_count?: number | null
+          html_content: string
+          id?: string
+          list_id?: string | null
+          name: string
+          opened_count?: number | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          template_id?: string | null
+          text_content?: string | null
+          total_recipients?: number | null
+          unsubscribed_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          bounced_count?: number | null
+          clicked_count?: number | null
+          created_at?: string
+          delivered_count?: number | null
+          html_content?: string
+          id?: string
+          list_id?: string | null
+          name?: string
+          opened_count?: number | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          template_id?: string | null
+          text_content?: string | null
+          total_recipients?: number | null
+          unsubscribed_count?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_campaigns_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "email_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_campaigns_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_events: {
+        Row: {
+          automation_id: string | null
+          campaign_id: string | null
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          subscriber_id: string
+        }
+        Insert: {
+          automation_id?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          subscriber_id: string
+        }
+        Update: {
+          automation_id?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          subscriber_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_events_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "email_automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_events_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "email_subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_list_subscribers: {
+        Row: {
+          id: string
+          list_id: string
+          subscribed_at: string
+          subscriber_id: string
+        }
+        Insert: {
+          id?: string
+          list_id: string
+          subscribed_at?: string
+          subscriber_id: string
+        }
+        Update: {
+          id?: string
+          list_id?: string
+          subscribed_at?: string
+          subscriber_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_list_subscribers_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "email_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_list_subscribers_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "email_subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_lists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_queue: {
+        Row: {
+          automation_id: string | null
+          automation_step_id: string | null
+          campaign_id: string | null
+          created_at: string
+          error_message: string | null
+          html_content: string
+          id: string
+          retry_count: number | null
+          scheduled_at: string
+          sent_at: string | null
+          status: string
+          subject: string
+          subscriber_id: string
+          text_content: string | null
+        }
+        Insert: {
+          automation_id?: string | null
+          automation_step_id?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          html_content: string
+          id?: string
+          retry_count?: number | null
+          scheduled_at?: string
+          sent_at?: string | null
+          status?: string
+          subject: string
+          subscriber_id: string
+          text_content?: string | null
+        }
+        Update: {
+          automation_id?: string | null
+          automation_step_id?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          html_content?: string
+          id?: string
+          retry_count?: number | null
+          scheduled_at?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          subscriber_id?: string
+          text_content?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_queue_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "email_automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_queue_automation_step_id_fkey"
+            columns: ["automation_step_id"]
+            isOneToOne: false
+            referencedRelation: "email_automation_steps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_queue_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_queue_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "email_subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_subscribers: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          source: string | null
+          status: string
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_templates: {
+        Row: {
+          created_at: string
+          html_content: string
+          id: string
+          is_active: boolean
+          name: string
+          subject: string
+          template_type: string
+          text_content: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          html_content: string
+          id?: string
+          is_active?: boolean
+          name: string
+          subject: string
+          template_type?: string
+          text_content?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          html_content?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          subject?: string
+          template_type?: string
+          text_content?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       smtp_settings: {
         Row: {
           created_at: string

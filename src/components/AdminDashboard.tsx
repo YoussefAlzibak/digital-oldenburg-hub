@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AppointmentCalendar from './AppointmentCalendar';
 import SMTPSettings from './SMTPSettings';
+import EmailMarketing from './EmailMarketing';
 
 interface ContactRequest {
   id: string;
@@ -247,7 +248,7 @@ export default function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="requests" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="requests">
             <Users className="h-4 w-4 mr-2" />
             Anfragen ({contactRequests.length})
@@ -267,6 +268,10 @@ export default function AdminDashboard() {
           <TabsTrigger value="email-settings">
             <Settings className="h-4 w-4 mr-2" />
             E-Mail
+          </TabsTrigger>
+          <TabsTrigger value="email-marketing">
+            <Mail className="h-4 w-4 mr-2" />
+            Marketing
           </TabsTrigger>
         </TabsList>
 
@@ -528,6 +533,10 @@ export default function AdminDashboard() {
 
         <TabsContent value="email-settings" className="space-y-4">
           <SMTPSettings />
+        </TabsContent>
+
+        <TabsContent value="email-marketing" className="space-y-4">
+          <EmailMarketing />
         </TabsContent>
       </Tabs>
 

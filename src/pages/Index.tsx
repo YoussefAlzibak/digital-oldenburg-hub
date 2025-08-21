@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ConsultationRequestForm from "@/components/ConsultationRequestForm";
 import AppointmentBooking from "@/components/AppointmentBooking";
+import ContactStatusTracker from "@/components/ContactStatusTracker";
 import { 
   Globe, 
   Users, 
@@ -885,7 +886,7 @@ const Index = () => {
               </TabsContent>
               
               <TabsContent value="contact" className="mt-6">
-                <div className="animate-fade-in-left">
+                <div className="grid lg:grid-cols-2 gap-8">
                   <Card>
                     <CardContent className="p-8">
                       <h3 className="text-3xl font-bold mb-8 gradient-text">Nachricht senden</h3>
@@ -904,6 +905,40 @@ const Index = () => {
                       </form>
                     </CardContent>
                   </Card>
+                  
+                  <div className="space-y-6">
+                    <Card>
+                      <CardContent className="p-6">
+                        <h4 className="text-lg font-semibold mb-4">Status verfolgen</h4>
+                        <p className="text-muted-foreground text-sm mb-4">
+                          Überprüfen Sie den Status Ihrer Anfrage oder Ihres Termins
+                        </p>
+                        <ContactStatusTracker />
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardContent className="p-6">
+                        <h4 className="text-lg font-semibold mb-4">Direktkontakt</h4>
+                        <div className="space-y-3 text-sm">
+                          <div className="flex items-center gap-3">
+                            <Phone className="h-4 w-4" />
+                            <div>
+                              <p className="font-medium">+49 (0) 441 XXX XXX</p>
+                              <p className="text-muted-foreground">Mo-Fr: 9:00 - 18:00 Uhr</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Mail className="h-4 w-4" />
+                            <div>
+                              <p className="font-medium">info@unicumtec.de</p>
+                              <p className="text-muted-foreground">Antwort binnen 24h</p>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>

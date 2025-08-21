@@ -40,14 +40,9 @@ export default function AppointmentBooking() {
         .from('appointments')
         .select('scheduled_time')
         .eq('scheduled_date', selectedDate)
-        .eq('status', 'confirmed');
+        .in('status', ['confirmed', 'pending']);
 
-      const bookedTimes = bookedSlots?.map(slot => 
-        new Date(slot.scheduled_time).toLocaleTimeString('de-DE', { 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        })
-      ) || [];
+      const bookedTimes = bookedSlots?.map(slot => slot.scheduled_time) || [];
 
       const updatedSlots = timeSlots.map(slot => ({
         ...slot,
@@ -80,7 +75,7 @@ export default function AppointmentBooking() {
         .from('appointments')
         .insert([{
           scheduled_date: selectedDate,
-          scheduled_time: appointmentDateTime.toISOString(),
+          scheduled_time: selectedTime, // Just the time string, not full timestamp
           meeting_type: appointmentType,
           status: 'pending'
         }]);

@@ -34,12 +34,12 @@ export default function ConsultationRequestForm() {
         .insert([{
           name: formData.name,
           email: formData.email,
-          phone: formData.phone,
-          company: formData.company,
+          phone: formData.phone || null,
+          company: formData.company || null,
           service_type: formData.service,
-          message: formData.message,
-          preferred_date: formData.preferred_date,
-          preferred_time: formData.preferred_time
+          message: formData.message || null,
+          preferred_date: formData.preferred_date || null,
+          preferred_time: formData.preferred_time || null
         }])
         .select('id')
         .single();

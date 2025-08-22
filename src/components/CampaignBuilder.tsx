@@ -59,6 +59,7 @@ interface EmailSubscriber {
   last_name?: string;
   company?: string;
   tags?: string[];
+  source?: string;
 }
 
 interface CampaignBuilderProps {
@@ -144,22 +145,31 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
     try {
       const [templatesResponse, listsResponse, subscribersResponse] = await Promise.all([
         supabase.from('email_templates').select('*').eq('is_active', true).order('name'),
-        supabase.from('email_lists').select('*').eq('is_active', true).order('name'),
-        supabase.from('email_subscribers').select('*').eq('status', 'active').limit(100)
+        supabase.from('email_lists').select(`
+          *,
+          email_list_subscribers!inner(subscriber_id)
+        `).eq('is_active', true).order('name'),
+        supabase.from('email_subscribers').select('*').eq('status', 'active').order('created_at', { ascending: false })
       ]);
 
       if (templatesResponse.error) throw templatesResponse.error;
       if (listsResponse.error) throw listsResponse.error;
       if (subscribersResponse.error) throw subscribersResponse.error;
 
+      // Add subscriber count to lists
+      const listsWithCount = (listsResponse.data || []).map(list => ({
+        ...list,
+        subscriber_count: list.email_list_subscribers?.length || 0
+      }));
+
       setTemplates(templatesResponse.data || []);
-      setLists(listsResponse.data || []);
+      setLists(listsWithCount);
       setSubscribers(subscribersResponse.data || []);
     } catch (error: any) {
       console.error('Error loading data:', error);
       toast({
-        title: "Fehler",
-        description: "Daten konnten nicht geladen werden.",
+        title: "Fehler", 
+        description: "Daten konnten nicht geladen werden: " + error.message,
         variant: "destructive"
       });
     }
@@ -278,11 +288,52 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
     return preview;
   };
 
+  const getRecipientEmails = () => {
+    if (recipientMode === 'all') {
+      return subscribers.map(s => s.email);
+    }
+    if (recipientMode === 'custom') {
+      return subscribers
+        .filter(s => selectedSubscribers.includes(s.id))
+        .map(s => s.email);
+    }
+    if (recipientMode === 'segment') {
+      return subscribers
+        .filter(s => 
+          (!segmentFilters.company || s.company?.toLowerCase().includes(segmentFilters.company.toLowerCase())) &&
+          (segmentFilters.tags.length === 0 || segmentFilters.tags.some(tag => s.tags?.includes(tag))) &&
+          (!segmentFilters.source || s.source === segmentFilters.source)
+        )
+        .map(s => s.email);
+    }
+    // For list mode, we'll use the list_id in the campaign data
+    return [];
+  };
+
   const handleSave = async () => {
-    if (!formData.name || !formData.subject) {
+    if (!formData.name || !formData.subject || !formData.html_content) {
       toast({
         title: "Fehler",
-        description: "Bitte füllen Sie alle Pflichtfelder aus.",
+        description: "Bitte füllen Sie alle Pflichtfelder aus (Name, Betreff, Inhalt).",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate recipients
+    const recipientEmails = getRecipientEmails();
+    if (recipientMode === 'list' && !formData.list_id) {
+      toast({
+        title: "Fehler",
+        description: "Bitte wählen Sie eine E-Mail-Liste aus.",
+        variant: "destructive"
+      });
+      return;
+    }
+    if (recipientMode === 'custom' && selectedSubscribers.length === 0) {
+      toast({
+        title: "Fehler", 
+        description: "Bitte wählen Sie mindestens einen Empfänger aus.",
         variant: "destructive"
       });
       return;
@@ -302,8 +353,12 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
       const campaignData = {
         ...formData,
         scheduled_at: scheduledAt,
-        status: scheduledAt ? 'scheduled' : 'draft'
+        status: scheduledAt ? 'scheduled' : 'draft',
+        // Clear list_id if not using list mode
+        list_id: recipientMode === 'list' ? formData.list_id : null
       };
+
+      let campaignId;
 
       if (campaign) {
         // Update existing campaign
@@ -313,19 +368,60 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
           .eq('id', campaign.id);
 
         if (error) throw error;
+        campaignId = campaign.id;
       } else {
         // Create new campaign
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('email_campaigns')
-          .insert([campaignData]);
+          .insert([campaignData])
+          .select()
+          .single();
 
         if (error) throw error;
+        campaignId = data.id;
       }
 
-      toast({
-        title: "Erfolg",
-        description: `Kampagne wurde ${campaign ? 'aktualisiert' : 'erstellt'}.`,
-      });
+      // Send the campaign if not scheduled
+      if (!scheduledAt) {
+        try {
+          const { error: sendError } = await supabase.functions.invoke('send-marketing-email', {
+            body: {
+              campaignId,
+              subject: formData.subject,
+              htmlContent: formData.html_content,
+              textContent: formData.text_content,
+              recipientEmails: recipientMode !== 'list' ? recipientEmails : undefined,
+              listId: recipientMode === 'list' ? formData.list_id : undefined
+            }
+          });
+
+          if (sendError) {
+            console.error('Error sending campaign:', sendError);
+            toast({
+              title: "Warnung",
+              description: "Kampagne wurde gespeichert, aber der Versand hatte Probleme.",
+              variant: "default"
+            });
+          } else {
+            toast({
+              title: "Erfolg",
+              description: "Kampagne wurde gesendet!",
+            });
+          }
+        } catch (sendError) {
+          console.error('Error sending campaign:', sendError);
+          toast({
+            title: "Warnung", 
+            description: "Kampagne wurde gespeichert, aber der Versand hatte Probleme.",
+            variant: "default"
+          });
+        }
+      } else {
+        toast({
+          title: "Erfolg",
+          description: `Kampagne wurde für ${format(new Date(scheduledAt), 'PPP um HH:mm', { locale: de })} geplant.`,
+        });
+      }
 
       onSave();
       onClose();

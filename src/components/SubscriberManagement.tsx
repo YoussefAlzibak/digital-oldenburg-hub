@@ -276,18 +276,24 @@ export default function SubscriberManagement() {
   };
 
   const openEditDialog = (subscriber: EmailSubscriber) => {
-    setEditingSubscriber(subscriber);
-    setFormData({
-      email: subscriber.email,
-      first_name: subscriber.first_name || '',
-      last_name: subscriber.last_name || '',
-      company: subscriber.company || '',
-      phone: subscriber.phone || '',
-      tags: subscriber.tags?.join(', ') || '',
-      status: subscriber.status as 'active' | 'inactive' | 'bounced' | 'unsubscribed',
-      source: subscriber.source || 'manual'
-    });
-    setShowEditDialog(true);
+    console.log('openEditDialog called with subscriber:', subscriber);
+    try {
+      setEditingSubscriber(subscriber);
+      setFormData({
+        email: subscriber.email,
+        first_name: subscriber.first_name || '',
+        last_name: subscriber.last_name || '',
+        company: subscriber.company || '',
+        phone: subscriber.phone || '',
+        tags: subscriber.tags?.join(', ') || '',
+        status: subscriber.status as 'active' | 'inactive' | 'bounced' | 'unsubscribed',
+        source: subscriber.source || 'manual'
+      });
+      setShowEditDialog(true);
+      console.log('Edit dialog should be open now');
+    } catch (error) {
+      console.error('Error in openEditDialog:', error);
+    }
   };
 
   const handleBulkAction = async (action: string) => {
@@ -558,7 +564,43 @@ export default function SubscriberManagement() {
         </CardContent>
       </Card>
 
-      {/* Subscribers Table */}
+      {/* Add Test Button for Debugging */}
+      <Card>
+        <CardContent className="pt-4">
+          <div className="flex gap-2 items-center">
+            <Badge variant="outline">Debug Panel</Badge>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                console.log('🧪 Test Edit Dialog - Current subscribers:', subscribers);
+                if (subscribers.length > 0) {
+                  console.log('🧪 Opening edit dialog for first subscriber');
+                  openEditDialog(subscribers[0]);
+                } else {
+                  console.log('🧪 No subscribers available for testing');
+                }
+              }}
+            >
+              Test Edit Dialog
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                console.log('🧪 Current state:', {
+                  showEditDialog,
+                  editingSubscriber,
+                  formData,
+                  subscribers: subscribers.length
+                });
+              }}
+            >
+              Log State
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
       <Card>
         <CardContent>
           <Table>
@@ -671,35 +713,31 @@ export default function SubscriberManagement() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-1">
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
+                      <div className="flex gap-2">
+                        <button 
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            console.log('Edit button clicked for subscriber:', subscriber.id);
+                            console.log('🔄 Edit button clicked for subscriber:', subscriber.email, subscriber.id);
                             openEditDialog(subscriber);
                           }}
-                          className="h-8 w-8 p-0"
+                          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8"
                           title="Bearbeiten"
                         >
                           <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
+                        </button>
+                        <button 
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            console.log('Delete button clicked for subscriber:', subscriber.id);
+                            console.log('🗑️ Delete button clicked for subscriber:', subscriber.email, subscriber.id);
                             handleDeleteSubscriber(subscriber.id);
                           }}
-                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-red-50 hover:text-red-700 h-8 w-8 text-red-600"
                           title="Löschen"
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -848,12 +886,19 @@ export default function SubscriberManagement() {
       </Dialog>
 
       {/* Edit Subscriber Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+      <Dialog open={showEditDialog} onOpenChange={(open) => {
+        console.log('Edit dialog open state changed:', open);
+        setShowEditDialog(open);
+        if (!open) {
+          setEditingSubscriber(null);
+          resetForm();
+        }
+      }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Abonnent bearbeiten</DialogTitle>
             <DialogDescription>
-              Bearbeiten Sie die Daten des Abonnenten
+              Bearbeiten Sie die Daten von: {editingSubscriber?.email}
             </DialogDescription>
           </DialogHeader>
           

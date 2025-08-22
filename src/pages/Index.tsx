@@ -40,6 +40,8 @@ import {
   Cookie
 } from "lucide-react";
 import { useState } from "react";
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 // Import generated images
 import heroImage from "@/assets/hero-image.webp";
@@ -60,9 +62,85 @@ const Index = () => {
     name: "",
     email: "",
     message: "",
-    service: ""
+    service: "",
+    phone: ""
   });
   const [activeFAQ, setActiveFAQ] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.name || !formData.email || !formData.message) {
+      toast({
+        title: "Fehler",
+        description: "Bitte füllen Sie alle Pflichtfelder aus.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      
+      const { data, error } = await supabase
+        .from('contact_requests')
+        .insert([{
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || null,
+          service_type: 'general_inquiry',
+          message: formData.message
+        }])
+        .select('id')
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Nachricht gesendet!",
+        description: "Vielen Dank für Ihre Nachricht. Wir melden uns innerhalb von 24 Stunden bei Ihnen.",
+      });
+
+      // Send confirmation email to customer
+      try {
+        await supabase.functions.invoke('send-contact-confirmation', {
+          body: {
+            contactRequest: {
+              id: data.id,
+              name: formData.name,
+              email: formData.email,
+              phone: formData.phone,
+              service_type: 'general_inquiry',
+              message: formData.message
+            }
+          }
+        });
+        console.log('Contact confirmation email sent successfully');
+      } catch (emailError) {
+        console.error('Contact confirmation email error:', emailError);
+      }
+
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        message: "",
+        service: "",
+        phone: ""
+      });
+      
+    } catch (error: any) {
+      toast({
+        title: "Fehler",
+        description: "Ihre Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const services = [
     {
@@ -892,16 +970,56 @@ const Index = () => {
                   <Card>
                     <CardContent className="p-8">
                       <h3 className="text-3xl font-bold mb-8 gradient-text">Nachricht senden</h3>
-                      <form className="space-y-6">
+                      <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-2 gap-6">
-                          <Input placeholder="Vorname" className="h-12 hover-lift" />
-                          <Input placeholder="Nachname" className="h-12 hover-lift" />
+                          <Input 
+                            placeholder="Vorname" 
+                            className="h-12 hover-lift"
+                            value={formData.name.split(' ')[0] || ''}
+                            onChange={(e) => {
+                              const lastName = formData.name.split(' ').slice(1).join(' ');
+                              setFormData({...formData, name: `${e.target.value} ${lastName}`.trim()});
+                            }}
+                            required
+                          />
+                          <Input 
+                            placeholder="Nachname" 
+                            className="h-12 hover-lift"
+                            value={formData.name.split(' ').slice(1).join(' ') || ''}
+                            onChange={(e) => {
+                              const firstName = formData.name.split(' ')[0] || '';
+                              setFormData({...formData, name: `${firstName} ${e.target.value}`.trim()});
+                            }}
+                          />
                         </div>
-                        <Input placeholder="E-Mail-Adresse" type="email" className="h-12 hover-lift" />
-                        <Input placeholder="Telefon" type="tel" className="h-12 hover-lift" />
-                        <Textarea placeholder="Beschreiben Sie Ihr Projekt..." className="h-40 hover-lift" />
-                        <Button className="w-full bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] text-white hover-scale shadow-xl h-12 text-lg font-semibold">
-                          Anfrage senden
+                        <Input 
+                          placeholder="E-Mail-Adresse" 
+                          type="email" 
+                          className="h-12 hover-lift"
+                          value={formData.email}
+                          onChange={(e) => setFormData({...formData, email: e.target.value})}
+                          required
+                        />
+                        <Input 
+                          placeholder="Telefon" 
+                          type="tel" 
+                          className="h-12 hover-lift"
+                          value={formData.phone || ''}
+                          onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                        />
+                        <Textarea 
+                          placeholder="Beschreiben Sie Ihr Projekt..." 
+                          className="h-40 hover-lift"
+                          value={formData.message}
+                          onChange={(e) => setFormData({...formData, message: e.target.value})}
+                          required
+                        />
+                        <Button 
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="w-full bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] text-white hover-scale shadow-xl h-12 text-lg font-semibold"
+                        >
+                          {isSubmitting ? 'Wird gesendet...' : 'Anfrage senden'}
                           <ArrowRight className="ml-2 h-5 w-5" />
                         </Button>
                       </form>

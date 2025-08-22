@@ -67,6 +67,29 @@ export default function ConsultationRequestForm() {
         // Don't show error to user as the main request was successful
       }
 
+      // Send confirmation email to customer
+      try {
+        await supabase.functions.invoke('send-contact-confirmation', {
+          body: {
+            contactRequest: {
+              id: data.id,
+              name: formData.name,
+              email: formData.email,
+              phone: formData.phone,
+              company: formData.company,
+              service_type: formData.service,
+              message: formData.message,
+              preferred_date: formData.preferred_date,
+              preferred_time: formData.preferred_time
+            }
+          }
+        });
+        console.log('Contact confirmation email sent successfully');
+      } catch (emailError) {
+        console.error('Contact confirmation email error:', emailError);
+        // Don't show error to user as the main request was successful
+      }
+
       setFormData({
         name: '',
         email: '',

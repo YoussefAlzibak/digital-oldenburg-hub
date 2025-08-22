@@ -80,6 +80,20 @@ export default function NewsletterSignup() {
         // Don't show error to user as the main signup was successful
       }
 
+      // Send welcome email immediately  
+      try {
+        await supabase.functions.invoke('send-newsletter-welcome', {
+          body: {
+            email: email,
+            firstName: firstName
+          }
+        });
+        console.log('Newsletter welcome email sent successfully');
+      } catch (emailError) {
+        console.error('Newsletter welcome email error:', emailError);
+        // Don't show error to user as the main signup was successful
+      }
+
     } catch (error: any) {
       console.error('Newsletter signup error:', error);
       toast({

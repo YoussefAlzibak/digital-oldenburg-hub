@@ -87,3 +87,9 @@ verify_jwt = false
 
 [functions.trigger-date-automation]
 verify_jwt = false
+
+[functions.send-contact-confirmation]
+verify_jwt = false
+
+[functions.send-newsletter-welcome]
+verify_jwt = false

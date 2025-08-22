@@ -33,7 +33,9 @@ import {
   X,
   Clock,
   Settings,
-  RotateCcw
+  RotateCcw,
+  TestTube,
+  BarChart3
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -43,6 +45,7 @@ import { useToast } from '@/hooks/use-toast';
 import TemplateEditor from './TemplateEditor';
 import AutomationScheduler from './AutomationScheduler';
 import AppointmentRenewal from './AppointmentRenewal';
+import CampaignBuilder from './CampaignBuilder';
 
 interface EmailList {
   id: string;
@@ -119,11 +122,10 @@ export default function EmailMarketingSystem() {
   
   // Dialog states
   const [showSubscriberDialog, setShowSubscriberDialog] = useState(false);
-  const [showCampaignDialog, setShowCampaignDialog] = useState(false);
   const [showTemplateEditor, setShowTemplateEditor] = useState(false);
   const [showAutomationScheduler, setShowAutomationScheduler] = useState(false);
   const [showListDialog, setShowListDialog] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [showCampaignBuilder, setShowCampaignBuilder] = useState(false);
   
   // Form states
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -239,76 +241,6 @@ export default function EmailMarketingSystem() {
     }
   };
 
-  const handleCreateCampaign = async (data: any) => {
-    try {
-      setIsSubmitting(true);
-      const { error } = await supabase
-        .from('email_campaigns')
-        .insert([{
-          name: data.name,
-          subject: data.subject,
-          html_content: data.html_content,
-          text_content: data.text_content,
-          list_id: data.list_id,
-          template_id: data.template_id,
-          scheduled_at: data.scheduled_at
-        }]);
-
-      if (error) throw error;
-      
-      toast({
-        title: "Erfolg",
-        description: "Kampagne wurde erstellt.",
-      });
-      
-      setShowCampaignDialog(false);
-      setFormData({});
-      loadEmailData();
-    } catch (error: any) {
-      toast({
-        title: "Fehler",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleCreateTemplate = async (data: any) => {
-    try {
-      setIsSubmitting(true);
-      const { error } = await supabase
-        .from('email_templates')
-        .insert([{
-          name: data.name,
-          subject: data.subject,
-          html_content: data.html_content,
-          text_content: data.text_content,
-          template_type: data.template_type || 'marketing'
-        }]);
-
-      if (error) throw error;
-      
-      toast({
-        title: "Erfolg",
-        description: "Template wurde erstellt.",
-      });
-      
-      setShowTemplateEditor(false);
-      setFormData({});
-      loadEmailData();
-    } catch (error: any) {
-      toast({
-        title: "Fehler",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const handleCreateList = async (data: any) => {
     try {
       setIsSubmitting(true);
@@ -352,24 +284,16 @@ export default function EmailMarketingSystem() {
         return;
       }
 
-      if (!campaign.list_id) {
-        toast({
-          title: "Fehler", 
-          description: "Keine E-Mail-Liste für diese Kampagne ausgewählt.",
-          variant: "destructive"
-        });
-        return;
-      }
-
       setIsSubmitting(true);
       
       const { data, error } = await supabase.functions.invoke('send-marketing-email', {
         body: {
           campaignId: campaignId,
-          listId: campaign.list_id,
+          listId: campaign.list_id || null,
           subject: campaign.subject,
           htmlContent: campaign.html_content,
-          textContent: campaign.text_content || ''
+          textContent: campaign.text_content || '',
+          templateType: 'campaign'
         }
       });
 
@@ -519,76 +443,16 @@ export default function EmailMarketingSystem() {
             <Zap className="h-4 w-4 mr-2" />
             Neue Automatisierung
           </Button>
-          <Dialog open={showCampaignDialog} onOpenChange={setShowCampaignDialog}>
-            <DialogTrigger asChild>
-              <Button className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90">
-                <Plus className="h-4 w-4 mr-2" />
-                Neue Kampagne
-              </Button>
-            </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Neue E-Mail Kampagne erstellen</DialogTitle>
-              <DialogDescription>
-                Erstellen Sie eine neue E-Mail Marketing Kampagne
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="campaign-name">Kampagnenname</Label>
-                <Input
-                  id="campaign-name"
-                  value={formData.name || ''}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  placeholder="z.B. Newsletter Oktober 2024"
-                />
-              </div>
-              <div>
-                <Label htmlFor="campaign-subject">Betreff</Label>
-                <Input
-                  id="campaign-subject"
-                  value={formData.subject || ''}
-                  onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                  placeholder="E-Mail Betreff"
-                />
-              </div>
-              <div>
-                <Label htmlFor="campaign-content">HTML Inhalt</Label>
-                <Textarea
-                  id="campaign-content"
-                  value={formData.html_content || ''}
-                  onChange={(e) => setFormData({...formData, html_content: e.target.value})}
-                  placeholder="HTML E-Mail Inhalt..."
-                  className="min-h-[200px]"
-                />
-              </div>
-              <div>
-                <Label htmlFor="campaign-list">E-Mail Liste</Label>
-                <Select value={formData.list_id || ''} onValueChange={(value) => setFormData({...formData, list_id: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Liste auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {lists.map((list) => (
-                      <SelectItem key={list.id} value={list.id}>{list.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowCampaignDialog(false)} disabled={isSubmitting}>
-                  Abbrechen
-                </Button>
-                <Button 
-                  onClick={() => handleCreateCampaign(formData)}
-                  disabled={isSubmitting || !formData.name || !formData.subject || !formData.html_content}
-                >
-                  {isSubmitting ? 'Wird erstellt...' : 'Kampagne erstellen'}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-          </Dialog>
+          <Button
+            onClick={() => {
+              setEditingItem(null);
+              setShowCampaignBuilder(true);
+            }}
+            className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Neue Kampagne
+          </Button>
         </div>
       </div>
 
@@ -917,12 +781,15 @@ export default function EmailMarketingSystem() {
         <TabsContent value="campaigns" className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">E-Mail Kampagnen</h3>
-            <Button 
+            <Button
+              onClick={() => {
+                setEditingItem(null);
+                setShowCampaignBuilder(true);
+              }}
               className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90"
-              onClick={() => setShowCampaignDialog(true)}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Neue Kampagne erstellen
+              Neue Kampagne
             </Button>
           </div>
           
@@ -948,24 +815,62 @@ export default function EmailMarketingSystem() {
                       <TableCell className="font-medium">{campaign.name}</TableCell>
                       <TableCell>{campaign.subject}</TableCell>
                       <TableCell>{getStatusBadge(campaign.status, 'campaign')}</TableCell>
-                      <TableCell>{campaign.total_recipients}</TableCell>
-                      <TableCell>{campaign.delivered_count}</TableCell>
-                      <TableCell>{campaign.opened_count}</TableCell>
-                      <TableCell>{campaign.clicked_count}</TableCell>
+                      <TableCell>{campaign.total_recipients || 0}</TableCell>
+                      <TableCell>{campaign.delivered_count || 0}</TableCell>
+                      <TableCell>{campaign.opened_count || 0}</TableCell>
+                      <TableCell>{campaign.clicked_count || 0}</TableCell>
                       <TableCell>{new Date(campaign.created_at).toLocaleDateString('de-DE')}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
                           <Button 
                             variant="ghost" 
                             size="sm" 
+                            title="Bearbeiten"
+                            onClick={() => {
+                              setEditingItem(campaign);
+                              setShowCampaignBuilder(true);
+                            }}
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Duplizieren"
+                            onClick={() => {
+                              setEditingItem({
+                                ...campaign,
+                                id: null,
+                                name: `${campaign.name} (Kopie)`,
+                                status: 'draft'
+                              });
+                              setShowCampaignBuilder(true);
+                            }}
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
                             title="Senden"
                             onClick={() => handleSendCampaign(campaign.id)}
-                            disabled={campaign.status !== 'draft' || isSubmitting}
+                            disabled={isSubmitting || campaign.status === 'sending'}
                           >
                             <Send className="h-3 w-3" />
                           </Button>
-                          <Button variant="ghost" size="sm" title="Bearbeiten">
-                            <Edit className="h-3 w-3" />
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Test senden"
+                          >
+                            <TestTube className="h-3 w-3" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Statistiken"
+                          >
+                            <BarChart3 className="h-3 w-3" />
                           </Button>
                           <Button 
                             variant="ghost" 
@@ -1149,6 +1054,19 @@ export default function EmailMarketingSystem() {
         isOpen={showAutomationScheduler}
         onClose={() => {
           setShowAutomationScheduler(false);
+          setEditingItem(null);
+        }}
+        onSave={() => {
+          loadEmailData();
+        }}
+      />
+
+      {/* Campaign Builder Dialog */}
+      <CampaignBuilder
+        campaign={editingItem}
+        isOpen={showCampaignBuilder}
+        onClose={() => {
+          setShowCampaignBuilder(false);
           setEditingItem(null);
         }}
         onSave={() => {

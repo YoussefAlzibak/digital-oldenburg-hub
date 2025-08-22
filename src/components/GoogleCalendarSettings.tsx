@@ -59,23 +59,32 @@ export default function GoogleCalendarSettings() {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('google_calendar_settings')
-        .select('*')
-        .eq('is_active', true)
-        .single();
+        .rpc('get_google_calendar_settings');
 
       if (error && error.code !== 'PGRST116') {
         throw error;
       }
 
-      if (data) {
-        setConfig(data);
+      if (data && data.length > 0) {
+        const settings = data[0];
+        setConfig({
+          id: settings.id,
+          client_id: settings.client_id,
+          client_secret: settings.client_secret,
+          calendar_id: settings.calendar_id,
+          buffer_minutes: settings.buffer_minutes,
+          auto_sync: settings.auto_sync,
+          working_hours_start: settings.working_hours_start,
+          working_hours_end: settings.working_hours_end,
+          working_days: settings.working_days,
+          is_active: settings.is_active,
+        });
         setIsConnected(true);
       }
     } catch (error) {
       console.error('Error loading settings:', error);
       toast({
-        title: "Fehler",
+        title: "Fehler", 
         description: "Einstellungen konnten nicht geladen werden",
         variant: "destructive",
       });
@@ -87,19 +96,16 @@ export default function GoogleCalendarSettings() {
   const saveSettings = async () => {
     setSaving(true);
     try {
-      // Deaktiviere alle bestehenden Einstellungen
-      await supabase
-        .from('google_calendar_settings')
-        .update({ is_active: false })
-        .neq('id', '00000000-0000-0000-0000-000000000000');
-
-      // Speichere neue Einstellungen
-      const { error } = await supabase
-        .from('google_calendar_settings')
-        .upsert([{
-          ...config,
-          is_active: true,
-        }]);
+      const { error } = await supabase.rpc('save_google_calendar_settings', {
+        p_client_id: config.client_id,
+        p_client_secret: config.client_secret,
+        p_calendar_id: config.calendar_id,
+        p_buffer_minutes: config.buffer_minutes,
+        p_auto_sync: config.auto_sync,
+        p_working_hours_start: config.working_hours_start,
+        p_working_hours_end: config.working_hours_end,
+        p_working_days: config.working_days,
+      });
 
       if (error) throw error;
 

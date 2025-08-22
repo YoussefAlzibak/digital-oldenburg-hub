@@ -45,6 +45,7 @@ import { useToast } from '@/hooks/use-toast';
 import TemplateEditor from './TemplateEditor';
 import AutomationScheduler from './AutomationScheduler';
 import AppointmentRenewal from './AppointmentRenewal';
+import { useSubscriberSync } from '../hooks/useSubscriberSync';
 import CampaignBuilder from './CampaignBuilder';
 
 interface EmailList {
@@ -133,6 +134,7 @@ export default function EmailMarketingSystem() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { toast } = useToast();
+  const { syncing, syncNewSubscribers } = useSubscriberSync();
 
   useEffect(() => {
     loadEmailData();
@@ -455,6 +457,54 @@ export default function EmailMarketingSystem() {
           </Button>
         </div>
       </div>
+
+      {/* Auto-Sync Info Banner */}
+      {stats.totalSubscribers > 0 && (
+        <Card className="mb-6 border-green-200 bg-green-50/50">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <Users className="h-4 w-4 text-green-600" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-medium text-green-800">📧 Abonnenten synchronisiert!</h3>
+                <p className="text-sm text-green-700">
+                  {stats.totalSubscribers} aktive Abonnenten sind verfügbar für Kampagnen. 
+                  Neue Abonnenten werden automatisch zur Standard-Liste hinzugefügt.
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={async () => {
+                    const result = await syncNewSubscribers();
+                    if (result.synced > 0) {
+                      loadEmailData();
+                    }
+                  }}
+                  disabled={syncing}
+                  className="border-green-300 text-green-700 hover:bg-green-100"
+                >
+                  <RotateCcw className={cn("h-4 w-4 mr-2", syncing && "animate-spin")} />
+                  {syncing ? 'Synchronisiere...' : 'Jetzt synchronisieren'}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={loadEmailData}
+                  className="border-green-300 text-green-700 hover:bg-green-100"
+                >
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Aktualisieren
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Dashboard Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

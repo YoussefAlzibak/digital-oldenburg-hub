@@ -43,6 +43,7 @@ const emailItems = [
 
 const settingsItems = [
   { title: "E-Mail Einstellungen", url: "/admin/email-settings", icon: Settings },
+  { title: "Kalender Einstellungen", url: "/admin/calendar-settings", icon: Calendar },
 ];
 
 export function DashboardSidebar() {

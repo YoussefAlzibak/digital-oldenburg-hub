@@ -9,6 +9,7 @@ import Subscribers from "./dashboard/Subscribers";
 import EmailSettings from "./dashboard/EmailSettings";
 import EmailMarketing from "./dashboard/EmailMarketing";
 import Renewals from "./dashboard/Renewals";
+import CalendarSettings from "./dashboard/CalendarSettings";
 
 export default function Dashboard() {
   return (
@@ -23,6 +24,7 @@ export default function Dashboard() {
         <Route path="/email-settings" element={<EmailSettings />} />
         <Route path="/email-marketing" element={<EmailMarketing />} />
         <Route path="/renewals" element={<Renewals />} />
+        <Route path="/calendar-settings" element={<CalendarSettings />} />
       </Routes>
     </DashboardLayout>
   );

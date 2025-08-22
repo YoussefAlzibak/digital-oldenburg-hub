@@ -13,6 +13,7 @@ import AppointmentCalendar from './AppointmentCalendar';
 import SMTPSettings from './SMTPSettings';
 import EmailMarketingSystem from './EmailMarketing';
 import AppointmentRenewal from './AppointmentRenewal';
+import SubscriberManagement from './SubscriberManagement';
 import ErrorBoundary from './ErrorBoundary';
 
 interface ContactRequest {
@@ -250,7 +251,7 @@ export default function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="requests" className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="requests">
             <Users className="h-4 w-4 mr-2" />
             Anfragen ({contactRequests.length})
@@ -262,6 +263,10 @@ export default function AdminDashboard() {
           <TabsTrigger value="calendar">
             <Calendar className="h-4 w-4 mr-2" />
             Kalender
+          </TabsTrigger>
+          <TabsTrigger value="subscribers">
+            <Users className="h-4 w-4 mr-2" />
+            Abonnenten
           </TabsTrigger>
           <TabsTrigger value="analytics">
             <BarChart3 className="h-4 w-4 mr-2" />
@@ -426,6 +431,12 @@ export default function AdminDashboard() {
 
         <TabsContent value="calendar" className="space-y-4">
           <AppointmentCalendar />
+        </TabsContent>
+
+        <TabsContent value="subscribers" className="space-y-4">
+          <ErrorBoundary>
+            <SubscriberManagement />
+          </ErrorBoundary>
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">

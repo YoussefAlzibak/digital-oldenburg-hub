@@ -151,6 +151,8 @@ export default function SubscriberManagement() {
     }
 
     try {
+      console.log('Attempting to add subscriber:', formData);
+
       const subscriberData = {
         email: formData.email,
         first_name: formData.first_name || null,
@@ -162,9 +164,14 @@ export default function SubscriberManagement() {
         source: formData.source
       };
 
-      const { error } = await supabase
+      console.log('Subscriber data:', subscriberData);
+
+      const { data, error } = await supabase
         .from('email_subscribers')
-        .insert([subscriberData]);
+        .insert([subscriberData])
+        .select();
+
+      console.log('Insert response:', { data, error });
 
       if (error) throw error;
 
@@ -179,8 +186,8 @@ export default function SubscriberManagement() {
     } catch (error: any) {
       console.error('Error adding subscriber:', error);
       toast({
-        title: "Fehler",
-        description: error.message,
+        title: "Fehler beim Hinzufügen",
+        description: error.message || 'Unbekannter Fehler beim Hinzufügen des Abonnenten',
         variant: "destructive"
       });
     }
@@ -190,6 +197,8 @@ export default function SubscriberManagement() {
     if (!editingSubscriber || !formData.email) return;
 
     try {
+      console.log('Attempting to update subscriber:', editingSubscriber.id, formData);
+      
       const updateData = {
         email: formData.email,
         first_name: formData.first_name || null,
@@ -201,10 +210,15 @@ export default function SubscriberManagement() {
         source: formData.source
       };
 
-      const { error } = await supabase
+      console.log('Update data:', updateData);
+
+      const { data, error } = await supabase
         .from('email_subscribers')
         .update(updateData)
-        .eq('id', editingSubscriber.id);
+        .eq('id', editingSubscriber.id)
+        .select();
+
+      console.log('Update response:', { data, error });
 
       if (error) throw error;
 
@@ -220,19 +234,28 @@ export default function SubscriberManagement() {
     } catch (error: any) {
       console.error('Error updating subscriber:', error);
       toast({
-        title: "Fehler",
-        description: error.message,
+        title: "Fehler beim Aktualisieren",
+        description: error.message || 'Unbekannter Fehler beim Aktualisieren des Abonnenten',
         variant: "destructive"
       });
     }
   };
 
   const handleDeleteSubscriber = async (id: string) => {
+    if (!confirm('Sind Sie sicher, dass Sie diesen Abonnenten löschen möchten?')) {
+      return;
+    }
+
     try {
-      const { error } = await supabase
+      console.log('Attempting to delete subscriber:', id);
+
+      const { data, error } = await supabase
         .from('email_subscribers')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select();
+
+      console.log('Delete response:', { data, error });
 
       if (error) throw error;
 
@@ -245,8 +268,8 @@ export default function SubscriberManagement() {
     } catch (error: any) {
       console.error('Error deleting subscriber:', error);
       toast({
-        title: "Fehler",
-        description: error.message,
+        title: "Fehler beim Löschen",
+        description: error.message || 'Unbekannter Fehler beim Löschen des Abonnenten',
         variant: "destructive"
       });
     }
@@ -277,12 +300,26 @@ export default function SubscriberManagement() {
       return;
     }
 
+    const confirmMessage = 
+      action === 'delete' 
+        ? `Sind Sie sicher, dass Sie ${selectedSubscribers.length} Abonnenten löschen möchten?`
+        : `Sind Sie sicher, dass Sie ${selectedSubscribers.length} Abonnenten ${action === 'activate' ? 'aktivieren' : 'deaktivieren'} möchten?`;
+    
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
     try {
+      console.log('Attempting bulk action:', action, 'on subscribers:', selectedSubscribers);
+
       if (action === 'delete') {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('email_subscribers')
           .delete()
-          .in('id', selectedSubscribers);
+          .in('id', selectedSubscribers)
+          .select();
+
+        console.log('Bulk delete response:', { data, error });
 
         if (error) throw error;
 
@@ -292,10 +329,14 @@ export default function SubscriberManagement() {
         });
       } else if (action === 'activate' || action === 'deactivate') {
         const newStatus = action === 'activate' ? 'active' : 'inactive';
-        const { error } = await supabase
+        
+        const { data, error } = await supabase
           .from('email_subscribers')
           .update({ status: newStatus })
-          .in('id', selectedSubscribers);
+          .in('id', selectedSubscribers)
+          .select();
+
+        console.log('Bulk status update response:', { data, error });
 
         if (error) throw error;
 
@@ -310,8 +351,8 @@ export default function SubscriberManagement() {
     } catch (error: any) {
       console.error('Error in bulk action:', error);
       toast({
-        title: "Fehler",
-        description: error.message,
+        title: "Fehler bei Bulk-Aktion",
+        description: error.message || `Unbekannter Fehler bei der ${action}-Aktion`,
         variant: "destructive"
       });
     }

@@ -13,6 +13,7 @@ import AppointmentCalendar from './AppointmentCalendar';
 import SMTPSettings from './SMTPSettings';
 import EmailMarketingSystem from './EmailMarketing';
 import AppointmentRenewal from './AppointmentRenewal';
+import ErrorBoundary from './ErrorBoundary';
 
 interface ContactRequest {
   id: string;
@@ -540,8 +541,16 @@ export default function AdminDashboard() {
           <SMTPSettings />
         </TabsContent>
 
+        <TabsContent value="email-marketing" className="space-y-4">
+          <ErrorBoundary>
+            <EmailMarketingSystem />
+          </ErrorBoundary>
+        </TabsContent>
+
         <TabsContent value="renewals" className="space-y-4">
-          <AppointmentRenewal />
+          <ErrorBoundary>
+            <AppointmentRenewal />
+          </ErrorBoundary>
         </TabsContent>
       </Tabs>
 

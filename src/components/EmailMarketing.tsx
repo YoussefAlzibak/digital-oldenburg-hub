@@ -148,11 +148,27 @@ export default function EmailMarketingSystem() {
         supabase.from('email_automations').select('*').order('created_at', { ascending: false })
       ]);
 
-      if (listsResponse.error) throw listsResponse.error;
-      if (subscribersResponse.error) throw subscribersResponse.error;
-      if (templatesResponse.error) throw templatesResponse.error;
-      if (campaignsResponse.error) throw campaignsResponse.error;
-      if (automationsResponse.error) throw automationsResponse.error;
+      // Check for errors with better error handling
+      if (listsResponse.error) {
+        console.error('Error loading lists:', listsResponse.error);
+        throw new Error(`Listen-Fehler: ${listsResponse.error.message}`);
+      }
+      if (subscribersResponse.error) {
+        console.error('Error loading subscribers:', subscribersResponse.error);
+        throw new Error(`Abonnenten-Fehler: ${subscribersResponse.error.message}`);
+      }
+      if (templatesResponse.error) {
+        console.error('Error loading templates:', templatesResponse.error);
+        throw new Error(`Template-Fehler: ${templatesResponse.error.message}`);
+      }
+      if (campaignsResponse.error) {
+        console.error('Error loading campaigns:', campaignsResponse.error);
+        throw new Error(`Kampagnen-Fehler: ${campaignsResponse.error.message}`);
+      }
+      if (automationsResponse.error) {
+        console.error('Error loading automations:', automationsResponse.error);
+        throw new Error(`Automatisierung-Fehler: ${automationsResponse.error.message}`);
+      }
 
       setLists(listsResponse.data || []);
       setSubscribers(subscribersResponse.data || []);
@@ -160,12 +176,12 @@ export default function EmailMarketingSystem() {
       setCampaigns(campaignsResponse.data || []);
       setAutomations(automationsResponse.data || []);
 
-      // Calculate stats
+      // Calculate stats with null safety
       const activeSubscribers = subscribersResponse.data?.filter(s => s.status === 'active').length || 0;
       const activeCampaigns = campaignsResponse.data?.filter(c => c.status === 'sending').length || 0;
       const totalSent = campaignsResponse.data?.reduce((sum, c) => sum + (c.delivered_count || 0), 0) || 0;
       const totalOpened = campaignsResponse.data?.reduce((sum, c) => sum + (c.opened_count || 0), 0) || 0;
-      const avgOpenRate = totalSent > 0 ? (totalOpened / totalSent) * 100 : 0;
+      const avgOpenRate = totalSent > 0 ? Math.round((totalOpened / totalSent) * 100 * 100) / 100 : 0;
 
       setStats({
         totalSubscribers: activeSubscribers,
@@ -177,8 +193,8 @@ export default function EmailMarketingSystem() {
     } catch (error: any) {
       console.error('Error loading email data:', error);
       toast({
-        title: "Fehler",
-        description: "E-Mail Daten konnten nicht geladen werden.",
+        title: "Fehler beim Laden",
+        description: error.message || "E-Mail Daten konnten nicht geladen werden.",
         variant: "destructive"
       });
     } finally {
@@ -327,7 +343,23 @@ export default function EmailMarketingSystem() {
   const handleSendCampaign = async (campaignId: string) => {
     try {
       const campaign = campaigns.find(c => c.id === campaignId);
-      if (!campaign) return;
+      if (!campaign) {
+        toast({
+          title: "Fehler",
+          description: "Kampagne nicht gefunden.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!campaign.list_id) {
+        toast({
+          title: "Fehler", 
+          description: "Keine E-Mail-Liste für diese Kampagne ausgewählt.",
+          variant: "destructive"
+        });
+        return;
+      }
 
       setIsSubmitting(true);
       
@@ -341,18 +373,22 @@ export default function EmailMarketingSystem() {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Campaign send error:', error);
+        throw new Error(error.message || 'Fehler beim Versenden der Kampagne');
+      }
       
       toast({
         title: "Erfolg",
-        description: `Kampagne wird versendet: ${data.queuedCount} E-Mails in der Warteschlange.`,
+        description: `Kampagne wird versendet: ${data?.queuedCount || 0} E-Mails in der Warteschlange.`,
       });
       
       loadEmailData();
     } catch (error: any) {
+      console.error('Send campaign error:', error);
       toast({
         title: "Fehler",
-        description: error.message,
+        description: error.message || "Unbekannter Fehler beim Versenden",
         variant: "destructive"
       });
     } finally {
@@ -367,7 +403,10 @@ export default function EmailMarketingSystem() {
         .update({ is_active: !currentStatus })
         .eq('id', automationId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Toggle automation error:', error);
+        throw new Error(error.message || 'Fehler beim Ändern der Automatisierung');
+      }
       
       toast({
         title: "Erfolg",
@@ -376,9 +415,10 @@ export default function EmailMarketingSystem() {
       
       loadEmailData();
     } catch (error: any) {
+      console.error('Toggle automation error:', error);
       toast({
         title: "Fehler",
-        description: error.message,
+        description: error.message || "Unbekannter Fehler",
         variant: "destructive"
       });
     }

@@ -198,36 +198,70 @@ export default function AppointmentRenewal() {
   };
 
   const createAutomaticRenewal = async (appointment: Appointment, renewalDate: Date) => {
-    // Create new appointment
-    const { error: appointmentError } = await supabase
-      .from('appointments')
-      .insert([{
-        scheduled_date: format(renewalDate, 'yyyy-MM-dd'),
-        scheduled_time: appointment.scheduled_time,
-        meeting_type: appointment.meeting_type,
-        status: 'scheduled',
-        contact_request_id: appointment.contact_request_id
-      }]);
+    // Validate contact information exists
+    if (!appointment.contact_requests?.email) {
+      toast({
+        title: "Fehler",
+        description: "Keine Kontaktdaten für automatische Verlängerung gefunden.",
+        variant: "destructive"
+      });
+      throw new Error("Missing contact information for renewal");
+    }
 
-    if (appointmentError) throw appointmentError;
+    try {
+      // Create new appointment
+      const { data: newAppointment, error: appointmentError } = await supabase
+        .from('appointments')
+        .insert([{
+          scheduled_date: format(renewalDate, 'yyyy-MM-dd'),
+          scheduled_time: appointment.scheduled_time,
+          meeting_type: appointment.meeting_type,
+          status: 'scheduled',
+          contact_request_id: appointment.contact_request_id
+        }])
+        .select()
+        .single();
 
-    // Send confirmation email
-    if (appointment.contact_requests?.email) {
-      await supabase.functions.invoke('trigger-appointment-automation', {
+      if (appointmentError) throw appointmentError;
+
+      // Send confirmation email
+      const { error: emailError } = await supabase.functions.invoke('trigger-appointment-automation', {
         body: {
-          appointmentId: 'new-appointment-id', // We'd need the actual ID
+          appointmentId: newAppointment.id,
           contactEmail: appointment.contact_requests.email,
           contactName: appointment.contact_requests.name,
           appointmentDate: format(renewalDate, 'dd.MM.yyyy'),
           appointmentTime: appointment.scheduled_time,
-          serviceType: appointment.contact_requests.service_type
+          serviceType: appointment.contact_requests.service_type || 'Beratung'
         }
       });
+
+      if (emailError) {
+        console.error('Email confirmation error:', emailError);
+        toast({
+          title: "Warnung",
+          description: "Termin erstellt, aber Bestätigung konnte nicht versendet werden.",
+          variant: "destructive"
+        });
+      }
+    } catch (error: any) {
+      console.error('Failed to create automatic renewal:', error);
+      throw error;
     }
   };
 
   const createRenewalReminder = async (appointment: Appointment, renewalDate: Date) => {
     const reminderDate = addDays(renewalDate, -(formData.advance_notice_days || 7));
+
+    // Validate that we have contact information
+    if (!appointment.contact_requests?.email) {
+      toast({
+        title: "Fehler",
+        description: "Keine Kontaktdaten für diesen Termin gefunden.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     // In a real implementation, we'd insert into a renewals/reminders table
     console.log('Creating renewal reminder:', {
@@ -237,22 +271,38 @@ export default function AppointmentRenewal() {
       settings: formData
     });
 
-    // Trigger reminder automation
-    if (appointment.contact_requests?.email) {
-      await supabase.functions.invoke('process-automations', {
+    try {
+      // Trigger reminder automation
+      const { error } = await supabase.functions.invoke('process-automations', {
         body: {
           triggerType: 'appointment_renewal_reminder',
           subscriberEmail: appointment.contact_requests.email,
           triggerData: {
-            first_name: appointment.contact_requests.name.split(' ')[0],
+            first_name: appointment.contact_requests.name.split(' ')[0] || 'Kunde',
             email: appointment.contact_requests.email,
             company: appointment.contact_requests.company || '',
-            service_type: appointment.contact_requests.service_type,
+            service_type: appointment.contact_requests.service_type || 'Beratung',
             last_appointment_date: format(new Date(appointment.scheduled_date), 'dd.MM.yyyy'),
             suggested_renewal_date: format(renewalDate, 'dd.MM.yyyy'),
             company_name: 'Digital Masters'
           }
         }
+      });
+
+      if (error) {
+        console.error('Automation error:', error);
+        toast({
+          title: "Warnung",
+          description: "Erinnerung erstellt, aber E-Mail-Automation fehlgeschlagen.",
+          variant: "destructive"
+        });
+      }
+    } catch (error: any) {
+      console.error('Failed to trigger automation:', error);
+      toast({
+        title: "Warnung", 
+        description: "Erinnerung erstellt, aber E-Mail konnte nicht versendet werden.",
+        variant: "destructive"
       });
     }
   };
@@ -393,11 +443,13 @@ export default function AppointmentRenewal() {
                       <SelectValue placeholder="Termin auswählen..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {appointments.map(appointment => (
+                      {appointments
+                        .filter(appointment => appointment.contact_requests?.email) // Only show appointments with contact data
+                        .map(appointment => (
                         <SelectItem key={appointment.id} value={appointment.id}>
                           <div>
                             <div className="font-medium">
-                              {appointment.contact_requests?.name} - {appointment.contact_requests?.service_type}
+                              {appointment.contact_requests?.name} - {appointment.contact_requests?.service_type || 'Unbekannt'}
                             </div>
                             <div className="text-xs text-muted-foreground">
                               {format(new Date(appointment.scheduled_date), 'PPP', { locale: de })} um {appointment.scheduled_time}
@@ -565,17 +617,25 @@ export default function AppointmentRenewal() {
               {appointments.map((appointment) => (
                 <TableRow key={appointment.id}>
                   <TableCell>
-                    <div>
-                      <div className="font-medium">{appointment.contact_requests?.name}</div>
-                      <div className="text-sm text-muted-foreground">{appointment.contact_requests?.email}</div>
-                      {appointment.contact_requests?.company && (
-                        <div className="text-xs text-muted-foreground">{appointment.contact_requests.company}</div>
-                      )}
+                  <div>
+                    <div className="font-medium">
+                      {appointment.contact_requests?.name || 'Unbekannt'}
                     </div>
+                    <div className="text-sm text-muted-foreground">
+                      {appointment.contact_requests?.email || 'Keine E-Mail'}
+                    </div>
+                    {appointment.contact_requests?.company && (
+                      <div className="text-xs text-muted-foreground">
+                        {appointment.contact_requests.company}
+                      </div>
+                    )}
+                  </div>
                   </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{appointment.contact_requests?.service_type}</Badge>
-                  </TableCell>
+                <TableCell>
+                  <Badge variant="outline">
+                    {appointment.contact_requests?.service_type || 'Unbekannt'}
+                  </Badge>
+                </TableCell>
                   <TableCell>
                     <div>
                       <div>{format(new Date(appointment.scheduled_date), 'PPP', { locale: de })}</div>
@@ -603,6 +663,8 @@ export default function AppointmentRenewal() {
                         size="sm"
                         variant="outline"
                         onClick={() => sendManualReminder(appointment)}
+                        disabled={!appointment.contact_requests?.email}
+                        title={!appointment.contact_requests?.email ? "Keine E-Mail verfügbar" : "Manuelle Erinnerung senden"}
                       >
                         <Send className="h-4 w-4" />
                       </Button>
@@ -613,6 +675,8 @@ export default function AppointmentRenewal() {
                           setSelectedAppointment(appointment);
                           setShowRenewalDialog(true);
                         }}
+                        disabled={!appointment.contact_requests?.email}
+                        title={!appointment.contact_requests?.email ? "Keine Kontaktdaten verfügbar" : "Verlängerung einrichten"}
                       >
                         <RotateCcw className="h-4 w-4" />
                       </Button>
@@ -623,11 +687,13 @@ export default function AppointmentRenewal() {
             </TableBody>
           </Table>
           
-          {appointments.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              Keine abgeschlossenen Termine gefunden
-            </div>
-          )}
+              {appointments.filter(appointment => appointment.contact_requests?.email).length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  Keine Termine mit Kontaktdaten gefunden. 
+                  <br />
+                  Nur Termine mit verknüpften Kontaktanfragen können verlängert werden.
+                </div>
+              )}
         </CardContent>
       </Card>
     </div>

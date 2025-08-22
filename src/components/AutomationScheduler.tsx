@@ -281,10 +281,18 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
         if (deleteError) throw deleteError;
 
         // Insert updated steps
-        const stepData = steps.map(step => ({
-          ...step,
-          automation_id: automation.id
-        }));
+        const stepData = steps
+          .filter(step => step.subject && step.html_content && step.step_number) // Only include valid steps
+          .map(step => ({
+            automation_id: automation.id,
+            step_number: step.step_number!,
+            template_id: step.template_id || null,
+            delay_minutes: step.delay_minutes || 0,
+            subject: step.subject!,
+            html_content: step.html_content!,
+            text_content: step.text_content || '',
+            is_active: step.is_active !== false
+          }));
 
         const { error: stepsError } = await supabase
           .from('email_automation_steps')
@@ -308,10 +316,18 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
         if (automationError) throw automationError;
 
         // Insert steps
-        const stepData = steps.map(step => ({
-          ...step,
-          automation_id: newAutomation.id
-        }));
+        const stepData = steps
+          .filter(step => step.subject && step.html_content && step.step_number) // Only include valid steps
+          .map(step => ({
+            automation_id: newAutomation.id,
+            step_number: step.step_number!,
+            template_id: step.template_id || null,
+            delay_minutes: step.delay_minutes || 0,
+            subject: step.subject!,
+            html_content: step.html_content!,
+            text_content: step.text_content || '',
+            is_active: step.is_active !== false
+          }));
 
         const { error: stepsError } = await supabase
           .from('email_automation_steps')

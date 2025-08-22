@@ -279,7 +279,7 @@ export default function EmailMarketingSystem() {
         description: "Template wurde erstellt.",
       });
       
-      setShowTemplateDialog(false);
+      setShowTemplateEditor(false);
       setFormData({});
       loadEmailData();
     } catch (error: any) {

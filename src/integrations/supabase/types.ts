@@ -556,6 +556,51 @@ export type Database = {
         }
         Relationships: []
       }
+      google_calendar_settings: {
+        Row: {
+          auto_sync: boolean
+          buffer_minutes: number
+          calendar_id: string
+          client_id: string
+          client_secret: string
+          created_at: string
+          id: string
+          is_active: boolean
+          updated_at: string
+          working_days: string[]
+          working_hours_end: string
+          working_hours_start: string
+        }
+        Insert: {
+          auto_sync?: boolean
+          buffer_minutes?: number
+          calendar_id?: string
+          client_id: string
+          client_secret: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          working_days?: string[]
+          working_hours_end?: string
+          working_hours_start?: string
+        }
+        Update: {
+          auto_sync?: boolean
+          buffer_minutes?: number
+          calendar_id?: string
+          client_id?: string
+          client_secret?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          working_days?: string[]
+          working_hours_end?: string
+          working_hours_start?: string
+        }
+        Relationships: []
+      }
       smtp_settings: {
         Row: {
           created_at: string

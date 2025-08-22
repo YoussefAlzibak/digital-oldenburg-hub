@@ -93,3 +93,6 @@ verify_jwt = false
 
 [functions.send-newsletter-welcome]
 verify_jwt = false
+
+[functions.test-google-calendar]
+verify_jwt = false

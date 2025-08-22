@@ -26,7 +26,10 @@ import {
   Pause,
   TestTube,
   Code,
-  Code
+  Filter,
+  Mail,
+  UserCheck,
+  CheckCircle2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -110,12 +113,19 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [lists, setLists] = useState<EmailList[]>([]);
   const [subscribers, setSubscribers] = useState<EmailSubscriber[]>([]);
+  const [selectedSubscribers, setSelectedSubscribers] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState('09:00');
   const [isScheduled, setIsScheduled] = useState(false);
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFormulaHelper, setShowFormulaHelper] = useState(false);
+  const [recipientMode, setRecipientMode] = useState<'all' | 'list' | 'segment' | 'custom'>('all');
+  const [segmentFilters, setSegmentFilters] = useState({
+    tags: [] as string[],
+    company: '',
+    source: ''
+  });
   
   const { toast } = useToast();
 
@@ -551,35 +561,240 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm">Empfänger</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Empfänger auswählen
+                  </CardTitle>
+                  <CardDescription>
+                    Definieren Sie Ihre Zielgruppe für diese Kampagne
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="list-select">E-Mail Liste</Label>
-                    <Select 
-                      value={formData.list_id} 
-                      onValueChange={(value) => setFormData({...formData, list_id: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Liste auswählen..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">Alle Abonnenten</SelectItem>
-                        {lists.map(list => (
-                          <SelectItem key={list.id} value={list.id}>
-                            <div>
-                              <div>{list.name}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {list.subscriber_count || 0} Abonnenten
+                    <Label className="text-base font-medium">Empfänger-Typ</Label>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <Button
+                        variant={recipientMode === 'all' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setRecipientMode('all')}
+                        className="justify-start"
+                      >
+                        <Users className="h-4 w-4 mr-2" />
+                        Alle Abonnenten
+                      </Button>
+                      <Button
+                        variant={recipientMode === 'list' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setRecipientMode('list')}
+                        className="justify-start"
+                      >
+                        <Mail className="h-4 w-4 mr-2" />
+                        E-Mail Liste
+                      </Button>
+                      <Button
+                        variant={recipientMode === 'segment' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setRecipientMode('segment')}
+                        className="justify-start"
+                      >
+                        <Filter className="h-4 w-4 mr-2" />
+                        Segment
+                      </Button>
+                      <Button
+                        variant={recipientMode === 'custom' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setRecipientMode('custom')}
+                        className="justify-start"
+                      >
+                        <UserCheck className="h-4 w-4 mr-2" />
+                        Auswahl
+                      </Button>
+                    </div>
+                  </div>
+
+                  {recipientMode === 'list' && (
+                    <div className="space-y-3">
+                      <Label>E-Mail Liste auswählen</Label>
+                      {lists.length === 0 ? (
+                        <div className="text-center p-6 border rounded-lg border-dashed">
+                          <Mail className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                          <p className="text-sm text-muted-foreground">Keine E-Mail Listen gefunden</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Alle aktiven Abonnenten ({subscribers.length}) werden verwendet
+                          </p>
+                        </div>
+                      ) : (
+                        <Select 
+                          value={formData.list_id} 
+                          onValueChange={(value) => setFormData({...formData, list_id: value})}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Liste auswählen..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {lists.map(list => (
+                              <SelectItem key={list.id} value={list.id}>
+                                <div>
+                                  <div>{list.name}</div>
+                                  {list.description && (
+                                    <div className="text-xs text-muted-foreground">
+                                      {list.description}
+                                    </div>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div>
+                  )}
+
+                  {recipientMode === 'segment' && (
+                    <div className="space-y-3">
+                      <div>
+                        <Label>Firma Filter</Label>
+                        <Input
+                          value={segmentFilters.company}
+                          onChange={(e) => setSegmentFilters({...segmentFilters, company: e.target.value})}
+                          placeholder="Firma enthält..."
+                        />
+                      </div>
+                      <div>
+                        <Label>Tags Filter</Label>
+                        <Input
+                          value={segmentFilters.tags.join(', ')}
+                          onChange={(e) => setSegmentFilters({...segmentFilters, tags: e.target.value.split(',').map(tag => tag.trim()).filter(Boolean)})}
+                          placeholder="Tags (durch Komma getrennt)"
+                        />
+                      </div>
+                      <div>
+                        <Label>Quelle</Label>
+                        <Select 
+                          value={segmentFilters.source}
+                          onValueChange={(value) => setSegmentFilters({...segmentFilters, source: value})}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Quelle auswählen..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Alle Quellen</SelectItem>
+                            <SelectItem value="website_newsletter">Website Newsletter</SelectItem>
+                            <SelectItem value="contact_form">Kontaktformular</SelectItem>
+                            <SelectItem value="manual">Manuell hinzugefügt</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+
+                  {recipientMode === 'custom' && (
+                    <div>
+                      <Label>Empfänger auswählen ({selectedSubscribers.length} ausgewählt)</Label>
+                      {subscribers.length === 0 ? (
+                        <div className="text-center p-6 border rounded-lg border-dashed">
+                          <UserCheck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                          <p className="text-sm text-muted-foreground">Keine Abonnenten gefunden</p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="border rounded-md max-h-48 overflow-y-auto mt-2">
+                            {subscribers.map(subscriber => (
+                              <div 
+                                key={subscriber.id} 
+                                className="flex items-center p-2 hover:bg-muted/50 cursor-pointer"
+                                onClick={() => {
+                                  const isSelected = selectedSubscribers.includes(subscriber.id);
+                                  if (isSelected) {
+                                    setSelectedSubscribers(prev => prev.filter(id => id !== subscriber.id));
+                                  } else {
+                                    setSelectedSubscribers(prev => [...prev, subscriber.id]);
+                                  }
+                                }}
+                              >
+                                <div className={cn(
+                                  "w-4 h-4 border rounded mr-3 flex items-center justify-center",
+                                  selectedSubscribers.includes(subscriber.id) && "bg-primary border-primary"
+                                )}>
+                                  {selectedSubscribers.includes(subscriber.id) && (
+                                    <CheckCircle2 className="h-3 w-3 text-white" />
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="font-medium text-sm">
+                                    {subscriber.first_name} {subscriber.last_name}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {subscriber.email}
+                                  </div>
+                                  {subscriber.company && (
+                                    <div className="text-xs text-muted-foreground">
+                                      {subscriber.company}
+                                    </div>
+                                  )}
+                                </div>
+                                {subscriber.tags && subscriber.tags.length > 0 && (
+                                  <div className="flex gap-1">
+                                    {subscriber.tags.slice(0, 2).map(tag => (
+                                      <Badge key={tag} variant="secondary" className="text-xs">
+                                        {tag}
+                                      </Badge>
+                                    ))}
+                                    {subscriber.tags.length > 2 && (
+                                      <Badge variant="secondary" className="text-xs">
+                                        +{subscriber.tags.length - 2}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                )}
                               </div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                            ))}
+                          </div>
+                          <div className="flex gap-2 mt-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setSelectedSubscribers(subscribers.map(s => s.id))}
+                            >
+                              Alle auswählen
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setSelectedSubscribers([])}
+                            >
+                              Auswahl aufheben
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <div className="text-sm text-muted-foreground">
+                      Geschätzte Empfänger:
+                    </div>
+                    <Badge variant="secondary" className="text-sm">
+                      {(() => {
+                        if (recipientMode === 'all') return subscribers.length;
+                        if (recipientMode === 'list') {
+                          if (!formData.list_id || lists.length === 0) return subscribers.length;
+                          return lists.find(l => l.id === formData.list_id)?.subscriber_count || 0;
+                        }
+                        if (recipientMode === 'segment') {
+                          return subscribers.filter(s => 
+                            (!segmentFilters.company || s.company?.toLowerCase().includes(segmentFilters.company.toLowerCase())) &&
+                            (segmentFilters.tags.length === 0 || segmentFilters.tags.some(tag => s.tags?.includes(tag)))
+                          ).length;
+                        }
+                        if (recipientMode === 'custom') return selectedSubscribers.length;
+                        return 0;
+                      })()}
+                    </Badge>
                   </div>
                 </CardContent>
               </Card>

@@ -72,3 +72,18 @@ verify_jwt = false
 
 [functions.process-email-queue]
 verify_jwt = false
+
+[functions.process-automations]
+verify_jwt = false
+
+[functions.trigger-newsletter-automation]
+verify_jwt = false
+
+[functions.trigger-appointment-automation]
+verify_jwt = false
+
+[functions.trigger-contact-automation]
+verify_jwt = false
+
+[functions.trigger-date-automation]
+verify_jwt = false

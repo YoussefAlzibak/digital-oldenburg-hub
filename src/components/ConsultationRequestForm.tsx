@@ -29,7 +29,7 @@ export default function ConsultationRequestForm() {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('contact_requests')
         .insert([{
           name: formData.name,
@@ -40,7 +40,9 @@ export default function ConsultationRequestForm() {
           message: formData.message,
           preferred_date: formData.preferred_date,
           preferred_time: formData.preferred_time
-        }]);
+        }])
+        .select('id')
+        .single();
 
       if (error) throw error;
 
@@ -48,6 +50,22 @@ export default function ConsultationRequestForm() {
         title: "Beratungsanfrage gesendet!",
         description: "Wir melden uns innerhalb von 24 Stunden bei Ihnen zurück.",
       });
+
+      // Trigger contact form automation
+      try {
+        await supabase.functions.invoke('trigger-contact-automation', {
+          body: {
+            contactRequestId: data.id,
+            email: formData.email,
+            name: formData.name,
+            serviceType: formData.service
+          }
+        });
+        console.log('Contact form automation triggered successfully');
+      } catch (automationError) {
+        console.error('Contact form automation error:', automationError);
+        // Don't show error to user as the main request was successful
+      }
 
       setFormData({
         name: '',

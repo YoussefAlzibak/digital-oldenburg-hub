@@ -60,10 +60,10 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: appointment, error: appointmentError } = await supabase
       .from('appointments')
       .insert([{
-        appointment_date: bookingData.appointment_date,
-        appointment_time: bookingData.appointment_time,
-        appointment_type: bookingData.appointment_type,
-        status: 'pending'
+        scheduled_date: bookingData.appointment_date,
+        scheduled_time: bookingData.appointment_time,
+        meeting_type: bookingData.appointment_type,
+        status: 'scheduled'
       }])
       .select()
       .single();
@@ -73,9 +73,11 @@ const handler = async (req: Request): Promise<Response> => {
       throw appointmentError;
     }
 
+    let contactRequestId = null;
+
     // If contact information is provided, also create a contact request
     if (bookingData.name && bookingData.email) {
-      const { error: contactError } = await supabase
+      const { data: contactData, error: contactError } = await supabase
         .from('contact_requests')
         .insert([{
           name: bookingData.name,
@@ -83,14 +85,43 @@ const handler = async (req: Request): Promise<Response> => {
           phone: bookingData.phone,
           message: bookingData.message,
           preferred_date: bookingData.appointment_date,
-          preferred_time: bookingData.appointment_time.split('T')[1].substring(0, 5),
-          consultation_type: bookingData.appointment_type,
-          request_type: 'appointment'
-        }]);
+          preferred_time: bookingData.appointment_time.split('T')[1]?.substring(0, 5) || bookingData.appointment_time,
+          service_type: 'consultation',
+          status: 'pending'
+        }])
+        .select('id')
+        .single();
 
       if (contactError) {
         console.error('Error creating contact request:', contactError);
-        // Don't throw here, as appointment was successful
+      } else {
+        contactRequestId = contactData?.id;
+        
+        // Update appointment with contact request ID
+        await supabase
+          .from('appointments')
+          .update({ contact_request_id: contactRequestId })
+          .eq('id', appointment.id);
+      }
+    }
+
+    // Trigger appointment automation if we have contact information
+    if (bookingData.name && bookingData.email) {
+      try {
+        await supabase.functions.invoke('trigger-appointment-automation', {
+          body: {
+            appointmentId: appointment.id,
+            contactEmail: bookingData.email,
+            contactName: bookingData.name,
+            appointmentDate: bookingData.appointment_date,
+            appointmentTime: bookingData.appointment_time,
+            serviceType: 'consultation'
+          }
+        });
+        console.log('Appointment automation triggered successfully');
+      } catch (automationError) {
+        console.error('Appointment automation error:', automationError);
+        // Don't fail the booking if automation fails
       }
     }
 

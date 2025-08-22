@@ -65,6 +65,21 @@ export default function NewsletterSignup() {
         description: "Vielen Dank für Ihre Anmeldung zu unserem Newsletter.",
       });
 
+      // Trigger newsletter automation
+      try {
+        await supabase.functions.invoke('trigger-newsletter-automation', {
+          body: {
+            email: email,
+            first_name: firstName,
+            source: 'website_newsletter'
+          }
+        });
+        console.log('Newsletter automation triggered successfully');
+      } catch (automationError) {
+        console.error('Newsletter automation error:', automationError);
+        // Don't show error to user as the main signup was successful
+      }
+
     } catch (error: any) {
       console.error('Newsletter signup error:', error);
       toast({

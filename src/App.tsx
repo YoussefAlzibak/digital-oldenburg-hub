@@ -13,7 +13,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/*" element={<Admin />} />
         </Routes>
         <Toaster />
         <CookieConsent />

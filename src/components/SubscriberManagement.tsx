@@ -398,7 +398,10 @@ export default function SubscriberManagement() {
             Verwalten Sie Ihre E-Mail-Abonnenten und Newsletter-Listen
           </p>
         </div>
-        <Button onClick={() => setShowAddDialog(true)}>
+        <Button onClick={() => {
+          console.log('Add subscriber dialog opened');
+          setShowAddDialog(true);
+        }}>
           <UserPlus className="h-4 w-4 mr-2" />
           Abonnent hinzufügen
         </Button>
@@ -513,26 +516,41 @@ export default function SubscriberManagement() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => handleBulkAction('activate')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    console.log('Bulk activate clicked for:', selectedSubscribers);
+                    handleBulkAction('activate');
+                  }}
+                  disabled={selectedSubscribers.length === 0}
                 >
                   <CheckCircle2 className="h-4 w-4 mr-1" />
-                  Aktivieren
+                  Aktivieren ({selectedSubscribers.length})
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => handleBulkAction('deactivate')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    console.log('Bulk deactivate clicked for:', selectedSubscribers);
+                    handleBulkAction('deactivate');
+                  }}
+                  disabled={selectedSubscribers.length === 0}
                 >
                   <XCircle className="h-4 w-4 mr-1" />
-                  Deaktivieren
+                  Deaktivieren ({selectedSubscribers.length})
                 </Button>
                 <Button 
                   variant="destructive" 
                   size="sm"
-                  onClick={() => handleBulkAction('delete')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    console.log('Bulk delete clicked for:', selectedSubscribers);
+                    handleBulkAction('delete');
+                  }}
+                  disabled={selectedSubscribers.length === 0}
                 >
                   <Trash2 className="h-4 w-4 mr-1" />
-                  Löschen
+                  Löschen ({selectedSubscribers.length})
                 </Button>
               </div>
             )}
@@ -657,15 +675,28 @@ export default function SubscriberManagement() {
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => openEditDialog(subscriber)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('Edit button clicked for subscriber:', subscriber.id);
+                            openEditDialog(subscriber);
+                          }}
+                          className="h-8 w-8 p-0"
+                          title="Bearbeiten"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => handleDeleteSubscriber(subscriber.id)}
-                          className="text-red-600 hover:text-red-700"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('Delete button clicked for subscriber:', subscriber.id);
+                            handleDeleteSubscriber(subscriber.id);
+                          }}
+                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          title="Löschen"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -788,13 +819,22 @@ export default function SubscriberManagement() {
             </div>
             
             <div className="flex gap-3 pt-4">
-              <Button onClick={handleAddSubscriber} className="flex-1">
+              <Button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  console.log('Add subscriber button clicked');
+                  handleAddSubscriber();
+                }} 
+                className="flex-1"
+                disabled={!formData.email}
+              >
                 <UserPlus className="h-4 w-4 mr-2" />
                 Hinzufügen
               </Button>
               <Button 
                 variant="outline" 
                 onClick={() => {
+                  console.log('Cancel add button clicked');
                   setShowAddDialog(false);
                   resetForm();
                 }}
@@ -912,13 +952,22 @@ export default function SubscriberManagement() {
             </div>
             
             <div className="flex gap-3 pt-4">
-              <Button onClick={handleEditSubscriber} className="flex-1">
+              <Button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  console.log('Save edit button clicked');
+                  handleEditSubscriber();
+                }}
+                className="flex-1"
+                disabled={!formData.email}
+              >
                 <Edit className="h-4 w-4 mr-2" />
                 Speichern
               </Button>
               <Button 
                 variant="outline" 
                 onClick={() => {
+                  console.log('Cancel edit button clicked');
                   setShowEditDialog(false);
                   setEditingSubscriber(null);
                   resetForm();

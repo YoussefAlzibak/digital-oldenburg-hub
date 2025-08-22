@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   Mail, 
   Users, 
@@ -18,20 +20,29 @@ import {
   Edit, 
   Trash2, 
   Eye, 
-  Calendar, 
+  Calendar as CalendarIcon, 
   Target, 
   TrendingUp,
   List,
-  FileText, // For templates
+  FileText,
   Zap,
   Play,
   Pause,
   Copy,
   Save,
-  X
+  X,
+  Clock,
+  Settings,
+  RotateCcw
 } from 'lucide-react';
+import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import TemplateEditor from './TemplateEditor';
+import AutomationScheduler from './AutomationScheduler';
+import AppointmentRenewal from './AppointmentRenewal';
 
 interface EmailList {
   id: string;
@@ -109,9 +120,10 @@ export default function EmailMarketingSystem() {
   // Dialog states
   const [showSubscriberDialog, setShowSubscriberDialog] = useState(false);
   const [showCampaignDialog, setShowCampaignDialog] = useState(false);
-  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
-  const [showAutomationDialog, setShowAutomationDialog] = useState(false);
+  const [showTemplateEditor, setShowTemplateEditor] = useState(false);
+  const [showAutomationScheduler, setShowAutomationScheduler] = useState(false);
   const [showListDialog, setShowListDialog] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date>();
   
   // Form states
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -446,13 +458,34 @@ export default function EmailMarketingSystem() {
           <h2 className="text-2xl font-bold text-foreground">E-Mail Marketing</h2>
           <p className="text-muted-foreground">Verwalten Sie Ihre E-Mail-Kampagnen und Automatisierungen</p>
         </div>
-        <Dialog open={showCampaignDialog} onOpenChange={setShowCampaignDialog}>
-          <DialogTrigger asChild>
-            <Button className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90">
-              <Plus className="h-4 w-4 mr-2" />
-              Neue Kampagne
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setEditingItem(null);
+              setShowTemplateEditor(true);
+            }}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Neues Template
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setEditingItem(null);
+              setShowAutomationScheduler(true);
+            }}
+          >
+            <Zap className="h-4 w-4 mr-2" />
+            Neue Automatisierung
+          </Button>
+          <Dialog open={showCampaignDialog} onOpenChange={setShowCampaignDialog}>
+            <DialogTrigger asChild>
+              <Button className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90">
+                <Plus className="h-4 w-4 mr-2" />
+                Neue Kampagne
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Neue E-Mail Kampagne erstellen</DialogTitle>
@@ -515,7 +548,8 @@ export default function EmailMarketingSystem() {
               </div>
             </div>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       {/* Dashboard Stats */}
@@ -915,73 +949,15 @@ export default function EmailMarketingSystem() {
         <TabsContent value="templates" className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">E-Mail Templates</h3>
-            <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
-              <DialogTrigger asChild>
-                <Button variant="outline">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Neues Template erstellen
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Neues E-Mail Template erstellen</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="template-name">Template Name</Label>
-                    <Input
-                      id="template-name"
-                      value={formData.name || ''}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      placeholder="z.B. Newsletter Template"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="template-subject">Standard Betreff</Label>
-                    <Input
-                      id="template-subject"
-                      value={formData.subject || ''}
-                      onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                      placeholder="Standard E-Mail Betreff"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="template-type">Template Typ</Label>
-                    <Select value={formData.template_type || 'marketing'} onValueChange={(value) => setFormData({...formData, template_type: value})}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Typ auswählen" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="marketing">Marketing</SelectItem>
-                        <SelectItem value="transactional">Transaktion</SelectItem>
-                        <SelectItem value="automation">Automation</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="template-html">HTML Inhalt</Label>
-                    <Textarea
-                      id="template-html"
-                      value={formData.html_content || ''}
-                      onChange={(e) => setFormData({...formData, html_content: e.target.value})}
-                      placeholder="HTML Template Inhalt..."
-                      className="min-h-[200px]"
-                    />
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setShowTemplateDialog(false)} disabled={isSubmitting}>
-                      Abbrechen
-                    </Button>
-                    <Button 
-                      onClick={() => handleCreateTemplate(formData)}
-                      disabled={isSubmitting || !formData.name || !formData.subject || !formData.html_content}
-                    >
-                      {isSubmitting ? 'Wird erstellt...' : 'Template erstellen'}
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <Button
+              onClick={() => {
+                setEditingItem(null);
+                setShowTemplateEditor(true);
+              }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Neues Template
+            </Button>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -998,22 +974,30 @@ export default function EmailMarketingSystem() {
                        template.template_type === 'transactional' ? 'Transaktion' :
                        template.template_type === 'automation' ? 'Automation' : template.template_type}
                     </Badge>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="sm" title="Bearbeiten">
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button variant="ghost" size="sm" title="Vorschau">
-                        <Eye className="h-3 w-3" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        title="Löschen"
-                        onClick={() => handleDelete('email_templates', template.id, template.name)}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
+                     <div className="flex gap-1">
+                       <Button 
+                         variant="ghost" 
+                         size="sm" 
+                         title="Bearbeiten"
+                         onClick={() => {
+                           setEditingItem(template);
+                           setShowTemplateEditor(true);
+                         }}
+                       >
+                         <Edit className="h-3 w-3" />
+                       </Button>
+                       <Button variant="ghost" size="sm" title="Vorschau">
+                         <Eye className="h-3 w-3" />
+                       </Button>
+                       <Button 
+                         variant="ghost" 
+                         size="sm" 
+                         title="Löschen"
+                         onClick={() => handleDelete('email_templates', template.id, template.name)}
+                       >
+                         <Trash2 className="h-3 w-3" />
+                       </Button>
+                     </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1025,90 +1009,15 @@ export default function EmailMarketingSystem() {
         <TabsContent value="automations" className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">E-Mail Automatisierung</h3>
-            <Dialog open={showAutomationDialog} onOpenChange={setShowAutomationDialog}>
-              <DialogTrigger asChild>
-                <Button className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Neue Automatisierung
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Neue E-Mail Automatisierung</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="automation-name">Name der Automatisierung</Label>
-                    <Input
-                      id="automation-name"
-                      value={formData.name || ''}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      placeholder="z.B. Willkommens-Serie"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="automation-description">Beschreibung</Label>
-                    <Textarea
-                      id="automation-description"
-                      value={formData.description || ''}
-                      onChange={(e) => setFormData({...formData, description: e.target.value})}
-                      placeholder="Kurze Beschreibung der Automatisierung..."
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="automation-trigger">Trigger Typ</Label>
-                    <Select value={formData.trigger_type || ''} onValueChange={(value) => setFormData({...formData, trigger_type: value})}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Trigger auswählen" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="subscription">Bei Anmeldung</SelectItem>
-                        <SelectItem value="appointment_booked">Termin gebucht</SelectItem>
-                        <SelectItem value="contact_form">Kontaktformular</SelectItem>
-                        <SelectItem value="date_based">Datumsbasiert</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setShowAutomationDialog(false)} disabled={isSubmitting}>
-                      Abbrechen
-                    </Button>
-                    <Button 
-                      onClick={async () => {
-                        try {
-                          setIsSubmitting(true);
-                          const { error } = await supabase
-                            .from('email_automations')
-                            .insert([formData]);
-
-                          if (error) throw error;
-                          
-                          toast({
-                            title: "Erfolg",
-                            description: "Automatisierung wurde erstellt.",
-                          });
-                          
-                          setShowAutomationDialog(false);
-                          setFormData({});
-                          loadEmailData();
-                        } catch (error: any) {
-                          toast({
-                            title: "Fehler",
-                            description: error.message,
-                            variant: "destructive"
-                          });
-                        } finally {
-                          setIsSubmitting(false);
-                        }
-                      }}
-                      disabled={isSubmitting || !formData.name || !formData.trigger_type}
-                    >
-                      {isSubmitting ? 'Wird erstellt...' : 'Automatisierung erstellen'}
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <Button
+              onClick={() => {
+                setEditingItem(null);
+                setShowAutomationScheduler(true);
+              }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Neue Automatisierung
+            </Button>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1149,30 +1058,63 @@ export default function EmailMarketingSystem() {
                       <span>{new Date(automation.created_at).toLocaleDateString('de-DE')}</span>
                     </div>
                   </div>
-                  <div className="flex gap-2 mt-4">
-                    <Button variant="outline" size="sm">
-                      <Edit className="h-3 w-3 mr-1" />
-                      Bearbeiten
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Eye className="h-3 w-3 mr-1" />
-                      Ansehen
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleDelete('email_automations', automation.id, automation.name)}
-                    >
-                      <Trash2 className="h-3 w-3 mr-1" />
-                      Löschen
-                    </Button>
-                  </div>
+                   <div className="flex gap-2 mt-4">
+                     <Button 
+                       variant="outline" 
+                       size="sm"
+                       onClick={() => {
+                         setEditingItem(automation);
+                         setShowAutomationScheduler(true);
+                       }}
+                     >
+                       <Edit className="h-3 w-3 mr-1" />
+                       Bearbeiten
+                     </Button>
+                     <Button variant="outline" size="sm">
+                       <Eye className="h-3 w-3 mr-1" />
+                       Ansehen
+                     </Button>
+                     <Button 
+                       variant="outline" 
+                       size="sm"
+                       onClick={() => handleDelete('email_automations', automation.id, automation.name)}
+                     >
+                       <Trash2 className="h-3 w-3 mr-1" />
+                       Löschen
+                     </Button>
+                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Template Editor Dialog */}
+      <TemplateEditor
+        template={editingItem}
+        isOpen={showTemplateEditor}
+        onClose={() => {
+          setShowTemplateEditor(false);
+          setEditingItem(null);
+        }}
+        onSave={() => {
+          loadEmailData();
+        }}
+      />
+
+      {/* Automation Scheduler Dialog */}
+      <AutomationScheduler
+        automation={editingItem}
+        isOpen={showAutomationScheduler}
+        onClose={() => {
+          setShowAutomationScheduler(false);
+          setEditingItem(null);
+        }}
+        onSave={() => {
+          loadEmailData();
+        }}
+      />
     </div>
   );
 }

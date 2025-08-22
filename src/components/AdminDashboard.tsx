@@ -6,12 +6,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, Mail, Phone, MapPin, CheckCircle, XCircle, Eye, BarChart3, Users, Calendar as CalendarIcon, Settings } from 'lucide-react';
+import { Calendar, Clock, Mail, Phone, MapPin, CheckCircle, XCircle, Eye, BarChart3, Users, Calendar as CalendarIcon, Settings, RotateCcw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AppointmentCalendar from './AppointmentCalendar';
 import SMTPSettings from './SMTPSettings';
 import EmailMarketingSystem from './EmailMarketing';
+import AppointmentRenewal from './AppointmentRenewal';
 
 interface ContactRequest {
   id: string;
@@ -248,7 +249,7 @@ export default function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="requests" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="requests">
             <Users className="h-4 w-4 mr-2" />
             Anfragen ({contactRequests.length})
@@ -272,6 +273,10 @@ export default function AdminDashboard() {
           <TabsTrigger value="email-marketing">
             <Mail className="h-4 w-4 mr-2" />
             Marketing
+          </TabsTrigger>
+          <TabsTrigger value="renewals">
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Verlängerungen
           </TabsTrigger>
         </TabsList>
 
@@ -535,8 +540,8 @@ export default function AdminDashboard() {
           <SMTPSettings />
         </TabsContent>
 
-        <TabsContent value="email-marketing" className="space-y-4">
-          <EmailMarketingSystem />
+        <TabsContent value="renewals" className="space-y-4">
+          <AppointmentRenewal />
         </TabsContent>
       </Tabs>
 

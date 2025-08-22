@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Switch } from '@/components/ui/switch';
 import { 
   Mail, 
   Users, 
@@ -25,7 +26,9 @@ import {
   Zap,
   Play,
   Pause,
-  Copy
+  Copy,
+  Save,
+  X
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -65,6 +68,10 @@ interface EmailCampaign {
   id: string;
   name: string;
   subject: string;
+  html_content: string;
+  text_content?: string;
+  list_id?: string;
+  template_id?: string;
   status: string;
   total_recipients: number;
   delivered_count: number;
@@ -98,6 +105,18 @@ export default function EmailMarketingSystem() {
     totalSent: 0,
     avgOpenRate: 0
   });
+  
+  // Dialog states
+  const [showSubscriberDialog, setShowSubscriberDialog] = useState(false);
+  const [showCampaignDialog, setShowCampaignDialog] = useState(false);
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
+  const [showAutomationDialog, setShowAutomationDialog] = useState(false);
+  const [showListDialog, setShowListDialog] = useState(false);
+  
+  // Form states
+  const [editingItem, setEditingItem] = useState<any>(null);
+  const [formData, setFormData] = useState<any>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { toast } = useToast();
 
@@ -155,6 +174,230 @@ export default function EmailMarketingSystem() {
     }
   };
 
+  // CRUD Functions
+  const handleCreateSubscriber = async (data: any) => {
+    try {
+      setIsSubmitting(true);
+      const { error } = await supabase
+        .from('email_subscribers')
+        .insert([{
+          email: data.email,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          company: data.company,
+          phone: data.phone,
+          source: data.source || 'manual',
+          tags: data.tags ? data.tags.split(',').map((t: string) => t.trim()) : []
+        }]);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Erfolg",
+        description: "Abonnent wurde hinzugefügt.",
+      });
+      
+      setShowSubscriberDialog(false);
+      setFormData({});
+      loadEmailData();
+    } catch (error: any) {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCreateCampaign = async (data: any) => {
+    try {
+      setIsSubmitting(true);
+      const { error } = await supabase
+        .from('email_campaigns')
+        .insert([{
+          name: data.name,
+          subject: data.subject,
+          html_content: data.html_content,
+          text_content: data.text_content,
+          list_id: data.list_id,
+          template_id: data.template_id,
+          scheduled_at: data.scheduled_at
+        }]);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Erfolg",
+        description: "Kampagne wurde erstellt.",
+      });
+      
+      setShowCampaignDialog(false);
+      setFormData({});
+      loadEmailData();
+    } catch (error: any) {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCreateTemplate = async (data: any) => {
+    try {
+      setIsSubmitting(true);
+      const { error } = await supabase
+        .from('email_templates')
+        .insert([{
+          name: data.name,
+          subject: data.subject,
+          html_content: data.html_content,
+          text_content: data.text_content,
+          template_type: data.template_type || 'marketing'
+        }]);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Erfolg",
+        description: "Template wurde erstellt.",
+      });
+      
+      setShowTemplateDialog(false);
+      setFormData({});
+      loadEmailData();
+    } catch (error: any) {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCreateList = async (data: any) => {
+    try {
+      setIsSubmitting(true);
+      const { error } = await supabase
+        .from('email_lists')
+        .insert([{
+          name: data.name,
+          description: data.description
+        }]);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Erfolg",
+        description: "Liste wurde erstellt.",
+      });
+      
+      setShowListDialog(false);
+      setFormData({});
+      loadEmailData();
+    } catch (error: any) {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSendCampaign = async (campaignId: string) => {
+    try {
+      const campaign = campaigns.find(c => c.id === campaignId);
+      if (!campaign) return;
+
+      setIsSubmitting(true);
+      
+      const { data, error } = await supabase.functions.invoke('send-marketing-email', {
+        body: {
+          campaignId: campaignId,
+          listId: campaign.list_id,
+          subject: campaign.subject,
+          htmlContent: campaign.html_content,
+          textContent: campaign.text_content || ''
+        }
+      });
+
+      if (error) throw error;
+      
+      toast({
+        title: "Erfolg",
+        description: `Kampagne wird versendet: ${data.queuedCount} E-Mails in der Warteschlange.`,
+      });
+      
+      loadEmailData();
+    } catch (error: any) {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleToggleAutomation = async (automationId: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('email_automations')
+        .update({ is_active: !currentStatus })
+        .eq('id', automationId);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Erfolg",
+        description: `Automatisierung wurde ${!currentStatus ? 'aktiviert' : 'deaktiviert'}.`,
+      });
+      
+      loadEmailData();
+    } catch (error: any) {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDelete = async (tableName: 'email_subscribers' | 'email_campaigns' | 'email_templates' | 'email_automations' | 'email_lists', id: string, name: string) => {
+    if (!confirm(`Sind Sie sicher, dass Sie "${name}" löschen möchten?`)) return;
+    
+    try {
+      const { error } = await supabase
+        .from(tableName)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Erfolg",
+        description: "Element wurde gelöscht.",
+      });
+      
+      loadEmailData();
+    } catch (error: any) {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
   const getStatusBadge = (status: string, type: 'subscriber' | 'campaign' | 'automation' = 'subscriber') => {
     const statusColors = {
       subscriber: {
@@ -203,10 +446,76 @@ export default function EmailMarketingSystem() {
           <h2 className="text-2xl font-bold text-foreground">E-Mail Marketing</h2>
           <p className="text-muted-foreground">Verwalten Sie Ihre E-Mail-Kampagnen und Automatisierungen</p>
         </div>
-        <Button className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90">
-          <Plus className="h-4 w-4 mr-2" />
-          Neue Kampagne
-        </Button>
+        <Dialog open={showCampaignDialog} onOpenChange={setShowCampaignDialog}>
+          <DialogTrigger asChild>
+            <Button className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90">
+              <Plus className="h-4 w-4 mr-2" />
+              Neue Kampagne
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Neue E-Mail Kampagne erstellen</DialogTitle>
+              <DialogDescription>
+                Erstellen Sie eine neue E-Mail Marketing Kampagne
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="campaign-name">Kampagnenname</Label>
+                <Input
+                  id="campaign-name"
+                  value={formData.name || ''}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  placeholder="z.B. Newsletter Oktober 2024"
+                />
+              </div>
+              <div>
+                <Label htmlFor="campaign-subject">Betreff</Label>
+                <Input
+                  id="campaign-subject"
+                  value={formData.subject || ''}
+                  onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                  placeholder="E-Mail Betreff"
+                />
+              </div>
+              <div>
+                <Label htmlFor="campaign-content">HTML Inhalt</Label>
+                <Textarea
+                  id="campaign-content"
+                  value={formData.html_content || ''}
+                  onChange={(e) => setFormData({...formData, html_content: e.target.value})}
+                  placeholder="HTML E-Mail Inhalt..."
+                  className="min-h-[200px]"
+                />
+              </div>
+              <div>
+                <Label htmlFor="campaign-list">E-Mail Liste</Label>
+                <Select value={formData.list_id || ''} onValueChange={(value) => setFormData({...formData, list_id: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Liste auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {lists.map((list) => (
+                      <SelectItem key={list.id} value={list.id}>{list.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowCampaignDialog(false)} disabled={isSubmitting}>
+                  Abbrechen
+                </Button>
+                <Button 
+                  onClick={() => handleCreateCampaign(formData)}
+                  disabled={isSubmitting || !formData.name || !formData.subject || !formData.html_content}
+                >
+                  {isSubmitting ? 'Wird erstellt...' : 'Kampagne erstellen'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Dashboard Stats */}
@@ -350,13 +659,133 @@ export default function EmailMarketingSystem() {
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">E-Mail Abonnenten</h3>
             <div className="flex gap-2">
-              <Button variant="outline">
-                <Plus className="h-4 w-4 mr-2" />
-                Abonnent hinzufügen
-              </Button>
-              <Button variant="outline">
-                Import CSV
-              </Button>
+              <Dialog open={showSubscriberDialog} onOpenChange={setShowSubscriberDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Abonnent hinzufügen
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Neuen Abonnenten hinzufügen</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="email">E-Mail Adresse *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email || ''}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        placeholder="beispiel@email.com"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="first_name">Vorname</Label>
+                        <Input
+                          id="first_name"
+                          value={formData.first_name || ''}
+                          onChange={(e) => setFormData({...formData, first_name: e.target.value})}
+                          placeholder="Max"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="last_name">Nachname</Label>
+                        <Input
+                          id="last_name"
+                          value={formData.last_name || ''}
+                          onChange={(e) => setFormData({...formData, last_name: e.target.value})}
+                          placeholder="Mustermann"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="company">Unternehmen</Label>
+                      <Input
+                        id="company"
+                        value={formData.company || ''}
+                        onChange={(e) => setFormData({...formData, company: e.target.value})}
+                        placeholder="Firma GmbH"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="source">Quelle</Label>
+                      <Input
+                        id="source"
+                        value={formData.source || ''}
+                        onChange={(e) => setFormData({...formData, source: e.target.value})}
+                        placeholder="Website, Event, etc."
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="tags">Tags (kommagetrennt)</Label>
+                      <Input
+                        id="tags"
+                        value={formData.tags || ''}
+                        onChange={(e) => setFormData({...formData, tags: e.target.value})}
+                        placeholder="tag1, tag2, tag3"
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" onClick={() => setShowSubscriberDialog(false)} disabled={isSubmitting}>
+                        Abbrechen
+                      </Button>
+                      <Button 
+                        onClick={() => handleCreateSubscriber(formData)}
+                        disabled={isSubmitting || !formData.email}
+                      >
+                        {isSubmitting ? 'Wird hinzugefügt...' : 'Hinzufügen'}
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+              <Dialog open={showListDialog} onOpenChange={setShowListDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <List className="h-4 w-4 mr-2" />
+                    Liste erstellen
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Neue E-Mail Liste erstellen</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="list-name">Listenname</Label>
+                      <Input
+                        id="list-name"
+                        value={formData.name || ''}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        placeholder="z.B. Newsletter Abonnenten"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="list-description">Beschreibung</Label>
+                      <Textarea
+                        id="list-description"
+                        value={formData.description || ''}
+                        onChange={(e) => setFormData({...formData, description: e.target.value})}
+                        placeholder="Beschreibung der Liste..."
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" onClick={() => setShowListDialog(false)} disabled={isSubmitting}>
+                        Abbrechen
+                      </Button>
+                      <Button 
+                        onClick={() => handleCreateList(formData)}
+                        disabled={isSubmitting || !formData.name}
+                      >
+                        {isSubmitting ? 'Wird erstellt...' : 'Liste erstellen'}
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
           
@@ -389,11 +818,16 @@ export default function EmailMarketingSystem() {
                       <TableCell>{new Date(subscriber.created_at).toLocaleDateString('de-DE')}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" title="Bearbeiten">
                             <Edit className="h-3 w-3" />
                           </Button>
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-3 w-3" />
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Löschen"
+                            onClick={() => handleDelete('email_subscribers', subscriber.id, subscriber.email)}
+                          >
+                            <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>
                       </TableCell>
@@ -409,7 +843,10 @@ export default function EmailMarketingSystem() {
         <TabsContent value="campaigns" className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">E-Mail Kampagnen</h3>
-            <Button className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90">
+            <Button 
+              className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90"
+              onClick={() => setShowCampaignDialog(true)}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Neue Kampagne erstellen
             </Button>
@@ -444,14 +881,25 @@ export default function EmailMarketingSystem() {
                       <TableCell>{new Date(campaign.created_at).toLocaleDateString('de-DE')}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Senden"
+                            onClick={() => handleSendCampaign(campaign.id)}
+                            disabled={campaign.status !== 'draft' || isSubmitting}
+                          >
+                            <Send className="h-3 w-3" />
+                          </Button>
+                          <Button variant="ghost" size="sm" title="Bearbeiten">
                             <Edit className="h-3 w-3" />
                           </Button>
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-3 w-3" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Copy className="h-3 w-3" />
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Löschen"
+                            onClick={() => handleDelete('email_campaigns', campaign.id, campaign.name)}
+                          >
+                            <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>
                       </TableCell>
@@ -467,10 +915,73 @@ export default function EmailMarketingSystem() {
         <TabsContent value="templates" className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">E-Mail Templates</h3>
-            <Button variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              Neues Template erstellen
-            </Button>
+            <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Neues Template erstellen
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Neues E-Mail Template erstellen</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="template-name">Template Name</Label>
+                    <Input
+                      id="template-name"
+                      value={formData.name || ''}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      placeholder="z.B. Newsletter Template"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="template-subject">Standard Betreff</Label>
+                    <Input
+                      id="template-subject"
+                      value={formData.subject || ''}
+                      onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                      placeholder="Standard E-Mail Betreff"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="template-type">Template Typ</Label>
+                    <Select value={formData.template_type || 'marketing'} onValueChange={(value) => setFormData({...formData, template_type: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Typ auswählen" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="marketing">Marketing</SelectItem>
+                        <SelectItem value="transactional">Transaktion</SelectItem>
+                        <SelectItem value="automation">Automation</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="template-html">HTML Inhalt</Label>
+                    <Textarea
+                      id="template-html"
+                      value={formData.html_content || ''}
+                      onChange={(e) => setFormData({...formData, html_content: e.target.value})}
+                      placeholder="HTML Template Inhalt..."
+                      className="min-h-[200px]"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setShowTemplateDialog(false)} disabled={isSubmitting}>
+                      Abbrechen
+                    </Button>
+                    <Button 
+                      onClick={() => handleCreateTemplate(formData)}
+                      disabled={isSubmitting || !formData.name || !formData.subject || !formData.html_content}
+                    >
+                      {isSubmitting ? 'Wird erstellt...' : 'Template erstellen'}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -488,14 +999,19 @@ export default function EmailMarketingSystem() {
                        template.template_type === 'automation' ? 'Automation' : template.template_type}
                     </Badge>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" title="Bearbeiten">
                         <Edit className="h-3 w-3" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" title="Vorschau">
                         <Eye className="h-3 w-3" />
                       </Button>
-                      <Button variant="ghost" size="sm">
-                        <Copy className="h-3 w-3" />
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        title="Löschen"
+                        onClick={() => handleDelete('email_templates', template.id, template.name)}
+                      >
+                        <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
@@ -509,10 +1025,90 @@ export default function EmailMarketingSystem() {
         <TabsContent value="automations" className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">E-Mail Automatisierung</h3>
-            <Button className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90">
-              <Plus className="h-4 w-4 mr-2" />
-              Neue Automatisierung
-            </Button>
+            <Dialog open={showAutomationDialog} onOpenChange={setShowAutomationDialog}>
+              <DialogTrigger asChild>
+                <Button className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Neue Automatisierung
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Neue E-Mail Automatisierung</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="automation-name">Name der Automatisierung</Label>
+                    <Input
+                      id="automation-name"
+                      value={formData.name || ''}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      placeholder="z.B. Willkommens-Serie"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="automation-description">Beschreibung</Label>
+                    <Textarea
+                      id="automation-description"
+                      value={formData.description || ''}
+                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      placeholder="Kurze Beschreibung der Automatisierung..."
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="automation-trigger">Trigger Typ</Label>
+                    <Select value={formData.trigger_type || ''} onValueChange={(value) => setFormData({...formData, trigger_type: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Trigger auswählen" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="subscription">Bei Anmeldung</SelectItem>
+                        <SelectItem value="appointment_booked">Termin gebucht</SelectItem>
+                        <SelectItem value="contact_form">Kontaktformular</SelectItem>
+                        <SelectItem value="date_based">Datumsbasiert</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setShowAutomationDialog(false)} disabled={isSubmitting}>
+                      Abbrechen
+                    </Button>
+                    <Button 
+                      onClick={async () => {
+                        try {
+                          setIsSubmitting(true);
+                          const { error } = await supabase
+                            .from('email_automations')
+                            .insert([formData]);
+
+                          if (error) throw error;
+                          
+                          toast({
+                            title: "Erfolg",
+                            description: "Automatisierung wurde erstellt.",
+                          });
+                          
+                          setShowAutomationDialog(false);
+                          setFormData({});
+                          loadEmailData();
+                        } catch (error: any) {
+                          toast({
+                            title: "Fehler",
+                            description: error.message,
+                            variant: "destructive"
+                          });
+                        } finally {
+                          setIsSubmitting(false);
+                        }
+                      }}
+                      disabled={isSubmitting || !formData.name || !formData.trigger_type}
+                    >
+                      {isSubmitting ? 'Wird erstellt...' : 'Automatisierung erstellen'}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -529,9 +1125,8 @@ export default function EmailMarketingSystem() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
-                          // Toggle automation status
-                        }}
+                        onClick={() => handleToggleAutomation(automation.id, automation.is_active)}
+                        title={automation.is_active ? 'Deaktivieren' : 'Aktivieren'}
                       >
                         {automation.is_active ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
                       </Button>
@@ -562,6 +1157,14 @@ export default function EmailMarketingSystem() {
                     <Button variant="outline" size="sm">
                       <Eye className="h-3 w-3 mr-1" />
                       Ansehen
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleDelete('email_automations', automation.id, automation.name)}
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Löschen
                     </Button>
                   </div>
                 </CardContent>

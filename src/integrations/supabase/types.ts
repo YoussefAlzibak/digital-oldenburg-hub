@@ -648,7 +648,36 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_google_calendar_settings: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          auto_sync: boolean
+          buffer_minutes: number
+          calendar_id: string
+          client_id: string
+          client_secret: string
+          created_at: string
+          id: string
+          is_active: boolean
+          updated_at: string
+          working_days: string[]
+          working_hours_end: string
+          working_hours_start: string
+        }[]
+      }
+      save_google_calendar_settings: {
+        Args: {
+          p_auto_sync: boolean
+          p_buffer_minutes: number
+          p_calendar_id: string
+          p_client_id: string
+          p_client_secret: string
+          p_working_days: string[]
+          p_working_hours_end: string
+          p_working_hours_start: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

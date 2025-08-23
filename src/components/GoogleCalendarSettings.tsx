@@ -59,7 +59,11 @@ export default function GoogleCalendarSettings() {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .rpc('get_google_calendar_settings');
+        .from('google_calendar_settings')
+        .select('*')
+        .eq('is_active', true)
+        .order('updated_at', { ascending: false })
+        .limit(1);
 
       if (error && error.code !== 'PGRST116') {
         throw error;
@@ -96,16 +100,26 @@ export default function GoogleCalendarSettings() {
   const saveSettings = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase.rpc('save_google_calendar_settings', {
-        p_client_id: config.client_id,
-        p_client_secret: config.client_secret,
-        p_calendar_id: config.calendar_id,
-        p_buffer_minutes: config.buffer_minutes,
-        p_auto_sync: config.auto_sync,
-        p_working_hours_start: config.working_hours_start,
-        p_working_hours_end: config.working_hours_end,
-        p_working_days: config.working_days,
-      });
+      // Deactivate all existing settings
+      await supabase
+        .from('google_calendar_settings')
+        .update({ is_active: false, updated_at: new Date().toISOString() })
+        .eq('is_active', true);
+
+      // Insert new active settings
+      const { error } = await supabase
+        .from('google_calendar_settings')
+        .insert({
+          client_id: config.client_id,
+          client_secret: config.client_secret,
+          calendar_id: config.calendar_id,
+          buffer_minutes: config.buffer_minutes,
+          auto_sync: config.auto_sync,
+          working_hours_start: config.working_hours_start,
+          working_hours_end: config.working_hours_end,
+          working_days: config.working_days,
+          is_active: true,
+        });
 
       if (error) throw error;
 

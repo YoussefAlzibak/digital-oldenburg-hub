@@ -411,33 +411,65 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-white/95 backdrop-blur-sm fixed top-0 w-full z-50 border-b border-white/10">
-        <div className="container mx-auto px-6 py-4">
+      {/* Enhanced Header with Geometric Figures */}
+      <header className="header-enhanced fixed top-0 w-full z-50">
+        <div className="header-geometric-bg">
+          <div className="header-shape header-hexagon-1"></div>
+          <div className="header-shape header-triangle-1"></div>
+          <div className="header-shape header-diamond-1"></div>
+          <div className="header-shape header-circle-1"></div>
+          <div className="header-shape header-square-1"></div>
+        </div>
+        
+        <div className="container mx-auto px-6 py-5 relative z-10">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 animate-fade-left">
-              <div className="h-10 w-10 bg-[hsl(var(--brand-primary))] rounded-lg flex items-center justify-center shadow-lg">
-                <div className="h-6 w-6 bg-white rounded-sm"></div>
+            <div className="flex items-center space-x-4 animate-fade-left">
+              <div className="logo-container group">
+                <div className="logo-geometric">
+                  <div className="logo-primary-shape"></div>
+                  <div className="logo-accent-shape"></div>
+                  <div className="logo-inner-detail"></div>
+                </div>
               </div>
-              <span className="text-2xl font-bold text-[hsl(var(--brand-secondary))]">Unicum Tec</span>
+              <div className="logo-text">
+                <span className="text-3xl font-black text-[hsl(var(--brand-secondary))] tracking-tight">Unicum</span>
+                <span className="text-3xl font-light text-[hsl(var(--brand-primary))] tracking-tight">Tec</span>
+                <div className="text-xs font-medium text-gray-500 uppercase tracking-widest mt-1">Digital Excellence</div>
+              </div>
             </div>
-            <nav className="hidden md:flex items-center space-x-8 animate-fade-right">
-              <a href="#services" className="text-gray-600 hover:text-[hsl(var(--brand-primary))] transition-colors font-medium">
-                Services
+            
+            <nav className="hidden lg:flex items-center space-x-10 animate-fade-right">
+              <a href="#services" className="nav-link">
+                <Globe className="nav-icon" />
+                <span>Services</span>
               </a>
-              <a href="#portfolio" className="text-gray-600 hover:text-[hsl(var(--brand-primary))] transition-colors font-medium">
-                Portfolio
+              <a href="#portfolio" className="nav-link">
+                <Monitor className="nav-icon" />
+                <span>Portfolio</span>
               </a>
-              <a href="#about" className="text-gray-600 hover:text-[hsl(var(--brand-primary))] transition-colors font-medium">
-                Über uns
+              <a href="#about" className="nav-link">
+                <Users2 className="nav-icon" />
+                <span>Über uns</span>
               </a>
-              <a href="#contact" className="text-gray-600 hover:text-[hsl(var(--brand-primary))] transition-colors font-medium">
-                Kontakt
+              <a href="#contact" className="nav-link">
+                <MessageCircle className="nav-icon" />
+                <span>Kontakt</span>
               </a>
-              <Button className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90 text-white px-6 py-2.5 rounded-lg font-semibold transition-all hover:scale-105 shadow-lg">
-                Beratung anfragen
+              <Button className="cta-button group">
+                <Calendar className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
+                <span>Beratung anfragen</span>
+                <div className="cta-glow"></div>
               </Button>
             </nav>
+
+            {/* Mobile Menu Button */}
+            <button className="md:hidden p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
+              <div className="w-6 h-6 flex flex-col justify-center space-y-1">
+                <div className="w-full h-0.5 bg-[hsl(var(--brand-primary))] rounded-full"></div>
+                <div className="w-full h-0.5 bg-[hsl(var(--brand-primary))] rounded-full"></div>
+                <div className="w-full h-0.5 bg-[hsl(var(--brand-primary))] rounded-full"></div>
+              </div>
+            </button>
           </div>
         </div>
       </header>

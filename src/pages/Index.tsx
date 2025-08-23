@@ -474,8 +474,8 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Hero Section - Improved Layout */}
-      <section className="relative hero-dark min-h-screen flex items-center overflow-hidden">
+      {/* Hero Section - Optimized Layout */}
+      <section className="relative hero-dark min-h-screen flex items-center overflow-hidden pt-24">
         <div className="absolute inset-0 floating-shapes">
           <div className="geometric-shape hexagon shape-1"></div>
           <div className="geometric-shape triangle shape-2"></div>
@@ -485,37 +485,99 @@ const Index = () => {
           <div className="geometric-shape triangle shape-6" style={{borderBottomColor: 'hsl(var(--brand-primary) / 0.8)'}}></div>
         </div>
         
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8 animate-fade-up">
-              <h1 className="text-hero-primary">
-                Digitale Excellence
-                <br />
-                <span className="text-hero-accent">für Ihren Erfolg</span>
-              </h1>
-              <p className="text-xl text-gray-300 max-w-2xl leading-relaxed animate-fade-up delay-200">
-                Unicum Tec - Ihre Full-Service Digitalagentur in Oldenburg. Wir transformieren Geschäftsprozesse durch innovative Webdesign-Lösungen, professionelle CRM-Systeme und modernste IT-Services.
+        <div className="container mx-auto px-6 relative z-10 w-full">
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-center min-h-[80vh]">
+            {/* Content Column */}
+            <div className="lg:col-span-7 space-y-10 animate-fade-up">
+              <div className="space-y-6">
+                <h1 className="text-5xl lg:text-7xl font-black text-white leading-[0.9] tracking-tight">
+                  Digitale 
+                  <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))]">
+                    Excellence
+                  </span>
+                  <br />
+                  <span className="text-4xl lg:text-5xl text-gray-300 font-light">
+                    für Ihren Erfolg
+                  </span>
+                </h1>
+                
+                <div className="flex items-center space-x-4 mb-8">
+                  <div className="flex space-x-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <span className="text-white/80 font-medium">4.9/5 Kundenbewertung</span>
+                </div>
+              </div>
+              
+              <p className="text-xl lg:text-2xl text-gray-300 max-w-2xl leading-relaxed font-light animate-fade-up delay-200">
+                Ihre Full-Service Digitalagentur in Oldenburg. Wir transformieren Geschäftsprozesse durch innovative 
+                <span className="text-[hsl(var(--brand-accent))] font-medium"> Webdesign-Lösungen</span>, professionelle 
+                <span className="text-[hsl(var(--brand-primary))] font-medium"> CRM-Systeme</span> und modernste IT-Services.
               </p>
-              <div className="flex flex-col sm:flex-row gap-6 animate-fade-up delay-400">
-                <Button size="lg" className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90 text-white px-10 py-4 text-lg font-semibold rounded-lg transition-all hover:scale-105 shadow-xl">
-                  Portfolio entdecken
-                  <ArrowRight className="ml-3 h-5 w-5" />
+              
+              <div className="flex flex-col sm:flex-row gap-4 animate-fade-up delay-400">
+                <Button size="lg" className="group relative overflow-hidden bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] hover:shadow-2xl hover:shadow-[hsl(var(--brand-primary))]/25 text-white px-12 py-6 text-lg font-bold rounded-2xl transition-all hover:scale-105 duration-300">
+                  <span className="relative z-10 flex items-center">
+                    Portfolio entdecken
+                    <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </Button>
-                <Button variant="outline" size="lg" className="px-10 py-4 text-lg border-2 border-white text-white hover:bg-white hover:text-[hsl(var(--brand-secondary))] font-semibold rounded-lg transition-all hover:scale-105">
+                <Button variant="outline" size="lg" className="group px-12 py-6 text-lg border-2 border-white/30 text-white hover:bg-white/10 hover:border-white font-bold rounded-2xl transition-all hover:scale-105 duration-300 backdrop-blur-sm">
+                  <Calendar className="mr-3 h-5 w-5 group-hover:rotate-12 transition-transform" />
                   Kostenlose Beratung
                 </Button>
               </div>
+              
+              {/* Trust Indicators */}
+              <div className="flex flex-wrap items-center gap-8 pt-8 animate-fade-up delay-600">
+                <div className="flex items-center space-x-3">
+                  <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center">
+                    <CheckCircle className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-white">150+</div>
+                    <div className="text-sm text-gray-400">Projekte</div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-accent))] to-[hsl(var(--brand-primary))] rounded-2xl flex items-center justify-center">
+                    <Users className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-white">98%</div>
+                    <div className="text-sm text-gray-400">Zufriedenheit</div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center">
+                    <Rocket className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-white">5+</div>
+                    <div className="text-sm text-gray-400">Jahre</div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="hidden lg:block animate-fade-up delay-600">
+            
+            {/* Image Column */}
+            <div className="lg:col-span-5 animate-fade-up delay-800">
               <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-3xl opacity-20 blur-xl"></div>
                 <img 
                   src={heroImage} 
-                  alt="Modern digital agency workspace" 
-                  className="rounded-2xl shadow-2xl"
+                  alt="Modern digital agency workspace showcasing innovative technology solutions" 
+                  className="relative rounded-3xl shadow-2xl w-full h-auto max-w-lg mx-auto lg:max-w-none"
                 />
-                <div className="absolute -bottom-6 -right-6 bg-[hsl(var(--brand-primary))] text-white p-6 rounded-xl shadow-xl">
-                  <div className="text-3xl font-bold">150+</div>
-                  <div className="text-sm">Erfolgreiche Projekte</div>
+                <div className="absolute -bottom-6 -right-6 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] text-white p-8 rounded-2xl shadow-2xl backdrop-blur-sm">
+                  <div className="text-4xl font-bold">150+</div>
+                  <div className="text-sm font-medium opacity-90">Erfolgreiche Projekte</div>
+                  <div className="absolute -top-2 -left-2 h-4 w-4 bg-white/20 rounded-full"></div>
+                  <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-white/30 rounded-full"></div>
                 </div>
               </div>
             </div>

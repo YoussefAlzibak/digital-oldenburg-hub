@@ -482,6 +482,15 @@ const Index = () => {
           <div className="it-shape database-cylinder shape-4"></div>
           <div className="it-shape web-component shape-5"></div>
           <div className="it-shape cloud-server shape-6"></div>
+          <div className="it-shape code-bracket shape-7"></div>
+          <div className="it-shape terminal-cursor shape-8"></div>
+          <div className="it-shape api-node shape-9"></div>
+          <div className="it-shape database-cylinder shape-10"></div>
+          <div className="it-shape web-component shape-11"></div>
+          <div className="it-shape cloud-server shape-12"></div>
+          <div className="it-shape code-bracket shape-13"></div>
+          <div className="it-shape web-component shape-14"></div>
+          <div className="it-shape api-node shape-15"></div>
         </div>
         
         <div className="container mx-auto px-6 relative z-10 w-full">

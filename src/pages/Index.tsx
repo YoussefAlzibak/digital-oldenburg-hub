@@ -476,21 +476,24 @@ const Index = () => {
       {/* Hero Section - Optimized Layout */}
       <section className="relative hero-dark min-h-screen flex items-center overflow-hidden pt-24">
         <div className="absolute inset-0 floating-shapes">
-          <div className="it-shape code-bracket shape-1"></div>
-          <div className="it-shape terminal-cursor shape-2"></div>
-          <div className="it-shape api-node shape-3"></div>
-          <div className="it-shape database-cylinder shape-4"></div>
-          <div className="it-shape web-component shape-5"></div>
-          <div className="it-shape cloud-server shape-6"></div>
-          <div className="it-shape code-bracket shape-7"></div>
-          <div className="it-shape terminal-cursor shape-8"></div>
-          <div className="it-shape api-node shape-9"></div>
-          <div className="it-shape database-cylinder shape-10"></div>
-          <div className="it-shape web-component shape-11"></div>
-          <div className="it-shape cloud-server shape-12"></div>
-          <div className="it-shape code-bracket shape-13"></div>
-          <div className="it-shape web-component shape-14"></div>
-          <div className="it-shape api-node shape-15"></div>
+          <div className="it-shape git-branch shape-1"><Code className="h-8 w-8 text-[hsl(var(--brand-primary))]" /></div>
+          <div className="it-shape server-rack shape-2"><Monitor className="h-10 w-10 text-[hsl(var(--brand-accent))]" /></div>
+          <div className="it-shape database-icon shape-3"><Settings className="h-8 w-8 text-[hsl(var(--brand-secondary))]" /></div>
+          <div className="it-shape mobile-dev shape-4"><Smartphone className="h-9 w-9 text-[hsl(var(--brand-primary))]" /></div>
+          <div className="it-shape web-globe shape-5"><Globe className="h-10 w-10 text-[hsl(var(--brand-accent))]" /></div>
+          <div className="it-shape lightning-fast shape-6"><Zap className="h-8 w-8 text-[hsl(var(--brand-secondary))]" /></div>
+          <div className="it-shape palette-design shape-7"><Palette className="h-9 w-9 text-[hsl(var(--brand-primary))]" /></div>
+          <div className="it-shape analytics-chart shape-8"><BarChart className="h-10 w-10 text-[hsl(var(--brand-accent))]" /></div>
+          <div className="it-shape rocket-launch shape-9"><Rocket className="h-8 w-8 text-[hsl(var(--brand-secondary))]" /></div>
+          <div className="it-shape lightbulb-idea shape-10"><Lightbulb className="h-9 w-9 text-[hsl(var(--brand-primary))]" /></div>
+          <div className="it-shape target-focus shape-11"><Target className="h-8 w-8 text-[hsl(var(--brand-accent))]" /></div>
+          <div className="it-shape users-team shape-12"><Users className="h-10 w-10 text-[hsl(var(--brand-secondary))]" /></div>
+          <div className="it-shape mail-communication shape-13"><Mail className="h-8 w-8 text-[hsl(var(--brand-primary))]" /></div>
+          <div className="it-shape shield-security shape-14"><Shield className="h-9 w-9 text-[hsl(var(--brand-accent))]" /></div>
+          <div className="it-shape award-quality shape-15"><Award className="h-8 w-8 text-[hsl(var(--brand-secondary))]" /></div>
+          <div className="it-shape file-document shape-16"><FileText className="h-9 w-9 text-[hsl(var(--brand-primary))]" /></div>
+          <div className="it-shape check-success shape-17"><CheckCircle className="h-8 w-8 text-[hsl(var(--brand-accent))]" /></div>
+          <div className="it-shape clock-time shape-18"><Clock className="h-10 w-10 text-[hsl(var(--brand-secondary))]" /></div>
         </div>
         
         <div className="container mx-auto px-6 relative z-10 w-full">

@@ -325,52 +325,136 @@ All colors MUST be HSL.
     pointer-events: none;
   }
 
-  .geometric-shape {
+  /* IT-themed shapes with better animations */
+  .it-shape {
     position: absolute;
     animation: float 8s ease-in-out infinite;
   }
 
-  /* Hexagon shapes */
-  .hexagon {
-    width: 100px;
-    height: 57.73px;
-    background: hsl(var(--brand-primary) / 0.7);
-    margin: 28.87px 0;
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  .code-bracket {
+    width: 40px;
+    height: 40px;
+    border: 3px solid hsl(var(--brand-primary) / 0.4);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
   }
 
-  .hexagon:before,
-  .hexagon:after {
-    content: "";
+  .code-bracket::after {
+    content: '';
     position: absolute;
-    width: 0;
-    border-left: 50px solid transparent;
-    border-right: 50px solid transparent;
+    right: -3px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 3px;
+    background: hsl(var(--brand-primary) / 0.4);
   }
 
-  /* Triangle shapes */
-  .triangle {
-    width: 0;
-    height: 0;
-    border-left: 40px solid transparent;
-    border-right: 40px solid transparent;
-    border-bottom: 70px solid hsl(var(--brand-accent) / 0.6);
+  .terminal-cursor {
+    width: 4px;
+    height: 30px;
+    background: hsl(var(--brand-accent) / 0.6);
+    animation: blink 1.5s infinite, float 8s ease-in-out infinite;
   }
 
-  /* Diamond shapes */
-  .diamond {
-    width: 60px;
-    height: 60px;
-    background: hsl(var(--brand-primary) / 0.8);
-    transform: rotate(45deg);
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
   }
 
-  /* Rectangle shapes */
-  .rectangle {
-    width: 120px;
-    height: 80px;
-    background: hsl(var(--brand-primary) / 0.5);
+  .api-node {
+    width: 35px;
+    height: 35px;
+    background: hsl(var(--brand-secondary) / 0.3);
+    border-radius: 50%;
+    position: relative;
+  }
+
+  .api-node::before,
+  .api-node::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background: hsl(var(--brand-secondary) / 0.3);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .api-node::before {
+    left: -25px;
+  }
+
+  .api-node::after {
+    right: -25px;
+  }
+
+  .database-cylinder {
+    width: 40px;
+    height: 50px;
+    background: hsl(var(--brand-primary) / 0.3);
+    border-radius: 20px 20px 8px 8px;
+    position: relative;
+  }
+
+  .database-cylinder::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 0;
+    width: 40px;
+    height: 8px;
+    background: hsl(var(--brand-primary) / 0.4);
+    border-radius: 50%;
+  }
+
+  .web-component {
+    width: 45px;
+    height: 35px;
+    border: 3px solid hsl(var(--brand-accent) / 0.4);
     border-radius: 8px;
+    position: relative;
+  }
+
+  .web-component::before {
+    content: '</>';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    font-weight: bold;
+    color: hsl(var(--brand-accent) / 0.6);
+  }
+
+  .cloud-server {
+    width: 50px;
+    height: 30px;
+    background: hsl(var(--brand-secondary) / 0.3);
+    border-radius: 15px;
+    position: relative;
+  }
+
+  .cloud-server::before,
+  .cloud-server::after {
+    content: '';
+    position: absolute;
+    background: hsl(var(--brand-secondary) / 0.3);
+    border-radius: 50%;
+  }
+
+  .cloud-server::before {
+    width: 20px;
+    height: 20px;
+    top: -10px;
+    left: 10px;
+  }
+
+  .cloud-server::after {
+    width: 15px;
+    height: 15px;
+    top: -8px;
+    right: 8px;
   }
 
   /* Position specific shapes */

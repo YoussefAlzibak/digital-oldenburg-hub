@@ -44,7 +44,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 // Import generated images
-import heroImage from "@/assets/hero-image.webp";
 import webdesignService from "@/assets/webdesign-service.webp";
 import crmService from "@/assets/crm-service.webp";
 import itService from "@/assets/it-service.webp";
@@ -477,18 +476,18 @@ const Index = () => {
       {/* Hero Section - Optimized Layout */}
       <section className="relative hero-dark min-h-screen flex items-center overflow-hidden pt-24">
         <div className="absolute inset-0 floating-shapes">
-          <div className="geometric-shape hexagon shape-1"></div>
-          <div className="geometric-shape triangle shape-2"></div>
-          <div className="geometric-shape diamond shape-3"></div>
-          <div className="geometric-shape rectangle shape-4"></div>
-          <div className="geometric-shape hexagon shape-5" style={{background: 'hsl(var(--brand-accent) / 0.6)'}}></div>
-          <div className="geometric-shape triangle shape-6" style={{borderBottomColor: 'hsl(var(--brand-primary) / 0.8)'}}></div>
+          <div className="it-shape code-bracket shape-1"></div>
+          <div className="it-shape terminal-cursor shape-2"></div>
+          <div className="it-shape api-node shape-3"></div>
+          <div className="it-shape database-cylinder shape-4"></div>
+          <div className="it-shape web-component shape-5"></div>
+          <div className="it-shape cloud-server shape-6"></div>
         </div>
         
         <div className="container mx-auto px-6 relative z-10 w-full">
-          <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-center min-h-[80vh]">
-            {/* Content Column */}
-            <div className="lg:col-span-7 space-y-10 animate-fade-up">
+          <div className="flex items-center justify-center min-h-[80vh]">
+            {/* Centered Content */}
+            <div className="text-center space-y-10 animate-fade-up max-w-5xl">
               <div className="space-y-6">
                 <h1 className="text-5xl lg:text-7xl font-black text-white leading-[0.9] tracking-tight">
                   Digitale 
@@ -502,7 +501,7 @@ const Index = () => {
                   </span>
                 </h1>
                 
-                <div className="flex items-center space-x-4 mb-8">
+                <div className="flex items-center justify-center space-x-4 mb-8">
                   <div className="flex space-x-1">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
@@ -512,13 +511,13 @@ const Index = () => {
                 </div>
               </div>
               
-              <p className="text-xl lg:text-2xl text-gray-300 max-w-2xl leading-relaxed font-light animate-fade-up delay-200">
+              <p className="text-xl lg:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed font-light animate-fade-up delay-200">
                 Ihre Full-Service Digitalagentur in Oldenburg. Wir transformieren Geschäftsprozesse durch innovative 
                 <span className="text-[hsl(var(--brand-accent))] font-medium"> Webdesign-Lösungen</span>, professionelle 
                 <span className="text-[hsl(var(--brand-primary))] font-medium"> CRM-Systeme</span> und modernste IT-Services.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 animate-fade-up delay-400">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up delay-400">
                 <Button size="lg" className="group relative overflow-hidden bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] hover:shadow-2xl hover:shadow-[hsl(var(--brand-primary))]/25 text-white px-12 py-6 text-lg font-bold rounded-2xl transition-all hover:scale-105 duration-300">
                   <span className="relative z-10 flex items-center">
                     Portfolio entdecken
@@ -533,7 +532,7 @@ const Index = () => {
               </div>
               
               {/* Trust Indicators */}
-              <div className="flex flex-wrap items-center gap-8 pt-8 animate-fade-up delay-600">
+              <div className="flex flex-wrap items-center justify-center gap-8 pt-8 animate-fade-up delay-600">
                 <div className="flex items-center space-x-3">
                   <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center">
                     <CheckCircle className="h-6 w-6 text-white" />
@@ -560,24 +559,6 @@ const Index = () => {
                     <div className="text-2xl font-bold text-white">5+</div>
                     <div className="text-sm text-gray-400">Jahre</div>
                   </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Image Column */}
-            <div className="lg:col-span-5 animate-fade-up delay-800">
-              <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-3xl opacity-20 blur-xl"></div>
-                <img 
-                  src={heroImage} 
-                  alt="Modern digital agency workspace showcasing innovative technology solutions" 
-                  className="relative rounded-3xl shadow-2xl w-full h-auto max-w-lg mx-auto lg:max-w-none"
-                />
-                <div className="absolute -bottom-6 -right-6 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] text-white p-8 rounded-2xl shadow-2xl backdrop-blur-sm">
-                  <div className="text-4xl font-bold">150+</div>
-                  <div className="text-sm font-medium opacity-90">Erfolgreiche Projekte</div>
-                  <div className="absolute -top-2 -left-2 h-4 w-4 bg-white/20 rounded-full"></div>
-                  <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-white/30 rounded-full"></div>
                 </div>
               </div>
             </div>
@@ -660,14 +641,14 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Portfolio Section - Enhanced */}
+      {/* Portfolio Section - Enhanced & Centered */}
       <section id="portfolio" className="py-32 bg-white">
         <div className="container mx-auto px-6">
-          <div className="text-center mb-20">
+          <div className="text-center mb-20 max-w-4xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-black text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up uppercase tracking-tight">
               ERFOLGREICHE PROJEKTE
             </h2>
-            <p className="text-xl text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto font-medium">
+            <p className="text-xl text-gray-600 animate-fade-up delay-200 font-medium">
               Innovative Lösungen, die begeistern und Ergebnisse liefern
             </p>
             

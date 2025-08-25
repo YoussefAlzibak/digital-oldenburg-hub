@@ -39,9 +39,9 @@ All colors MUST be HSL.
     --radius: 0.75rem;
     
     /* Modern color system - Blue & Purple theme */
-    --brand-primary: 221 83% 53%; /* Modern Blue */
-    --brand-secondary: 262 83% 58%; /* Deep Purple */
-    --brand-accent: 199 89% 48%; /* Light Blue */
+    --brand-primary: 221 83% 40%; /* Modern Blue - Darker */
+    --brand-secondary: 262 83% 45%; /* Deep Purple - Darker */
+    --brand-accent: 199 89% 35%; /* Light Blue - Darker */
     --brand-success: 142 76% 36%;
     --brand-warning: 25 95% 53%;
     --brand-error: 0 84% 60%;

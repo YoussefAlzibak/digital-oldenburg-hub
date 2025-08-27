@@ -601,6 +601,36 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          is_admin: boolean
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          is_admin?: boolean
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          is_admin?: boolean
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       smtp_settings: {
         Row: {
           created_at: string
@@ -664,6 +694,10 @@ export type Database = {
           working_hours_end: string
           working_hours_start: string
         }[]
+      }
+      is_admin: {
+        Args: { user_id: string }
+        Returns: boolean
       }
       save_google_calendar_settings: {
         Args: {

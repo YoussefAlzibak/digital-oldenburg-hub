@@ -454,6 +454,10 @@ const Index = () => {
                 <MessageCircle className="nav-icon" />
                 <span>Kontakt</span>
               </a>
+              <a href="/auth" className="nav-link text-xs opacity-60 hover:opacity-100">
+                <Shield className="nav-icon h-3 w-3" />
+                <span>Admin</span>
+              </a>
               <Button className="cta-button group">
                 <Calendar className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
                 <span>Beratung anfragen</span>

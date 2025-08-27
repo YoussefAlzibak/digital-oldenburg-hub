@@ -10,7 +10,8 @@ import {
   CalendarDays,
   UserCheck,
   Shield,
-  ArrowLeft
+  ArrowLeft,
+  LogOut
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -26,6 +27,8 @@ import {
   SidebarFooter
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const mainItems = [
   { title: "Übersicht", url: "/admin", icon: Home, exact: true },
@@ -49,7 +52,42 @@ const settingsItems = [
 export function DashboardSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const currentPath = location.pathname;
+
+  const handleLogout = async () => {
+    try {
+      // Clean up auth state
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      // Attempt global sign out
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (err) {
+        // Continue even if this fails
+        console.warn('Global signout failed:', err);
+      }
+
+      toast({
+        title: "Erfolgreich abgemeldet",
+        description: "Sie wurden sicher abgemeldet.",
+      });
+
+      // Force page reload for clean state
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast({
+        title: "Abmeldung fehlgeschlagen",
+        description: "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const isActive = (path: string, exact = false) => {
     if (exact) {
@@ -128,7 +166,7 @@ export function DashboardSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-4 space-y-2">
         <Button
           variant="ghost"
           size="sm"
@@ -137,6 +175,15 @@ export function DashboardSidebar() {
         >
           <ArrowLeft className="h-4 w-4" />
           <span className="ml-2">Zurück zur Website</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleLogout}
+          className="justify-start w-full text-muted-foreground hover:text-destructive"
+        >
+          <LogOut className="h-4 w-4" />
+          <span className="ml-2">Abmelden</span>
         </Button>
       </SidebarFooter>
     </Sidebar>

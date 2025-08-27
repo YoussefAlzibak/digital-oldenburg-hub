@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
+import Auth from "./pages/Auth";
 import CookieConsent from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
@@ -13,6 +14,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/admin/*" element={<Admin />} />
         </Routes>
         <Toaster />

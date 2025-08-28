@@ -420,9 +420,9 @@ const Index = () => {
           <div className="header-shape header-square-1"></div>
         </div>
         
-        <div className="container mx-auto px-6 py-5 relative z-10">
+        <div className="container mx-auto px-4 md:px-6 py-4 md:py-5 relative z-10">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4 animate-fade-left">
+            <div className="flex items-center space-x-3 md:space-x-4 animate-fade-left">
               <div className="logo-container group">
                 <div className="logo-geometric">
                   <div className="logo-primary-shape"></div>
@@ -431,8 +431,8 @@ const Index = () => {
                 </div>
               </div>
               <div className="logo-text">
-                <span className="text-3xl font-black text-[hsl(var(--brand-secondary))] tracking-tight">Unicum</span>
-                <span className="text-3xl font-light text-[hsl(var(--brand-primary))] tracking-tight">Tec</span>
+                <span className="text-2xl md:text-3xl font-black text-[hsl(var(--brand-secondary))] tracking-tight">Unicum</span>
+                <span className="text-2xl md:text-3xl font-light text-[hsl(var(--brand-primary))] tracking-tight">Tec</span>
                 <div className="text-xs font-medium text-gray-500 uppercase tracking-widest mt-1">Digital Excellence</div>
               </div>
             </div>
@@ -477,92 +477,92 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Hero Section - Optimized Layout */}
-      <section className="relative hero-dark min-h-screen flex items-center overflow-hidden pt-24">
+      {/* Hero Section - Responsive Layout */}
+      <section className="relative hero-dark min-h-[100svh] md:min-h-screen flex items-center overflow-hidden pt-20 md:pt-24">
         <div className="absolute inset-0 floating-shapes">
-          <div className="it-shape git-branch shape-1"><Code className="h-8 w-8 text-[hsl(var(--brand-primary))]" /></div>
-          <div className="it-shape server-rack shape-2"><Monitor className="h-10 w-10 text-[hsl(var(--brand-accent))]" /></div>
-          <div className="it-shape database-icon shape-3"><Settings className="h-8 w-8 text-[hsl(var(--brand-secondary))]" /></div>
-          <div className="it-shape mobile-dev shape-4"><Smartphone className="h-9 w-9 text-[hsl(var(--brand-primary))]" /></div>
-          <div className="it-shape web-globe shape-5"><Globe className="h-10 w-10 text-[hsl(var(--brand-accent))]" /></div>
-          <div className="it-shape lightning-fast shape-6"><Zap className="h-8 w-8 text-[hsl(var(--brand-secondary))]" /></div>
-          <div className="it-shape rocket-launch shape-7"><Rocket className="h-8 w-8 text-[hsl(var(--brand-primary))]" /></div>
+          <div className="it-shape git-branch shape-1"><Code className="h-6 w-6 md:h-8 md:w-8 text-[hsl(var(--brand-primary))]" /></div>
+          <div className="it-shape server-rack shape-2"><Monitor className="h-7 w-7 md:h-10 md:w-10 text-[hsl(var(--brand-accent))]" /></div>
+          <div className="it-shape database-icon shape-3"><Settings className="h-6 w-6 md:h-8 md:w-8 text-[hsl(var(--brand-secondary))]" /></div>
+          <div className="it-shape mobile-dev shape-4"><Smartphone className="h-6 w-6 md:h-9 md:w-9 text-[hsl(var(--brand-primary))]" /></div>
+          <div className="it-shape web-globe shape-5"><Globe className="h-7 w-7 md:h-10 md:w-10 text-[hsl(var(--brand-accent))]" /></div>
+          <div className="it-shape lightning-fast shape-6"><Zap className="h-6 w-6 md:h-8 md:w-8 text-[hsl(var(--brand-secondary))]" /></div>
+          <div className="it-shape rocket-launch shape-7"><Rocket className="h-6 w-6 md:h-8 md:w-8 text-[hsl(var(--brand-primary))]" /></div>
         </div>
         
-        <div className="container mx-auto px-6 relative z-10 w-full">
-          <div className="flex items-center justify-center min-h-[80vh]">
+        <div className="container mx-auto px-4 md:px-6 relative z-10 w-full">
+          <div className="flex items-center justify-center min-h-[70vh] md:min-h-[80vh]">
             {/* Centered Content */}
-            <div className="text-center space-y-10 animate-fade-up max-w-5xl">
-              <div className="space-y-6">
-                <h1 className="text-5xl lg:text-7xl font-black text-white leading-[0.9] tracking-tight">
+            <div className="text-center space-y-6 md:space-y-10 animate-fade-up max-w-5xl">
+              <div className="space-y-4 md:space-y-6">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black text-white leading-[0.9] tracking-tight">
                   Digitale 
                   <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))]">
                     Excellence
                   </span>
                   <br />
-                  <span className="text-4xl lg:text-5xl text-gray-300 font-light">
+                  <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-gray-300 font-light">
                     für Ihren Erfolg
                   </span>
                 </h1>
                 
-                <div className="flex items-center justify-center space-x-4 mb-8">
+                <div className="flex items-center justify-center space-x-3 md:space-x-4 mb-6 md:mb-8">
                   <div className="flex space-x-1">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                      <Star key={i} className="h-4 w-4 md:h-5 md:w-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <span className="text-white/80 font-medium">4.9/5 Kundenbewertung</span>
+                  <span className="text-white/80 font-medium text-sm md:text-base">4.9/5 Kundenbewertung</span>
                 </div>
               </div>
               
-              <p className="text-xl lg:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed font-light animate-fade-up delay-200">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed font-light animate-fade-up delay-200 px-4 md:px-0">
                 Ihre Full-Service Digitalagentur in Oldenburg. Wir transformieren Geschäftsprozesse durch innovative 
                 <span className="text-[hsl(var(--brand-accent))] font-medium"> Webdesign-Lösungen</span>, professionelle 
                 <span className="text-[hsl(var(--brand-primary))] font-medium"> CRM-Systeme</span> und modernste IT-Services.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up delay-400">
-                <Button size="lg" className="group relative overflow-hidden bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] hover:shadow-2xl hover:shadow-[hsl(var(--brand-primary))]/25 text-white px-12 py-6 text-lg font-bold rounded-2xl transition-all hover:scale-105 duration-300">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center animate-fade-up delay-400 px-4 md:px-0">
+                <Button size="lg" className="group relative overflow-hidden bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] hover:shadow-2xl hover:shadow-[hsl(var(--brand-primary))]/25 text-white px-8 md:px-12 py-4 md:py-6 text-base md:text-lg font-bold rounded-2xl transition-all hover:scale-105 duration-300">
                   <span className="relative z-10 flex items-center">
                     Portfolio entdecken
-                    <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="ml-2 md:ml-3 h-4 w-4 md:h-5 md:w-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                   <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </Button>
-                <Button variant="outline" size="lg" className="group px-12 py-6 text-lg border-2 border-white/30 text-white hover:bg-white/10 hover:border-white font-bold rounded-2xl transition-all hover:scale-105 duration-300 backdrop-blur-sm">
-                  <Calendar className="mr-3 h-5 w-5 group-hover:rotate-12 transition-transform" />
+                <Button variant="outline" size="lg" className="group px-8 md:px-12 py-4 md:py-6 text-base md:text-lg border-2 border-white/30 text-white hover:bg-white/10 hover:border-white font-bold rounded-2xl transition-all hover:scale-105 duration-300 backdrop-blur-sm">
+                  <Calendar className="mr-2 md:mr-3 h-4 w-4 md:h-5 md:w-5 group-hover:rotate-12 transition-transform" />
                   Kostenlose Beratung
                 </Button>
               </div>
               
               {/* Trust Indicators */}
-              <div className="flex flex-wrap items-center justify-center gap-8 pt-8 animate-fade-up delay-600">
-                <div className="flex items-center space-x-3">
-                  <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center">
-                    <CheckCircle className="h-6 w-6 text-white" />
+              <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 pt-6 md:pt-8 animate-fade-up delay-600 px-4 md:px-0">
+                <div className="flex items-center space-x-2 md:space-x-3">
+                  <div className="h-10 w-10 md:h-12 md:w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center">
+                    <CheckCircle className="h-5 w-5 md:h-6 md:w-6 text-white" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-white">150+</div>
-                    <div className="text-sm text-gray-400">Projekte</div>
+                    <div className="text-xl md:text-2xl font-bold text-white">150+</div>
+                    <div className="text-xs md:text-sm text-gray-400">Projekte</div>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-accent))] to-[hsl(var(--brand-primary))] rounded-2xl flex items-center justify-center">
-                    <Users className="h-6 w-6 text-white" />
+                <div className="flex items-center space-x-2 md:space-x-3">
+                  <div className="h-10 w-10 md:h-12 md:w-12 bg-gradient-to-r from-[hsl(var(--brand-accent))] to-[hsl(var(--brand-primary))] rounded-2xl flex items-center justify-center">
+                    <Users className="h-5 w-5 md:h-6 md:w-6 text-white" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-white">98%</div>
-                    <div className="text-sm text-gray-400">Zufriedenheit</div>
+                    <div className="text-xl md:text-2xl font-bold text-white">98%</div>
+                    <div className="text-xs md:text-sm text-gray-400">Zufriedenheit</div>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center">
-                    <Rocket className="h-6 w-6 text-white" />
+                <div className="flex items-center space-x-2 md:space-x-3">
+                  <div className="h-10 w-10 md:h-12 md:w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center">
+                    <Rocket className="h-5 w-5 md:h-6 md:w-6 text-white" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-white">5+</div>
-                    <div className="text-sm text-gray-400">Jahre</div>
+                    <div className="text-xl md:text-2xl font-bold text-white">5+</div>
+                    <div className="text-xs md:text-sm text-gray-400">Jahre</div>
                   </div>
                 </div>
               </div>

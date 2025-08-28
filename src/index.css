@@ -18,16 +18,16 @@ All colors MUST be HSL.
     --popover-foreground: 222.2 84% 4.9%;
 
     --primary: 270 100% 35%;
-    --primary-foreground: 45 100% 85%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 45 100% 70%;
+    --secondary: 270 50% 90%;
     --secondary-foreground: 270 100% 25%;
 
-    --muted: 45 30% 95%;
-    --muted-foreground: 270 30% 40%;
+    --muted: 270 20% 95%;
+    --muted-foreground: 270 40% 50%;
 
-    --accent: 270 80% 50%;
-    --accent-foreground: 45 100% 90%;
+    --accent: 45 100% 70%;
+    --accent-foreground: 270 100% 20%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -38,10 +38,10 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
     
-    /* Lakers color system - Purple & Gold theme */
-    --brand-primary: 270 100% 35%; /* Lakers Purple */
-    --brand-secondary: 45 100% 70%; /* Lakers Gold */
-    --brand-accent: 270 80% 50%; /* Light Purple */
+    /* Lakers color system - Purple dominant (80%), Gold accent (20%) */
+    --brand-primary: 270 100% 35%; /* Lakers Purple - Main color */
+    --brand-secondary: 270 80% 50%; /* Light Purple - Secondary */
+    --brand-accent: 45 100% 70%; /* Lakers Gold - Only for accents (20%) */
     --brand-success: 142 76% 36%;
     --brand-warning: 25 95% 53%;
     --brand-error: 0 84% 60%;
@@ -109,16 +109,16 @@ All colors MUST be HSL.
     --popover-foreground: 45 100% 95%;
 
     --primary: 270 100% 45%;
-    --primary-foreground: 45 100% 95%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 45 100% 75%;
-    --secondary-foreground: 270 100% 15%;
+    --secondary: 270 40% 20%;
+    --secondary-foreground: 270 30% 85%;
 
-    --muted: 270 20% 15%;
-    --muted-foreground: 45 50% 80%;
+    --muted: 270 30% 15%;
+    --muted-foreground: 270 20% 70%;
 
-    --accent: 270 70% 60%;
-    --accent-foreground: 45 100% 95%;
+    --accent: 45 100% 70%;
+    --accent-foreground: 270 100% 15%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;

@@ -17,31 +17,31 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 270 100% 35%;
+    --primary-foreground: 45 100% 85%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 45 100% 70%;
+    --secondary-foreground: 270 100% 25%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 45 30% 95%;
+    --muted-foreground: 270 30% 40%;
 
-    --accent: 262 83% 58%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 270 80% 50%;
+    --accent-foreground: 45 100% 90%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 53%;
+    --ring: 270 100% 35%;
 
     --radius: 0.75rem;
     
-    /* Modern color system - Blue & Purple theme */
-    --brand-primary: 221 83% 40%; /* Modern Blue - Darker */
-    --brand-secondary: 262 83% 45%; /* Deep Purple - Darker */
-    --brand-accent: 199 89% 35%; /* Light Blue - Darker */
+    /* Lakers color system - Purple & Gold theme */
+    --brand-primary: 270 100% 35%; /* Lakers Purple */
+    --brand-secondary: 45 100% 70%; /* Lakers Gold */
+    --brand-accent: 270 80% 50%; /* Light Purple */
     --brand-success: 142 76% 36%;
     --brand-warning: 25 95% 53%;
     --brand-error: 0 84% 60%;
@@ -99,26 +99,26 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 270 30% 8%;
+    --foreground: 45 100% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 270 30% 10%;
+    --card-foreground: 45 100% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 270 30% 10%;
+    --popover-foreground: 45 100% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 270 100% 45%;
+    --primary-foreground: 45 100% 95%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 45 100% 75%;
+    --secondary-foreground: 270 100% 15%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 270 20% 15%;
+    --muted-foreground: 45 50% 80%;
 
-    --accent: 262 83% 58%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 270 70% 60%;
+    --accent-foreground: 45 100% 95%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;

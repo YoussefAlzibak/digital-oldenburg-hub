@@ -20,14 +20,14 @@ All colors MUST be HSL.
     --primary: 270 100% 35%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 270 50% 90%;
+    --secondary: 180 25% 90%;
     --secondary-foreground: 270 100% 25%;
 
-    --muted: 270 20% 95%;
-    --muted-foreground: 270 40% 50%;
+    --muted: 240 20% 96%;
+    --muted-foreground: 270 30% 40%;
 
-    --accent: 45 100% 70%;
-    --accent-foreground: 270 100% 20%;
+    --accent: 150 60% 65%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -38,14 +38,14 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
     
-    /* Lakers color system - Purple dominant (80%), Gold accent (20%) */
-    --brand-primary: 270 100% 35%; /* Lakers Purple - Main color */
-    --brand-secondary: 270 80% 50%; /* Light Purple - Secondary */
-    --brand-accent: 45 100% 70%; /* Lakers Gold - Only for accents (20%) */
-    --brand-success: 142 76% 36%;
-    --brand-warning: 25 95% 53%;
-    --brand-error: 0 84% 60%;
-    --brand-neutral: 220 15% 25%;
+    /* Purple-based harmonious color system */
+    --brand-primary: 270 100% 35%; /* Main Purple - kept */
+    --brand-secondary: 180 40% 50%; /* Complementary teal */
+    --brand-accent: 150 60% 65%; /* Soft green accent */
+    --brand-success: 140 60% 50%;
+    --brand-warning: 35 90% 60%;
+    --brand-error: 0 70% 55%;
+    --brand-neutral: 240 15% 25%;
     
     /* Dark theme colors */
     --dark-bg: 217 33% 17%;
@@ -111,14 +111,14 @@ All colors MUST be HSL.
     --primary: 270 100% 45%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 270 40% 20%;
-    --secondary-foreground: 270 30% 85%;
+    --secondary: 180 30% 15%;
+    --secondary-foreground: 180 20% 85%;
 
-    --muted: 270 30% 15%;
-    --muted-foreground: 270 20% 70%;
+    --muted: 240 20% 12%;
+    --muted-foreground: 240 15% 70%;
 
-    --accent: 45 100% 70%;
-    --accent-foreground: 270 100% 15%;
+    --accent: 150 50% 55%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;

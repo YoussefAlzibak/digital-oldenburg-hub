@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ConsultationRequestForm from "@/components/ConsultationRequestForm";
+import { CustomerReviews } from "@/components/CustomerReviews";
 import AppointmentBooking from "@/components/AppointmentBooking";
 import ContactStatusTracker from "@/components/ContactStatusTracker";
 import NewsletterSignup from "@/components/NewsletterSignup";
@@ -696,41 +697,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-24 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up gradient-text">Was unsere Kunden sagen</h2>
-            <p className="text-xl text-muted-foreground animate-fade-in-up stagger-1 max-w-3xl mx-auto">Echtes Feedback von zufriedenen Kunden aus Oldenburg und Umgebung</p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className={`p-8 hover-lift glass-card relative group animate-fade-in-up stagger-${index + 1}`}>
-                <div className="absolute -top-4 -left-4 w-8 h-8 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-full opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                <CardContent className="pt-8">
-                  <div className="flex items-center mb-6">
-                    <div className="h-16 w-16 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                      {testimonial.initials}
-                    </div>
-                    <div className="ml-6">
-                      <h4 className="font-semibold text-lg">{testimonial.name}</h4>
-                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                    </div>
-                  </div>
-                  <blockquote className="text-muted-foreground italic text-lg leading-relaxed mb-6">
-                    "{testimonial.text}"
-                  </blockquote>
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-5 w-5 fill-[hsl(var(--brand-accent))] text-[hsl(var(--brand-accent))] group-hover:scale-110 transition-transform duration-300" style={{transitionDelay: `${i * 50}ms`}} />
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Customer Reviews Section */}
+      <CustomerReviews />
 
       {/* Blog Section */}
       <section className="py-24 section-gradient section-pattern">

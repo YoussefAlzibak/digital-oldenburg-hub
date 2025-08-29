@@ -118,6 +118,54 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_reviews: {
+        Row: {
+          company: string | null
+          created_at: string
+          customer_email: string
+          customer_name: string
+          id: string
+          is_approved: boolean
+          is_featured: boolean
+          is_public: boolean
+          rating: number
+          review_date: string
+          review_text: string
+          service_type: string
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          customer_email: string
+          customer_name: string
+          id?: string
+          is_approved?: boolean
+          is_featured?: boolean
+          is_public?: boolean
+          rating: number
+          review_date?: string
+          review_text: string
+          service_type: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          customer_email?: string
+          customer_name?: string
+          id?: string
+          is_approved?: boolean
+          is_featured?: boolean
+          is_public?: boolean
+          rating?: number
+          review_date?: string
+          review_text?: string
+          service_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_automation_steps: {
         Row: {
           automation_id: string

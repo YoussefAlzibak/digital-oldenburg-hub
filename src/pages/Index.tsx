@@ -318,21 +318,15 @@ const Index = () => {
 
   const team = [
     {
-      name: "Maxim Schulz",
-      role: "Geschäftsführer & Lead Developer",
-      specialties: ["Full-Stack Development", "CRM Integration", "Project Management"],
+      name: "Nouh Abdullah",
+      role: "Geschäftsführer",
+      specialties: ["Business Development", "Strategy", "Client Relations"],
       image: teamImage
     },
     {
-      name: "Sarah Schmidt",
-      role: "UI/UX Designerin",
-      specialties: ["User Experience", "Interface Design", "Brand Identity"],
-      image: teamImage
-    },
-    {
-      name: "Tom Weber",
-      role: "IT-Consultant",
-      specialties: ["Smart Home", "Network Security", "System Administration"],
+      name: "Youssef Alzibak",
+      role: "Programmierer",
+      specialties: ["Full-Stack Development", "API Integration", "Database Design"],
       image: teamImage
     }
   ];
@@ -621,30 +615,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Client Logos Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h3 className="text-2xl font-black text-[hsl(var(--brand-secondary))] mb-4 uppercase tracking-tight">
-              Unsere Kund:innen
-            </h3>
-            <div className="w-24 h-1 bg-[hsl(var(--brand-primary))] mx-auto"></div>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center opacity-60">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center group animate-fade-up delay-100">
-                <div className="text-4xl font-black text-[hsl(var(--brand-primary))] mb-2 group-hover:scale-110 transition-transform">
-                  {stat.number}
-                </div>
-                <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Portfolio Section - Enhanced & Centered */}
       <section id="portfolio" className="py-32 bg-white">
@@ -813,7 +783,7 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+          <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
             {team.map((member, index) => (
               <Card key={index} className={`card-clean text-center p-8 group animate-fade-up delay-${index * 100}`}>
                 <div className="relative mb-8">

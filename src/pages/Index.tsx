@@ -233,22 +233,22 @@ const Index = () => {
 
   const testimonials = [
     {
-      name: "Markus Hansen",
-      role: "Inhaber, Hansen Metallbau Oldenburg",
-      initials: "MH",
-      text: "Endlich eine moderne Website! Unicum Tec hat verstanden, was unser Handwerksbetrieb braucht. Mehr Anfragen und eine professionelle Online-Präsenz."
+      name: "Marcel Schmidt",
+      role: "Geschäftsführer, Schmidt Automobile Oldenburg",
+      initials: "MS",
+      text: "Unicum Tec hat unsere komplette IT-Infrastruktur modernisiert. Seit dem Update läuft alles reibungslos und unsere Kunden sind begeistert von unserem neuen Online-Auftritt."
     },
     {
-      name: "Dr. Sarah Weber",
-      role: "Zahnärztin, Praxis Weber Oldenburg",
-      initials: "SW", 
-      text: "Schnelle Umsetzung und faire Preise. Unsere Praxis-Website ist genau das, was wir uns vorgestellt haben. Patienten finden uns jetzt viel besser online."
+      name: "Anna Hoffmann",
+      role: "Inhaberin, Café Hoffmann Oldenburg",
+      initials: "AH", 
+      text: "Das neue Online-Bestellsystem hat unseren Umsatz um 60% gesteigert. Kunden können jetzt einfach vorbestellen und wir haben deutlich weniger Wartezeiten."
     },
     {
-      name: "Robert Meyer",
-      role: "Marketing Director, Digital Pioneers",
-      initials: "RM",
-      text: "Die HubSpot-Integration durch Unicum Tec war ein Game-Changer für unser Marketing. Lead-Generierung funktioniert jetzt automatisch und unsere Conversion-Rate hat sich verdreifacht."
+      name: "Thomas Lindner",
+      role: "Geschäftsführer, Lindner Elektrotechnik",
+      initials: "TL",
+      text: "Von der ersten Beratung bis zur finalen Umsetzung - alles perfekt. Unser CRM-System läuft seit Monaten ohne Probleme und unsere Kundenbetreuung ist viel effizienter geworden."
     }
   ];
 

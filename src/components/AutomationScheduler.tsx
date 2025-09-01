@@ -355,23 +355,53 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
   };
 
   const triggerTypes = [
-    { value: 'newsletter_signup', label: 'Newsletter Anmeldung', description: 'Wird ausgelöst bei Newsletter-Anmeldungen' },
-    { value: 'contact_form', label: 'Kontaktformular', description: 'Wird ausgelöst bei Kontaktformular-Übermittlungen' },
-    { value: 'appointment_booked', label: 'Termin gebucht', description: 'Wird ausgelöst bei Terminbuchungen' },
-    { value: 'date_based', label: 'Datumsbasiert', description: 'Wird zu einem bestimmten Datum/Zeit ausgelöst' },
-    { value: 'user_action', label: 'Benutzeraktion', description: 'Wird bei bestimmten Benutzeraktionen ausgelöst' }
+    { 
+      value: 'newsletter_signup', 
+      label: '📧 Newsletter Anmeldung', 
+      description: 'Automatische Willkommens-Serie für neue Newsletter-Abonnenten',
+      useCase: 'Perfekt für: Willkommens-E-Mails, Onboarding-Serien, erste Kontaktaufnahme',
+      icon: Mail
+    },
+    { 
+      value: 'contact_form', 
+      label: '📝 Kontaktformular Eingang', 
+      description: 'Sofortige Antwort und Follow-up nach Kontaktanfragen',
+      useCase: 'Perfekt für: Bestätigungen, Terminvorschläge, zusätzliche Informationen',
+      icon: Users
+    },
+    { 
+      value: 'appointment_booked', 
+      label: '📅 Termin gebucht', 
+      description: 'Bestätigung und Vorbereitung vor wichtigen Terminen',
+      useCase: 'Perfekt für: Terminbestätigungen, Erinnerungen, Vorbereitungsmaterial',
+      icon: Calendar
+    },
+    { 
+      value: 'date_based', 
+      label: '⏰ Zeitgesteuert', 
+      description: 'Kampagnen zu bestimmten Terminen automatisch versenden',
+      useCase: 'Perfekt für: Saisonale Angebote, Geburtstagsmails, Jahrestage',
+      icon: Clock
+    },
+    { 
+      value: 'user_action', 
+      label: '🎯 Nutzer-Aktion', 
+      description: 'Reaktion auf spezifische Aktivitäten Ihrer Kunden',
+      useCase: 'Perfekt für: Download-Bestätigungen, Kauf-Follow-ups, Reaktivierung',
+      icon: Zap
+    }
   ];
 
   const delayOptions = [
-    { value: 0, label: 'Sofort' },
-    { value: 15, label: '15 Minuten' },
-    { value: 60, label: '1 Stunde' },
-    { value: 240, label: '4 Stunden' },
-    { value: 1440, label: '1 Tag' },
-    { value: 2880, label: '2 Tage' },
-    { value: 4320, label: '3 Tage' },
-    { value: 10080, label: '1 Woche' },
-    { value: 43200, label: '1 Monat' }
+    { value: 0, label: '⚡ Sofort senden', description: 'Direkter Versand ohne Verzögerung' },
+    { value: 15, label: '⏱️ Nach 15 Minuten', description: 'Kurze Pause für Systemprozesse' },
+    { value: 60, label: '🕐 Nach 1 Stunde', description: 'Schnelle Nachfassung' },
+    { value: 240, label: '🕓 Nach 4 Stunden', description: 'Am selben Tag folgen' },
+    { value: 1440, label: '📅 Nach 1 Tag', description: 'Am nächsten Tag senden' },
+    { value: 2880, label: '📆 Nach 2 Tagen', description: 'Angemessene Pause zwischen E-Mails' },
+    { value: 4320, label: '🗓️ Nach 3 Tagen', description: 'Ausreichend Bedenkzeit geben' },
+    { value: 10080, label: '📋 Nach 1 Woche', description: 'Wöchentliche Nachfassung' },
+    { value: 43200, label: '📊 Nach 1 Monat', description: 'Langfristige Kundenpflege' }
   ];
 
   return (
@@ -379,19 +409,26 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5" />
-            {automation ? 'Automatisierung bearbeiten' : 'Neue Automatisierung erstellen'}
+            <Zap className="h-5 w-5 text-primary" />
+            {automation ? '✏️ Automatisierung bearbeiten' : '🚀 Neue Automatisierung erstellen'}
           </DialogTitle>
-          <DialogDescription>
-            Erstellen Sie E-Mail Automatisierungen mit mehreren Schritten und Zeitverzögerungen
+          <DialogDescription className="text-base">
+            Sparen Sie Zeit mit intelligenten E-Mail-Automatisierungen. 
+            Einmal einrichten, automatisch profitieren! 📈
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Basic Settings */}
-          <Card>
+          <Card className="border-primary/20">
             <CardHeader>
-              <CardTitle className="text-lg">Grundeinstellungen</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Settings className="h-5 w-5 text-primary" />
+                ⚙️ Grundeinstellungen
+              </CardTitle>
+              <CardDescription>
+                Geben Sie Ihrer Automatisierung einen aussagekräftigen Namen und wählen Sie den passenden Auslöser.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -424,24 +461,41 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
                 />
               </div>
 
-              <div>
-                <Label htmlFor="trigger-type">Auslöser Typ *</Label>
-                <Select value={formData.trigger_type} onValueChange={(value) => setFormData({...formData, trigger_type: value})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {triggerTypes.map(type => (
-                      <SelectItem key={type.value} value={type.value}>
-                        <div>
-                          <div>{type.label}</div>
-                          <div className="text-xs text-muted-foreground">{type.description}</div>
+                <div>
+                  <Label htmlFor="trigger-type">Wann soll die Automatisierung starten? *</Label>
+                  <Select value={formData.trigger_type} onValueChange={(value) => setFormData({...formData, trigger_type: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Auslöser auswählen..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {triggerTypes.map(type => (
+                        <SelectItem key={type.value} value={type.value}>
+                          <div className="space-y-1">
+                            <div className="font-medium">{type.label}</div>
+                            <div className="text-xs text-muted-foreground">{type.description}</div>
+                            <div className="text-xs text-primary/70 italic">{type.useCase}</div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  {/* Show selected trigger info */}
+                  {formData.trigger_type && (
+                    <div className="mt-2 p-3 bg-primary/5 rounded-md border border-primary/20">
+                      <div className="flex items-start gap-2">
+                        <div className="text-sm">
+                          <div className="font-medium text-primary">
+                            {triggerTypes.find(t => t.value === formData.trigger_type)?.label}
+                          </div>
+                          <div className="text-muted-foreground text-xs mt-1">
+                            {triggerTypes.find(t => t.value === formData.trigger_type)?.description}
+                          </div>
                         </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
               {/* Date-based trigger settings */}
               {formData.trigger_type === 'date_based' && (
@@ -487,17 +541,21 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
           </Card>
 
           {/* Automation Steps */}
-          <Card>
+          <Card className="border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-lg">Automatisierungsschritte</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Mail className="h-5 w-5 text-primary" />
+                  📧 E-Mail Schritte
+                </CardTitle>
                 <CardDescription>
-                  Definieren Sie die E-Mail-Schritte und deren Zeitverzögerungen
+                  Erstellen Sie eine Folge von E-Mails mit perfektem Timing. 
+                  Jeder Schritt baut auf den vorherigen auf! 🎯
                 </CardDescription>
               </div>
-              <Button onClick={addStep} size="sm">
+              <Button onClick={addStep} size="sm" className="bg-primary hover:bg-primary/90">
                 <Plus className="h-4 w-4 mr-2" />
-                Schritt hinzufügen
+                ➕ Weiteren Schritt hinzufügen
               </Button>
             </CardHeader>
             <CardContent className="space-y-4">

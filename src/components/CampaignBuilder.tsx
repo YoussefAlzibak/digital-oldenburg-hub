@@ -459,20 +459,21 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
       <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Send className="h-5 w-5" />
-            {campaign ? 'Kampagne bearbeiten' : 'Neue Kampagne erstellen'}
+            <Send className="h-5 w-5 text-primary" />
+            {campaign ? '✏️ Kampagne bearbeiten' : '🚀 Neue Kampagne erstellen'}
           </DialogTitle>
-          <DialogDescription>
-            Erstellen Sie professionelle E-Mail-Kampagnen mit erweiterten Formeln und Personalisierung
+          <DialogDescription className="text-base">
+            Erstellen Sie professionelle E-Mail-Kampagnen mit erweiterten Formeln und Personalisierung.
+            Erreichen Sie Ihre Zielgruppe zur perfekten Zeit! 🎯
           </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="content" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="content">Inhalt</TabsTrigger>
-            <TabsTrigger value="settings">Einstellungen</TabsTrigger>
-            <TabsTrigger value="preview">Vorschau</TabsTrigger>
-            <TabsTrigger value="formulas">Formeln</TabsTrigger>
+            <TabsTrigger value="content">📝 Inhalt</TabsTrigger>
+            <TabsTrigger value="settings">⚙️ Einstellungen</TabsTrigger>
+            <TabsTrigger value="preview">👁️ Vorschau</TabsTrigger>
+            <TabsTrigger value="formulas">🧮 Formeln</TabsTrigger>
           </TabsList>
 
           {/* Content Tab */}

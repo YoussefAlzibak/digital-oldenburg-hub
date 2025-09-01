@@ -377,38 +377,77 @@ export default function EmailMarketingSystem() {
   };
 
   const getStatusBadge = (status: string, type: 'subscriber' | 'campaign' | 'automation' = 'subscriber') => {
-    const statusColors = {
+    const statusConfig = {
       subscriber: {
-        active: 'bg-green-100 text-green-800',
-        unsubscribed: 'bg-gray-100 text-gray-800',
-        bounced: 'bg-red-100 text-red-800'
+        active: { 
+          className: 'bg-success/10 text-success border-success/20', 
+          label: '✅ Aktiv',
+          icon: '💚'
+        },
+        unsubscribed: { 
+          className: 'bg-muted text-muted-foreground border-muted', 
+          label: '📤 Abgemeldet',
+          icon: '📤'
+        },
+        bounced: { 
+          className: 'bg-destructive/10 text-destructive border-destructive/20', 
+          label: '❌ Bounced',
+          icon: '❌'
+        }
       },
       campaign: {
-        draft: 'bg-gray-100 text-gray-800',
-        scheduled: 'bg-blue-100 text-blue-800',
-        sending: 'bg-yellow-100 text-yellow-800',
-        sent: 'bg-green-100 text-green-800',
-        cancelled: 'bg-red-100 text-red-800'
+        draft: { 
+          className: 'bg-muted text-muted-foreground border-muted', 
+          label: '📝 Entwurf',
+          icon: '📝'
+        },
+        scheduled: { 
+          className: 'bg-primary/10 text-primary border-primary/20', 
+          label: '⏰ Geplant',
+          icon: '⏰'
+        },
+        sending: { 
+          className: 'bg-warning/10 text-warning border-warning/20', 
+          label: '🚀 Wird versendet',
+          icon: '🚀'
+        },
+        sent: { 
+          className: 'bg-success/10 text-success border-success/20', 
+          label: '✅ Versendet',
+          icon: '✅'
+        },
+        cancelled: { 
+          className: 'bg-destructive/10 text-destructive border-destructive/20', 
+          label: '🚫 Abgebrochen',
+          icon: '🚫'
+        }
       },
       automation: {
-        active: 'bg-green-100 text-green-800',
-        inactive: 'bg-gray-100 text-gray-800'
+        active: { 
+          className: 'bg-success/10 text-success border-success/20', 
+          label: '🟢 Aktiv',
+          icon: '🟢'
+        },
+        inactive: { 
+          className: 'bg-muted text-muted-foreground border-muted', 
+          label: '⭕ Inaktiv',
+          icon: '⭕'
+        }
       }
-    };
+    } as const;
 
-    const colorClass = statusColors[type][status as keyof typeof statusColors[typeof type]] || 'bg-gray-100 text-gray-800';
+    const typeConfig = statusConfig[type];
+    const config = typeConfig && status in typeConfig 
+      ? typeConfig[status as keyof typeof typeConfig]
+      : {
+          className: 'bg-muted text-muted-foreground border-muted',
+          label: status,
+          icon: '❓'
+        };
     
     return (
-      <Badge className={`${colorClass} border-none`}>
-        {status === 'active' ? 'Aktiv' :
-         status === 'inactive' ? 'Inaktiv' :
-         status === 'unsubscribed' ? 'Abgemeldet' :
-         status === 'bounced' ? 'Bounced' :
-         status === 'draft' ? 'Entwurf' :
-         status === 'scheduled' ? 'Geplant' :
-         status === 'sending' ? 'Wird versendet' :
-         status === 'sent' ? 'Versendet' :
-         status === 'cancelled' ? 'Abgebrochen' : status}
+      <Badge className={`${config.className} font-medium`}>
+        {config.icon} {config.label}
       </Badge>
     );
   };
@@ -421,8 +460,12 @@ export default function EmailMarketingSystem() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">E-Mail Marketing</h2>
-          <p className="text-muted-foreground">Verwalten Sie Ihre E-Mail-Kampagnen und Automatisierungen</p>
+          <h2 className="text-3xl font-bold text-foreground flex items-center gap-2">
+            📧 E-Mail Marketing
+          </h2>
+          <p className="text-muted-foreground text-lg">
+            Intelligente Kampagnen und Automatisierungen für erfolgreiches Marketing 🚀
+          </p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -431,9 +474,10 @@ export default function EmailMarketingSystem() {
               setEditingItem(null);
               setShowTemplateEditor(true);
             }}
+            className="border-primary/20 hover:bg-primary/5"
           >
             <FileText className="h-4 w-4 mr-2" />
-            Neues Template
+            📄 Neues Template
           </Button>
           <Button
             variant="outline"
@@ -441,41 +485,49 @@ export default function EmailMarketingSystem() {
               setEditingItem(null);
               setShowAutomationScheduler(true);
             }}
+            className="border-primary/20 hover:bg-primary/5"
           >
             <Zap className="h-4 w-4 mr-2" />
-            Neue Automatisierung
+            ⚡ Neue Automatisierung
           </Button>
           <Button
             onClick={() => {
               setEditingItem(null);
               setShowCampaignBuilder(true);
             }}
-            className="bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90"
+            className="bg-primary hover:bg-primary/90 shadow-lg"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Neue Kampagne
+            🚀 Neue Kampagne
           </Button>
         </div>
       </div>
 
-      {/* Auto-Sync Info Banner */}
+      {/* Enhanced Sync Info Banner */}
       {stats.totalSubscribers > 0 && (
-        <Card className="mb-6 border-green-200 bg-green-50/50">
-          <CardContent className="pt-4">
-            <div className="flex items-center gap-3">
+        <Card className="mb-6 border-primary/30 bg-gradient-to-r from-primary/5 to-primary/10 shadow-md">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <Users className="h-4 w-4 text-green-600" />
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center border-2 border-primary/20">
+                  <Users className="h-6 w-6 text-primary" />
                 </div>
               </div>
               <div className="flex-1">
-                <h3 className="font-medium text-green-800">📧 Abonnenten synchronisiert!</h3>
-                <p className="text-sm text-green-700">
-                  {stats.totalSubscribers} aktive Abonnenten sind verfügbar für Kampagnen. 
-                  Neue Abonnenten werden automatisch zur Standard-Liste hinzugefügt.
+                <h3 className="font-semibold text-primary text-lg mb-1">
+                  🎉 {stats.totalSubscribers} aktive Abonnenten bereit!
+                </h3>
+                <p className="text-sm text-primary/80">
+                  Ihre E-Mail-Liste wächst! Neue Abonnenten werden automatisch synchronisiert 
+                  und können sofort für Kampagnen genutzt werden. 📈
                 </p>
+                <div className="flex items-center gap-4 mt-2 text-xs text-primary/70">
+                  <span>✅ Automatische Synchronisation aktiv</span>
+                  <span>📊 Bereit für Kampagnen</span>
+                  <span>🎯 Segmentierung verfügbar</span>
+                </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2">
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -486,19 +538,19 @@ export default function EmailMarketingSystem() {
                     }
                   }}
                   disabled={syncing}
-                  className="border-green-300 text-green-700 hover:bg-green-100"
+                  className="border-primary/30 text-primary hover:bg-primary/10"
                 >
                   <RotateCcw className={cn("h-4 w-4 mr-2", syncing && "animate-spin")} />
-                  {syncing ? 'Synchronisiere...' : 'Jetzt synchronisieren'}
+                  {syncing ? '🔄 Synchronisiere...' : '🔄 Jetzt synchronisieren'}
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onClick={loadEmailData}
-                  className="border-green-300 text-green-700 hover:bg-green-100"
+                  className="border-primary/30 text-primary hover:bg-primary/10"
                 >
                   <RotateCcw className="h-4 w-4 mr-2" />
-                  Aktualisieren
+                  📊 Daten aktualisieren
                 </Button>
               </div>
             </div>

@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GoogleCalendarSettings from '@/components/GoogleCalendarSettings';
 import CalendarAvailabilityManager from '@/components/CalendarAvailabilityManager';
 import CalendarHolidayManager from '@/components/CalendarHolidayManager';
+import IntegratedCalendarView from '@/components/IntegratedCalendarView';
 import { Calendar, Clock, Ban, Settings } from 'lucide-react';
 
 export default function CalendarSettings() {
@@ -47,13 +48,7 @@ export default function CalendarSettings() {
         </TabsContent>
 
         <TabsContent value="calendar" className="space-y-6">
-          <div className="text-center py-12">
-            <Calendar className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Kalender-Ansicht</h3>
-            <p className="text-muted-foreground">
-              Hier wird bald eine interaktive Kalender-Ansicht verfügbar sein
-            </p>
-          </div>
+          <IntegratedCalendarView />
         </TabsContent>
       </Tabs>
     </div>

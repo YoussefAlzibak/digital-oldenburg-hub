@@ -70,6 +70,45 @@ export type Database = {
           },
         ]
       }
+      automated_tasks: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          max_retries: number
+          processed_at: string | null
+          retry_count: number
+          scheduled_for: string
+          status: string
+          task_data: Json
+          task_type: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          max_retries?: number
+          processed_at?: string | null
+          retry_count?: number
+          scheduled_for?: string
+          status?: string
+          task_data: Json
+          task_type: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          max_retries?: number
+          processed_at?: string | null
+          retry_count?: number
+          scheduled_for?: string
+          status?: string
+          task_data?: Json
+          task_type?: string
+        }
+        Relationships: []
+      }
       contact_requests: {
         Row: {
           budget_range: string | null
@@ -679,6 +718,89 @@ export type Database = {
         }
         Relationships: []
       }
+      renewal_reminders: {
+        Row: {
+          appointment_id: string
+          created_at: string
+          error_message: string | null
+          id: string
+          reminder_date: string
+          renewal_setting_id: string | null
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          reminder_date: string
+          renewal_setting_id?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          reminder_date?: string
+          renewal_setting_id?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "renewal_reminders_renewal_setting_id_fkey"
+            columns: ["renewal_setting_id"]
+            isOneToOne: false
+            referencedRelation: "renewal_settings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      renewal_settings: {
+        Row: {
+          advance_notice_days: number
+          appointment_id: string
+          created_at: string
+          frequency: string
+          id: string
+          is_active: boolean
+          max_renewals: number
+          next_renewal_date: string | null
+          renewal_type: string
+          renewals_count: number
+          updated_at: string
+        }
+        Insert: {
+          advance_notice_days?: number
+          appointment_id: string
+          created_at?: string
+          frequency: string
+          id?: string
+          is_active?: boolean
+          max_renewals?: number
+          next_renewal_date?: string | null
+          renewal_type: string
+          renewals_count?: number
+          updated_at?: string
+        }
+        Update: {
+          advance_notice_days?: number
+          appointment_id?: string
+          created_at?: string
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          max_renewals?: number
+          next_renewal_date?: string | null
+          renewal_type?: string
+          renewals_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       smtp_settings: {
         Row: {
           created_at: string
@@ -746,6 +868,10 @@ export type Database = {
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
+      }
+      process_renewal_tasks: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       save_google_calendar_settings: {
         Args: {

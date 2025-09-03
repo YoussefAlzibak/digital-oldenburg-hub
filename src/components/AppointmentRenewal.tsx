@@ -49,8 +49,8 @@ interface Appointment {
 interface RenewalSettings {
   id?: string;
   appointment_id: string;
-  renewal_type: 'automatic' | 'reminder';
-  frequency: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+  renewal_type: string;
+  frequency: string;
   advance_notice_days: number;
   max_renewals: number;
   is_active: boolean;
@@ -64,8 +64,18 @@ interface RenewalReminder {
   appointment_id: string;
   reminder_date: string;
   sent_at?: string;
-  status: 'pending' | 'sent' | 'failed';
+  status: string;
   created_at: string;
+  appointments?: {
+    scheduled_date: string;
+    scheduled_time: string;
+    contact_requests?: {
+      name: string;
+      email: string;
+      company?: string;
+      service_type: string;
+    };
+  };
 }
 
 export default function AppointmentRenewal() {
@@ -96,28 +106,49 @@ export default function AppointmentRenewal() {
     try {
       setLoading(true);
 
-      // Load completed appointments
-      const { data: appointmentsData, error: appointmentsError } = await supabase
-        .from('appointments')
-        .select(`
-          *,
-          contact_requests (
-            name,
-            email,
-            company,
-            service_type
-          )
-        `)
-        .eq('status', 'completed')
-        .order('scheduled_date', { ascending: false });
+      const [appointmentsResponse, renewalSettingsResponse, remindersResponse] = await Promise.all([
+        // Load completed appointments
+        supabase
+          .from('appointments')
+          .select(`
+            *,
+            contact_requests (
+              name,
+              email,
+              company,
+              service_type
+            )
+          `)
+          .eq('status', 'completed')
+          .order('scheduled_date', { ascending: false }),
+        
+        // Load renewal settings
+        supabase
+          .from('renewal_settings')
+          .select('*')
+          .order('created_at', { ascending: false }),
+        
+        // Load reminders with appointments data
+        supabase
+          .from('renewal_reminders')
+          .select(`
+            *,
+            appointments(
+              scheduled_date,
+              scheduled_time,
+              contact_requests(name, email, company, service_type)
+            )
+          `)
+          .order('created_at', { ascending: false })
+      ]);
 
-      if (appointmentsError) throw appointmentsError;
-      setAppointments(appointmentsData || []);
+      if (appointmentsResponse.error) throw appointmentsResponse.error;
+      if (renewalSettingsResponse.error) throw renewalSettingsResponse.error;
+      if (remindersResponse.error) throw remindersResponse.error;
 
-      // Note: We'll need to create these tables in the migration
-      // For now, we'll use mock data structure
-      setRenewalSettings([]);
-      setReminders([]);
+      setAppointments(appointmentsResponse.data || []);
+      setRenewalSettings((renewalSettingsResponse.data || []) as RenewalSettings[]);
+      setReminders((remindersResponse.data || []) as RenewalReminder[]);
 
     } catch (error: any) {
       console.error('Error loading data:', error);
@@ -263,45 +294,42 @@ export default function AppointmentRenewal() {
       return;
     }
 
-    // In a real implementation, we'd insert into a renewals/reminders table
-    console.log('Creating renewal reminder:', {
-      appointmentId: appointment.id,
-      reminderDate: format(reminderDate, 'yyyy-MM-dd'),
-      renewalDate: format(renewalDate, 'yyyy-MM-dd'),
-      settings: formData
-    });
-
     try {
-      // Trigger reminder automation
-      const { error } = await supabase.functions.invoke('process-automations', {
-        body: {
-          triggerType: 'appointment_renewal_reminder',
-          subscriberEmail: appointment.contact_requests.email,
-          triggerData: {
-            first_name: appointment.contact_requests.name.split(' ')[0] || 'Kunde',
-            email: appointment.contact_requests.email,
-            company: appointment.contact_requests.company || '',
-            service_type: appointment.contact_requests.service_type || 'Beratung',
-            last_appointment_date: format(new Date(appointment.scheduled_date), 'dd.MM.yyyy'),
-            suggested_renewal_date: format(renewalDate, 'dd.MM.yyyy'),
-            company_name: 'Digital Masters'
-          }
-        }
-      });
+      // Create renewal setting in database
+      const { data: renewalSetting, error: renewalError } = await supabase
+        .from('renewal_settings')
+        .insert([{
+          appointment_id: appointment.id,
+          renewal_type: formData.renewal_type!,
+          frequency: formData.frequency!,
+          advance_notice_days: formData.advance_notice_days!,
+          max_renewals: formData.max_renewals!,
+          renewals_count: 0,
+          next_renewal_date: format(renewalDate, 'yyyy-MM-dd'),
+          is_active: true
+        }])
+        .select()
+        .single();
 
-      if (error) {
-        console.error('Automation error:', error);
-        toast({
-          title: "Warnung",
-          description: "Erinnerung erstellt, aber E-Mail-Automation fehlgeschlagen.",
-          variant: "destructive"
-        });
-      }
+      if (renewalError) throw renewalError;
+
+      // Create initial reminder entry
+      const { error: reminderError } = await supabase
+        .from('renewal_reminders')
+        .insert([{
+          appointment_id: appointment.id,
+          renewal_setting_id: renewalSetting.id,
+          reminder_date: format(reminderDate, 'yyyy-MM-dd'),
+          status: 'pending'
+        }]);
+
+      if (reminderError) throw reminderError;
+
     } catch (error: any) {
-      console.error('Failed to trigger automation:', error);
+      console.error('Failed to create renewal reminder:', error);
       toast({
-        title: "Warnung", 
-        description: "Erinnerung erstellt, aber E-Mail konnte nicht versendet werden.",
+        title: "Fehler", 
+        description: "Erinnerung konnte nicht erstellt werden: " + error.message,
         variant: "destructive"
       });
     }
@@ -408,10 +436,49 @@ export default function AppointmentRenewal() {
                   Übersicht aller geplanten und gesendeten Erinnerungen
                 </DialogDescription>
               </DialogHeader>
-              {/* Reminder table would go here */}
-              <div className="text-center py-8 text-muted-foreground">
-                Keine Erinnerungen vorhanden
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Termin</TableHead>
+                    <TableHead>Erinnerungsdatum</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Versendet</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {reminders.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                        Keine Erinnerungen vorhanden
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    reminders.map((reminder) => (
+                      <TableRow key={reminder.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">
+                              {reminder.appointments?.contact_requests?.name || 'Unbekannt'}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {format(new Date(reminder.appointments?.scheduled_date || ''), 'PPP', { locale: de })}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {format(new Date(reminder.reminder_date), 'PPP', { locale: de })}
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(reminder.status)}
+                        </TableCell>
+                        <TableCell>
+                          {reminder.sent_at ? format(new Date(reminder.sent_at), 'PPp', { locale: de }) : '-'}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
             </DialogContent>
           </Dialog>
 

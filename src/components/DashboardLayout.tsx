@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "./DashboardSidebar";
+import DashboardNotifications from "./DashboardNotifications";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -13,10 +14,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <DashboardSidebar />
         
         <main className="flex-1 flex flex-col">
-          {/* Header with trigger */}
+          {/* Header with trigger and notifications */}
           <header className="h-12 flex items-center border-b bg-background px-4">
             <SidebarTrigger className="mr-4" />
             <div className="flex-1" />
+            <DashboardNotifications />
           </header>
           
           {/* Main content */}

@@ -53,20 +53,43 @@ interface EmailList {
   description?: string;
   is_active: boolean;
   created_at: string;
+  subscriber_count?: number;
+}
+
+interface SubscriberListAssignment {
+  id: string;
+  list_id: string;
+  subscriber_id: string;
+  subscribed_at: string;
+}
+
+interface SubscriberActivity {
+  id: string;
+  subscriber_id: string;
+  activity_type: 'opened' | 'clicked' | 'bounced' | 'unsubscribed' | 'subscribed';
+  campaign_id?: string;
+  created_at: string;
+  metadata?: any;
 }
 
 export default function SubscriberManagement() {
   const [subscribers, setSubscribers] = useState<EmailSubscriber[]>([]);
   const [emailLists, setEmailLists] = useState<EmailList[]>([]);
+  const [subscriberListAssignments, setSubscriberListAssignments] = useState<SubscriberListAssignment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sourceFilter, setSourceFilter] = useState<string>('all');
+  const [listFilter, setListFilter] = useState<string>('all');
   const [selectedSubscribers, setSelectedSubscribers] = useState<string[]>([]);
+  const [selectedList, setSelectedList] = useState<string>('');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showListDialog, setShowListDialog] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [showSegmentDialog, setShowSegmentDialog] = useState(false);
   const [editingSubscriber, setEditingSubscriber] = useState<EmailSubscriber | null>(null);
+  const [importData, setImportData] = useState<string>('');
   const [formData, setFormData] = useState({
     email: '',
     first_name: '',
@@ -86,7 +109,7 @@ export default function SubscriberManagement() {
 
   const loadData = async () => {
     try {
-      const [subscribersResponse, listsResponse] = await Promise.all([
+      const [subscribersResponse, listsResponse, assignmentsResponse] = await Promise.all([
         supabase
           .from('email_subscribers')
           .select('*')
@@ -94,14 +117,27 @@ export default function SubscriberManagement() {
         supabase
           .from('email_lists')
           .select('*')
-          .order('created_at', { ascending: false })
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('email_list_subscribers')
+          .select('*')
       ]);
 
       if (subscribersResponse.error) throw subscribersResponse.error;
       if (listsResponse.error) throw listsResponse.error;
+      if (assignmentsResponse.error) throw assignmentsResponse.error;
 
       setSubscribers((subscribersResponse.data || []) as EmailSubscriber[]);
-      setEmailLists(listsResponse.data || []);
+      
+      // Calculate subscriber count for each list
+      const assignmentsData = assignmentsResponse.data || [];
+      const listsWithCounts = (listsResponse.data || []).map(list => ({
+        ...list,
+        subscriber_count: assignmentsData.filter(a => a.list_id === list.id).length
+      }));
+      
+      setEmailLists(listsWithCounts);
+      setSubscriberListAssignments(assignmentsData);
     } catch (error: any) {
       console.error('Error loading data:', error);
       toast({
@@ -124,7 +160,18 @@ export default function SubscriberManagement() {
     const matchesStatus = statusFilter === 'all' || subscriber.status === statusFilter;
     const matchesSource = sourceFilter === 'all' || subscriber.source === sourceFilter;
     
-    return matchesSearch && matchesStatus && matchesSource;
+    let matchesList = true;
+    if (listFilter !== 'all') {
+      if (listFilter === 'none') {
+        matchesList = !subscriberListAssignments.some(a => a.subscriber_id === subscriber.id);
+      } else {
+        matchesList = subscriberListAssignments.some(a => 
+          a.subscriber_id === subscriber.id && a.list_id === listFilter
+        );
+      }
+    }
+    
+    return matchesSearch && matchesStatus && matchesSource && matchesList;
   });
 
   const resetForm = () => {
@@ -364,6 +411,194 @@ export default function SubscriberManagement() {
     }
   };
 
+  const handleAddToList = async () => {
+    if (!selectedList || selectedSubscribers.length === 0) {
+      toast({
+        title: "Fehler",
+        description: "Bitte wählen Sie eine Liste und mindestens einen Abonnenten aus.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const assignments = selectedSubscribers.map(subscriberId => ({
+        list_id: selectedList,
+        subscriber_id: subscriberId
+      }));
+
+      // Check for existing assignments to avoid duplicates
+      const existingAssignments = subscriberListAssignments.filter(a => 
+        a.list_id === selectedList && selectedSubscribers.includes(a.subscriber_id)
+      );
+
+      const newAssignments = assignments.filter(a => 
+        !existingAssignments.some(ea => ea.subscriber_id === a.subscriber_id)
+      );
+
+      if (newAssignments.length === 0) {
+        toast({
+          title: "Info",
+          description: "Alle ausgewählten Abonnenten sind bereits in dieser Liste.",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('email_list_subscribers')
+        .insert(newAssignments);
+
+      if (error) throw error;
+
+      toast({
+        title: "Erfolg",
+        description: `${newAssignments.length} Abonnenten wurden zur Liste hinzugefügt.`,
+      });
+
+      setSelectedSubscribers([]);
+      setSelectedList('');
+      loadData();
+    } catch (error: any) {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRemoveFromList = async (subscriberId: string, listId: string) => {
+    try {
+      const { error } = await supabase
+        .from('email_list_subscribers')
+        .delete()
+        .eq('subscriber_id', subscriberId)
+        .eq('list_id', listId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Erfolg",
+        description: "Abonnent wurde aus der Liste entfernt.",
+      });
+
+      loadData();
+    } catch (error: any) {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleImportSubscribers = async () => {
+    if (!importData.trim()) {
+      toast({
+        title: "Fehler",
+        description: "Bitte geben Sie CSV-Daten ein.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const lines = importData.trim().split('\n');
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      
+      if (!headers.includes('email')) {
+        toast({
+          title: "Fehler",
+          description: "CSV muss eine 'email' Spalte enthalten.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const subscribersToImport = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        const subscriber: any = { source: 'import', status: 'active' };
+        
+        headers.forEach((header, index) => {
+          if (values[index]) {
+            if (header === 'tags') {
+              subscriber[header] = values[index].split(';').map(t => t.trim());
+            } else {
+              subscriber[header] = values[index];
+            }
+          }
+        });
+
+        if (subscriber.email) {
+          subscribersToImport.push(subscriber);
+        }
+      }
+
+      if (subscribersToImport.length === 0) {
+        toast({
+          title: "Fehler",
+          description: "Keine gültigen Abonnenten gefunden.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('email_subscribers')
+        .insert(subscribersToImport);
+
+      if (error) throw error;
+
+      toast({
+        title: "Erfolg",
+        description: `${subscribersToImport.length} Abonnenten wurden importiert.`,
+      });
+
+      setImportData('');
+      setShowImportDialog(false);
+      loadData();
+    } catch (error: any) {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleExportSubscribers = () => {
+    const csv = [
+      ['email', 'first_name', 'last_name', 'company', 'phone', 'status', 'source', 'tags', 'created_at'].join(','),
+      ...filteredSubscribers.map(sub => [
+        sub.email,
+        sub.first_name || '',
+        sub.last_name || '',
+        sub.company || '',
+        sub.phone || '',
+        sub.status,
+        sub.source || '',
+        (sub.tags || []).join(';'),
+        sub.created_at
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `subscribers_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const getSubscriberLists = (subscriberId: string) => {
+    return subscriberListAssignments
+      .filter(a => a.subscriber_id === subscriberId)
+      .map(a => emailLists.find(l => l.id === a.list_id))
+      .filter(Boolean);
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'active':
@@ -503,6 +738,24 @@ export default function SubscriberManagement() {
             </div>
 
             <div>
+              <Label>Liste</Label>
+              <Select value={listFilter} onValueChange={setListFilter}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle Listen</SelectItem>
+                  <SelectItem value="none">Keine Liste</SelectItem>
+                  {emailLists.map(list => (
+                    <SelectItem key={list.id} value={list.id}>
+                      {list.name} ({list.subscriber_count || 0})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
               <Label>Quelle</Label>
               <Select value={sourceFilter} onValueChange={setSourceFilter}>
                 <SelectTrigger className="w-40">
@@ -511,56 +764,93 @@ export default function SubscriberManagement() {
                 <SelectContent>
                   <SelectItem value="all">Alle Quellen</SelectItem>
                   <SelectItem value="website_newsletter">Website</SelectItem>
-                  <SelectItem value="contact_form">Kontaktformular</SelectItem>
                   <SelectItem value="manual">Manuell</SelectItem>
+                  <SelectItem value="import">Import</SelectItem>
+                  <SelectItem value="api">API</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-
-            {selectedSubscribers.length > 0 && (
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    console.log('Bulk activate clicked for:', selectedSubscribers);
-                    handleBulkAction('activate');
-                  }}
-                  disabled={selectedSubscribers.length === 0}
-                >
-                  <CheckCircle2 className="h-4 w-4 mr-1" />
-                  Aktivieren ({selectedSubscribers.length})
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    console.log('Bulk deactivate clicked for:', selectedSubscribers);
-                    handleBulkAction('deactivate');
-                  }}
-                  disabled={selectedSubscribers.length === 0}
-                >
-                  <XCircle className="h-4 w-4 mr-1" />
-                  Deaktivieren ({selectedSubscribers.length})
-                </Button>
-                <Button 
-                  variant="destructive" 
-                  size="sm"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    console.log('Bulk delete clicked for:', selectedSubscribers);
-                    handleBulkAction('delete');
-                  }}
-                  disabled={selectedSubscribers.length === 0}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Löschen ({selectedSubscribers.length})
-                </Button>
-              </div>
-            )}
           </div>
+
+          {/* Bulk Actions */}
+          {selectedSubscribers.length > 0 && (
+            <div className="flex gap-2 flex-wrap">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handleBulkAction('activate')}
+              >
+                <CheckCircle2 className="h-4 w-4 mr-2" />
+                Aktivieren ({selectedSubscribers.length})
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handleBulkAction('deactivate')}
+              >
+                <XCircle className="h-4 w-4 mr-2" />
+                Deaktivieren ({selectedSubscribers.length})
+              </Button>
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => handleBulkAction('delete')}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Löschen ({selectedSubscribers.length})
+              </Button>
+            </div>
+          )}
+
+          {/* Import/Export Actions */}
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={() => setShowImportDialog(true)}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Importieren
+            </Button>
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={handleExportSubscribers}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Exportieren
+            </Button>
+          </div>
+
+          {/* List Assignment */}
+          {selectedSubscribers.length > 0 && (
+            <div className="flex gap-2 items-end">
+              <div>
+                <Label>Zu Liste hinzufügen</Label>
+                <Select value={selectedList} onValueChange={setSelectedList}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Liste wählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {emailLists.map(list => (
+                      <SelectItem key={list.id} value={list.id}>
+                        {list.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={handleAddToList}
+                disabled={!selectedList}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Hinzufügen
+              </Button>
+            </div>
+           )}
         </CardContent>
       </Card>
 
@@ -623,6 +913,7 @@ export default function SubscriberManagement() {
                 <TableHead>Name</TableHead>
                 <TableHead>E-Mail</TableHead>
                 <TableHead>Firma</TableHead>
+                <TableHead>Listen</TableHead>
                 <TableHead>Tags</TableHead>
                 <TableHead>Quelle</TableHead>
                 <TableHead>Angemeldet</TableHead>
@@ -632,13 +923,13 @@ export default function SubscriberManagement() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8">
+                  <TableCell colSpan={10} className="text-center py-8">
                     Lade Abonnenten...
                   </TableCell>
                 </TableRow>
               ) : filteredSubscribers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                     Keine Abonnenten gefunden
                   </TableCell>
                 </TableRow>
@@ -686,8 +977,29 @@ export default function SubscriberManagement() {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
+                        {getSubscriberLists(subscriber.id).map((list: any) => (
+                          <div key={list.id} className="flex items-center gap-1">
+                            <Badge variant="outline" className="text-xs">
+                              {list.name}
+                            </Badge>
+                            <button
+                              onClick={() => handleRemoveFromList(subscriber.id, list.id)}
+                              className="text-red-500 hover:text-red-700"
+                              title="Aus Liste entfernen"
+                            >
+                              <XCircle className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                        {getSubscriberLists(subscriber.id).length === 0 && (
+                          <span className="text-muted-foreground text-sm">Keine Listen</span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
                         {subscriber.tags && subscriber.tags.length > 0 ? (
-                          subscriber.tags.slice(0, 3).map(tag => (
+                          subscriber.tags.slice(0, 2).map(tag => (
                             <Badge key={tag} variant="outline" className="text-xs">
                               {tag}
                             </Badge>
@@ -695,9 +1007,9 @@ export default function SubscriberManagement() {
                         ) : (
                           <span className="text-muted-foreground text-sm">-</span>
                         )}
-                        {subscriber.tags && subscriber.tags.length > 3 && (
+                        {subscriber.tags && subscriber.tags.length > 2 && (
                           <Badge variant="outline" className="text-xs">
-                            +{subscriber.tags.length - 3}
+                            +{subscriber.tags.length - 2}
                           </Badge>
                         )}
                       </div>
@@ -1016,6 +1328,63 @@ export default function SubscriberManagement() {
                   setShowEditDialog(false);
                   setEditingSubscriber(null);
                   resetForm();
+                }}
+                className="flex-1"
+              >
+                Abbrechen
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Import Subscribers Dialog */}
+      <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Abonnenten importieren</DialogTitle>
+            <DialogDescription>
+              Importieren Sie Abonnenten im CSV-Format. Die erste Zeile sollte die Spaltenüberschriften enthalten.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label>CSV-Format Beispiel:</Label>
+              <div className="bg-muted p-3 rounded text-sm font-mono">
+                email,first_name,last_name,company,phone,tags<br/>
+                max@example.com,Max,Mustermann,Beispiel GmbH,+49123456789,premium;webdesign<br/>
+                anna@firma.de,Anna,Schmidt,Test AG,,marketing
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="import-data">CSV-Daten einfügen:</Label>
+              <textarea
+                id="import-data"
+                className="w-full h-48 p-3 border rounded-md font-mono text-sm"
+                value={importData}
+                onChange={(e) => setImportData(e.target.value)}
+                placeholder="email,first_name,last_name,company,phone,tags
+max@example.com,Max,Mustermann,Beispiel GmbH,+49123456789,premium;webdesign
+anna@firma.de,Anna,Schmidt,Test AG,,marketing"
+              />
+            </div>
+            
+            <div className="flex gap-3">
+              <Button 
+                onClick={handleImportSubscribers}
+                disabled={!importData.trim()}
+                className="flex-1"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Importieren
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowImportDialog(false);
+                  setImportData('');
                 }}
                 className="flex-1"
               >

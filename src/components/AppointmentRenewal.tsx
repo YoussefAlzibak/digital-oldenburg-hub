@@ -66,16 +66,6 @@ interface RenewalReminder {
   sent_at?: string;
   status: string;
   created_at: string;
-  appointments?: {
-    scheduled_date: string;
-    scheduled_time: string;
-    contact_requests?: {
-      name: string;
-      email: string;
-      company?: string;
-      service_type: string;
-    };
-  };
 }
 
 export default function AppointmentRenewal() {
@@ -95,6 +85,10 @@ export default function AppointmentRenewal() {
     is_active: true,
     renewals_count: 0
   });
+
+  const getAppointmentById = (appointmentId: string) => {
+    return appointments.find(a => a.id === appointmentId);
+  };
 
   const { toast } = useToast();
 
@@ -128,17 +122,10 @@ export default function AppointmentRenewal() {
           .select('*')
           .order('created_at', { ascending: false }),
         
-        // Load reminders with appointments data
+        // Load reminders separately and join data manually
         supabase
           .from('renewal_reminders')
-          .select(`
-            *,
-            appointments(
-              scheduled_date,
-              scheduled_time,
-              contact_requests(name, email, company, service_type)
-            )
-          `)
+          .select('*')
           .order('created_at', { ascending: false })
       ]);
 
@@ -453,29 +440,32 @@ export default function AppointmentRenewal() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    reminders.map((reminder) => (
-                      <TableRow key={reminder.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">
-                              {reminder.appointments?.contact_requests?.name || 'Unbekannt'}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {format(new Date(reminder.appointments?.scheduled_date || ''), 'PPP', { locale: de })}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {format(new Date(reminder.reminder_date), 'PPP', { locale: de })}
-                        </TableCell>
-                        <TableCell>
-                          {getStatusBadge(reminder.status)}
-                        </TableCell>
-                        <TableCell>
-                          {reminder.sent_at ? format(new Date(reminder.sent_at), 'PPp', { locale: de }) : '-'}
-                        </TableCell>
-                      </TableRow>
-                    ))
+                     reminders.map((reminder) => {
+                       const appointment = getAppointmentById(reminder.appointment_id);
+                       return (
+                       <TableRow key={reminder.id}>
+                         <TableCell>
+                           <div>
+                             <div className="font-medium">
+                               {appointment?.contact_requests?.name || 'Unbekannt'}
+                             </div>
+                             <div className="text-xs text-muted-foreground">
+                               {appointment ? format(new Date(appointment.scheduled_date), 'PPP', { locale: de }) : 'Unbekannt'}
+                             </div>
+                           </div>
+                         </TableCell>
+                         <TableCell>
+                           {format(new Date(reminder.reminder_date), 'PPP', { locale: de })}
+                         </TableCell>
+                         <TableCell>
+                           {getStatusBadge(reminder.status)}
+                         </TableCell>
+                         <TableCell>
+                           {reminder.sent_at ? format(new Date(reminder.sent_at), 'PPp', { locale: de }) : '-'}
+                         </TableCell>
+                       </TableRow>
+                       );
+                     })
                   )}
                 </TableBody>
               </Table>

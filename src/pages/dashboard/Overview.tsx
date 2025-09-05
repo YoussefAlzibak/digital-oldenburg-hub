@@ -156,12 +156,12 @@ export default function Overview() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/admin/requests')}>
-          <CardContent className="p-4 text-center">
+          <CardContent className="p-3 md:p-4 text-center">
             <div className="flex items-center justify-center mb-2">
-              <Users className="h-6 w-6 text-primary" />
+              <Users className="h-5 w-5 md:h-6 md:w-6 text-primary" />
             </div>
-            <div className="text-2xl font-bold text-primary">{stats.totalRequests}</div>
-            <div className="text-sm text-muted-foreground">Anfragen gesamt</div>
+            <div className="text-xl md:text-2xl font-bold text-primary">{stats.totalRequests}</div>
+            <div className="text-xs md:text-sm text-muted-foreground">Anfragen gesamt</div>
           </CardContent>
         </Card>
         
@@ -217,7 +217,7 @@ export default function Overview() {
       </div>
 
       {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Recent Requests */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">

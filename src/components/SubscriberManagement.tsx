@@ -25,13 +25,16 @@ import {
   MoreHorizontal,
   CheckCircle2,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  Phone,
+  Building
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface EmailSubscriber {
   id: string;
@@ -63,15 +66,6 @@ interface SubscriberListAssignment {
   subscribed_at: string;
 }
 
-interface SubscriberActivity {
-  id: string;
-  subscriber_id: string;
-  activity_type: 'opened' | 'clicked' | 'bounced' | 'unsubscribed' | 'subscribed';
-  campaign_id?: string;
-  created_at: string;
-  metadata?: any;
-}
-
 export default function SubscriberManagement() {
   const [subscribers, setSubscribers] = useState<EmailSubscriber[]>([]);
   const [emailLists, setEmailLists] = useState<EmailList[]>([]);
@@ -85,9 +79,7 @@ export default function SubscriberManagement() {
   const [selectedList, setSelectedList] = useState<string>('');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [showListDialog, setShowListDialog] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
-  const [showSegmentDialog, setShowSegmentDialog] = useState(false);
   const [editingSubscriber, setEditingSubscriber] = useState<EmailSubscriber | null>(null);
   const [importData, setImportData] = useState<string>('');
   const [formData, setFormData] = useState({
@@ -102,6 +94,7 @@ export default function SubscriberManagement() {
   });
 
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     loadData();
@@ -129,7 +122,6 @@ export default function SubscriberManagement() {
 
       setSubscribers((subscribersResponse.data || []) as EmailSubscriber[]);
       
-      // Calculate subscriber count for each list
       const assignmentsData = assignmentsResponse.data || [];
       const listsWithCounts = (listsResponse.data || []).map(list => ({
         ...list,
@@ -198,8 +190,6 @@ export default function SubscriberManagement() {
     }
 
     try {
-      console.log('Attempting to add subscriber:', formData);
-
       const subscriberData = {
         email: formData.email,
         first_name: formData.first_name || null,
@@ -211,14 +201,9 @@ export default function SubscriberManagement() {
         source: formData.source
       };
 
-      console.log('Subscriber data:', subscriberData);
-
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('email_subscribers')
-        .insert([subscriberData])
-        .select();
-
-      console.log('Insert response:', { data, error });
+        .insert([subscriberData]);
 
       if (error) throw error;
 
@@ -231,7 +216,6 @@ export default function SubscriberManagement() {
       setShowAddDialog(false);
       loadData();
     } catch (error: any) {
-      console.error('Error adding subscriber:', error);
       toast({
         title: "Fehler beim Hinzufügen",
         description: error.message || 'Unbekannter Fehler beim Hinzufügen des Abonnenten',
@@ -244,8 +228,6 @@ export default function SubscriberManagement() {
     if (!editingSubscriber || !formData.email) return;
 
     try {
-      console.log('Attempting to update subscriber:', editingSubscriber.id, formData);
-      
       const updateData = {
         email: formData.email,
         first_name: formData.first_name || null,
@@ -257,15 +239,10 @@ export default function SubscriberManagement() {
         source: formData.source
       };
 
-      console.log('Update data:', updateData);
-
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('email_subscribers')
         .update(updateData)
-        .eq('id', editingSubscriber.id)
-        .select();
-
-      console.log('Update response:', { data, error });
+        .eq('id', editingSubscriber.id);
 
       if (error) throw error;
 
@@ -279,7 +256,6 @@ export default function SubscriberManagement() {
       resetForm();
       loadData();
     } catch (error: any) {
-      console.error('Error updating subscriber:', error);
       toast({
         title: "Fehler beim Aktualisieren",
         description: error.message || 'Unbekannter Fehler beim Aktualisieren des Abonnenten',
@@ -294,15 +270,10 @@ export default function SubscriberManagement() {
     }
 
     try {
-      console.log('Attempting to delete subscriber:', id);
-
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('email_subscribers')
         .delete()
-        .eq('id', id)
-        .select();
-
-      console.log('Delete response:', { data, error });
+        .eq('id', id);
 
       if (error) throw error;
 
@@ -313,7 +284,6 @@ export default function SubscriberManagement() {
 
       loadData();
     } catch (error: any) {
-      console.error('Error deleting subscriber:', error);
       toast({
         title: "Fehler beim Löschen",
         description: error.message || 'Unbekannter Fehler beim Löschen des Abonnenten',
@@ -323,24 +293,18 @@ export default function SubscriberManagement() {
   };
 
   const openEditDialog = (subscriber: EmailSubscriber) => {
-    console.log('openEditDialog called with subscriber:', subscriber);
-    try {
-      setEditingSubscriber(subscriber);
-      setFormData({
-        email: subscriber.email,
-        first_name: subscriber.first_name || '',
-        last_name: subscriber.last_name || '',
-        company: subscriber.company || '',
-        phone: subscriber.phone || '',
-        tags: subscriber.tags?.join(', ') || '',
-        status: subscriber.status as 'active' | 'inactive' | 'bounced' | 'unsubscribed',
-        source: subscriber.source || 'manual'
-      });
-      setShowEditDialog(true);
-      console.log('Edit dialog should be open now');
-    } catch (error) {
-      console.error('Error in openEditDialog:', error);
-    }
+    setEditingSubscriber(subscriber);
+    setFormData({
+      email: subscriber.email,
+      first_name: subscriber.first_name || '',
+      last_name: subscriber.last_name || '',
+      company: subscriber.company || '',
+      phone: subscriber.phone || '',
+      tags: subscriber.tags?.join(', ') || '',
+      status: subscriber.status as 'active' | 'inactive' | 'bounced' | 'unsubscribed',
+      source: subscriber.source || 'manual'
+    });
+    setShowEditDialog(true);
   };
 
   const handleBulkAction = async (action: string) => {
@@ -363,16 +327,11 @@ export default function SubscriberManagement() {
     }
 
     try {
-      console.log('Attempting bulk action:', action, 'on subscribers:', selectedSubscribers);
-
       if (action === 'delete') {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('email_subscribers')
           .delete()
-          .in('id', selectedSubscribers)
-          .select();
-
-        console.log('Bulk delete response:', { data, error });
+          .in('id', selectedSubscribers);
 
         if (error) throw error;
 
@@ -383,13 +342,10 @@ export default function SubscriberManagement() {
       } else if (action === 'activate' || action === 'deactivate') {
         const newStatus = action === 'activate' ? 'active' : 'inactive';
         
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('email_subscribers')
           .update({ status: newStatus })
-          .in('id', selectedSubscribers)
-          .select();
-
-        console.log('Bulk status update response:', { data, error });
+          .in('id', selectedSubscribers);
 
         if (error) throw error;
 
@@ -402,7 +358,6 @@ export default function SubscriberManagement() {
       setSelectedSubscribers([]);
       loadData();
     } catch (error: any) {
-      console.error('Error in bulk action:', error);
       toast({
         title: "Fehler bei Bulk-Aktion",
         description: error.message || `Unbekannter Fehler bei der ${action}-Aktion`,
@@ -427,7 +382,6 @@ export default function SubscriberManagement() {
         subscriber_id: subscriberId
       }));
 
-      // Check for existing assignments to avoid duplicates
       const existingAssignments = subscriberListAssignments.filter(a => 
         a.list_id === selectedList && selectedSubscribers.includes(a.subscriber_id)
       );
@@ -467,31 +421,6 @@ export default function SubscriberManagement() {
     }
   };
 
-  const handleRemoveFromList = async (subscriberId: string, listId: string) => {
-    try {
-      const { error } = await supabase
-        .from('email_list_subscribers')
-        .delete()
-        .eq('subscriber_id', subscriberId)
-        .eq('list_id', listId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Erfolg",
-        description: "Abonnent wurde aus der Liste entfernt.",
-      });
-
-      loadData();
-    } catch (error: any) {
-      toast({
-        title: "Fehler",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  };
-
   const handleImportSubscribers = async () => {
     if (!importData.trim()) {
       toast({
@@ -504,44 +433,29 @@ export default function SubscriberManagement() {
 
     try {
       const lines = importData.trim().split('\n');
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      const header = lines[0].toLowerCase().split(',');
       
-      if (!headers.includes('email')) {
-        toast({
-          title: "Fehler",
-          description: "CSV muss eine 'email' Spalte enthalten.",
-          variant: "destructive"
-        });
-        return;
+      const emailIndex = header.findIndex(h => h.includes('email') || h.includes('e-mail'));
+      if (emailIndex === -1) {
+        throw new Error('E-Mail-Spalte nicht gefunden');
       }
 
       const subscribersToImport = [];
       for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',').map(v => v.trim());
-        const subscriber: any = { source: 'import', status: 'active' };
+        const values = lines[i].split(',');
+        const email = values[emailIndex]?.trim();
         
-        headers.forEach((header, index) => {
-          if (values[index]) {
-            if (header === 'tags') {
-              subscriber[header] = values[index].split(';').map(t => t.trim());
-            } else {
-              subscriber[header] = values[index];
-            }
-          }
-        });
-
-        if (subscriber.email) {
-          subscribersToImport.push(subscriber);
+        if (email) {
+          subscribersToImport.push({
+            email,
+            first_name: values[header.findIndex(h => h.includes('first') || h.includes('vorname'))]?.trim() || null,
+            last_name: values[header.findIndex(h => h.includes('last') || h.includes('nachname'))]?.trim() || null,
+            company: values[header.findIndex(h => h.includes('company') || h.includes('firma'))]?.trim() || null,
+            phone: values[header.findIndex(h => h.includes('phone') || h.includes('telefon'))]?.trim() || null,
+            status: 'active',
+            source: 'import'
+          });
         }
-      }
-
-      if (subscribersToImport.length === 0) {
-        toast({
-          title: "Fehler",
-          description: "Keine gültigen Abonnenten gefunden.",
-          variant: "destructive"
-        });
-        return;
       }
 
       const { error } = await supabase
@@ -560,7 +474,7 @@ export default function SubscriberManagement() {
       loadData();
     } catch (error: any) {
       toast({
-        title: "Fehler",
+        title: "Fehler beim Import",
         description: error.message,
         variant: "destructive"
       });
@@ -569,17 +483,16 @@ export default function SubscriberManagement() {
 
   const handleExportSubscribers = () => {
     const csv = [
-      ['email', 'first_name', 'last_name', 'company', 'phone', 'status', 'source', 'tags', 'created_at'].join(','),
-      ...filteredSubscribers.map(sub => [
-        sub.email,
-        sub.first_name || '',
-        sub.last_name || '',
-        sub.company || '',
-        sub.phone || '',
-        sub.status,
-        sub.source || '',
-        (sub.tags || []).join(';'),
-        sub.created_at
+      'E-Mail,Vorname,Nachname,Firma,Telefon,Status,Quelle,Angemeldet',
+      ...filteredSubscribers.map(s => [
+        s.email,
+        s.first_name || '',
+        s.last_name || '',
+        s.company || '',
+        s.phone || '',
+        s.status,
+        s.source || '',
+        format(new Date(s.created_at), 'yyyy-MM-dd')
       ].join(','))
     ].join('\n');
 
@@ -587,145 +500,192 @@ export default function SubscriberManagement() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `subscribers_${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `abonnenten-${format(new Date(), 'yyyy-MM-dd')}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
+  const getStatusBadge = (status: string) => {
+    const variants: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
+      active: "default",
+      inactive: "secondary",
+      bounced: "destructive",
+      unsubscribed: "outline"
+    };
+
+    const labels: { [key: string]: string } = {
+      active: "Aktiv",
+      inactive: "Inaktiv",
+      bounced: "Bounced",
+      unsubscribed: "Abgemeldet"
+    };
+
+    return (
+      <Badge variant={variants[status] || "outline"}>
+        {labels[status] || status}
+      </Badge>
+    );
+  };
+
   const getSubscriberLists = (subscriberId: string) => {
-    return subscriberListAssignments
+    const listIds = subscriberListAssignments
       .filter(a => a.subscriber_id === subscriberId)
-      .map(a => emailLists.find(l => l.id === a.list_id))
-      .filter(Boolean);
+      .map(a => a.list_id);
+    
+    return emailLists.filter(list => listIds.includes(list.id));
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-      case 'inactive':
-        return <XCircle className="h-4 w-4 text-gray-500" />;
-      case 'bounced':
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
-      case 'unsubscribed':
-        return <UserMinus className="h-4 w-4 text-orange-500" />;
-      default:
-        return null;
-    }
-  };
+  const MobileSubscriberCard = ({ subscriber }: { subscriber: EmailSubscriber }) => (
+    <Card className="mb-3">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={selectedSubscribers.includes(subscriber.id)}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSelectedSubscribers(prev => [...prev, subscriber.id]);
+                } else {
+                  setSelectedSubscribers(prev => prev.filter(id => id !== subscriber.id));
+                }
+              }}
+              className="rounded"
+            />
+            {getStatusBadge(subscriber.status)}
+          </div>
+          <div className="flex gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => openEditDialog(subscriber)}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => handleDeleteSubscriber(subscriber.id)}
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+        
+        <div className="space-y-2">
+          <div>
+            <div className="font-medium text-sm">
+              {subscriber.first_name} {subscriber.last_name}
+            </div>
+            <div className="text-sm text-muted-foreground font-mono">
+              {subscriber.email}
+            </div>
+          </div>
+          
+          {subscriber.company && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Building className="h-3 w-3" />
+              {subscriber.company}
+            </div>
+          )}
+          
+          {subscriber.phone && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Phone className="h-3 w-3" />
+              {subscriber.phone}
+            </div>
+          )}
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'default';
-      case 'inactive':
-        return 'secondary';
-      case 'bounced':
-        return 'destructive';
-      case 'unsubscribed':
-        return 'outline';
-      default:
-        return 'secondary';
-    }
-  };
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Calendar className="h-3 w-3" />
+            {format(new Date(subscriber.created_at), 'PPP', { locale: de })}
+          </div>
+
+          {subscriber.tags && subscriber.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {subscriber.tags.slice(0, 3).map(tag => (
+                <Badge key={tag} variant="outline" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+              {subscriber.tags.length > 3 && (
+                <Badge variant="outline" className="text-xs">
+                  +{subscriber.tags.length - 3}
+                </Badge>
+              )}
+            </div>
+          )}
+
+          {getSubscriberLists(subscriber.id).length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {getSubscriberLists(subscriber.id).map(list => (
+                <Badge key={list.id} variant="secondary" className="text-xs">
+                  {list.name}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  if (loading) {
+    return <div className="flex justify-center p-8">Lade Abonnenten...</div>;
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 md:space-y-6 pb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Abonnenten-Verwaltung</h2>
-          <p className="text-muted-foreground">
-            Verwalten Sie Ihre E-Mail-Abonnenten und Newsletter-Listen
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">Abonnenten verwalten</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Verwalten Sie Ihre E-Mail-Abonnenten und Listen ({filteredSubscribers.length} von {subscribers.length} angezeigt)
           </p>
         </div>
-        <Button onClick={() => {
-          console.log('Add subscriber dialog opened');
-          setShowAddDialog(true);
-        }}>
-          <UserPlus className="h-4 w-4 mr-2" />
-          Abonnent hinzufügen
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => setShowImportDialog(true)} variant="outline" size="sm" className="flex-1 sm:flex-none">
+            <Upload className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Importieren</span>
+            <span className="sm:hidden">Import</span>
+          </Button>
+          <Button onClick={handleExportSubscribers} variant="outline" size="sm" className="flex-1 sm:flex-none">
+            <Download className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Exportieren</span>
+            <span className="sm:hidden">Export</span>
+          </Button>
+          <Button onClick={() => setShowAddDialog(true)} size="sm" className="flex-1 sm:flex-none">
+            <Plus className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Hinzufügen</span>
+            <span className="sm:hidden">Neu</span>
+          </Button>
+        </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Gesamt</p>
-                <p className="text-2xl font-bold">{subscribers.length}</p>
-              </div>
-              <Users className="h-8 w-8 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="subscribers" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="subscribers" className="text-xs sm:text-sm">Abonnenten</TabsTrigger>
+          <TabsTrigger value="lists" className="text-xs sm:text-sm">Listen</TabsTrigger>
+          <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
+        </TabsList>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Aktiv</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {subscribers.filter(s => s.status === 'active').length}
-                </p>
-              </div>
-              <CheckCircle2 className="h-8 w-8 text-green-500" />
+        <TabsContent value="subscribers" className="space-y-4">
+          {/* Search and Filter Bar */}
+          <div className="flex flex-col gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Suchen nach E-Mail, Name, oder Firma..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Abgemeldet</p>
-                <p className="text-2xl font-bold text-orange-600">
-                  {subscribers.filter(s => s.status === 'unsubscribed').length}
-                </p>
-              </div>
-              <UserMinus className="h-8 w-8 text-orange-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Listen</p>
-                <p className="text-2xl font-bold">{emailLists.length}</p>
-              </div>
-              <Mail className="h-8 w-8 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters and Actions */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-4 items-end">
-            <div className="flex-1">
-              <Label htmlFor="search">Suchen</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="search"
-                  placeholder="Nach E-Mail, Name oder Firma suchen..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label>Status</Label>
+            <div className="flex flex-col sm:flex-row gap-2">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
+                <SelectTrigger className="w-full sm:w-[140px]">
+                  <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Alle Status</SelectItem>
@@ -735,38 +695,30 @@ export default function SubscriberManagement() {
                   <SelectItem value="unsubscribed">Abgemeldet</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
 
-            <div>
-              <Label>Liste</Label>
+              <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                <SelectTrigger className="w-full sm:w-[140px]">
+                  <SelectValue placeholder="Quelle" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle Quellen</SelectItem>
+                  <SelectItem value="manual">Manuell</SelectItem>
+                  <SelectItem value="website">Website</SelectItem>
+                  <SelectItem value="import">Import</SelectItem>
+                  <SelectItem value="api">API</SelectItem>
+                </SelectContent>
+              </Select>
+
               <Select value={listFilter} onValueChange={setListFilter}>
-                <SelectTrigger className="w-48">
-                  <SelectValue />
+                <SelectTrigger className="w-full sm:w-[140px]">
+                  <SelectValue placeholder="Liste" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Alle Listen</SelectItem>
                   <SelectItem value="none">Keine Liste</SelectItem>
                   {emailLists.map(list => (
-                    <SelectItem key={list.id} value={list.id}>
-                      {list.name} ({list.subscriber_count || 0})
-                    </SelectItem>
+                    <SelectItem key={list.id} value={list.id}>{list.name}</SelectItem>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>Quelle</Label>
-              <Select value={sourceFilter} onValueChange={setSourceFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Alle Quellen</SelectItem>
-                  <SelectItem value="website_newsletter">Website</SelectItem>
-                  <SelectItem value="manual">Manuell</SelectItem>
-                  <SelectItem value="import">Import</SelectItem>
-                  <SelectItem value="api">API</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -774,295 +726,260 @@ export default function SubscriberManagement() {
 
           {/* Bulk Actions */}
           {selectedSubscribers.length > 0 && (
-            <div className="flex gap-2 flex-wrap">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleBulkAction('activate')}
-              >
-                <CheckCircle2 className="h-4 w-4 mr-2" />
-                Aktivieren ({selectedSubscribers.length})
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleBulkAction('deactivate')}
-              >
-                <XCircle className="h-4 w-4 mr-2" />
-                Deaktivieren ({selectedSubscribers.length})
-              </Button>
-              <Button 
-                variant="destructive" 
-                size="sm"
-                onClick={() => handleBulkAction('delete')}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Löschen ({selectedSubscribers.length})
-              </Button>
-            </div>
+            <Card className="p-3 md:p-4 bg-muted/50">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="text-sm font-medium">
+                  {selectedSubscribers.length} Abonnenten ausgewählt
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex gap-2">
+                    <Select value={selectedList} onValueChange={setSelectedList}>
+                      <SelectTrigger className="w-full sm:w-[160px]">
+                        <SelectValue placeholder="Liste wählen" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {emailLists.filter(list => list.is_active).map(list => (
+                          <SelectItem key={list.id} value={list.id}>{list.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={handleAddToList}
+                      disabled={!selectedList}
+                      className="flex-shrink-0"
+                    >
+                      <UserPlus className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Zu Liste hinzufügen</span>
+                    </Button>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => handleBulkAction('activate')}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <CheckCircle2 className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Aktivieren</span>
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => handleBulkAction('deactivate')}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <UserMinus className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Deaktivieren</span>
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="destructive" 
+                      onClick={() => handleBulkAction('delete')}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <Trash2 className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Löschen</span>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
           )}
 
-          {/* Import/Export Actions */}
-          <div className="flex gap-2">
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => setShowImportDialog(true)}
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              Importieren
-            </Button>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={handleExportSubscribers}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Exportieren
-            </Button>
-          </div>
-
-          {/* List Assignment */}
-          {selectedSubscribers.length > 0 && (
-            <div className="flex gap-2 items-end">
-              <div>
-                <Label>Zu Liste hinzufügen</Label>
-                <Select value={selectedList} onValueChange={setSelectedList}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Liste wählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {emailLists.map(list => (
-                      <SelectItem key={list.id} value={list.id}>
-                        {list.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button 
-                variant="outline"
-                size="sm"
-                onClick={handleAddToList}
-                disabled={!selectedList}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Hinzufügen
-              </Button>
-            </div>
-           )}
-        </CardContent>
-      </Card>
-
-      {/* Add Test Button for Debugging */}
-      <Card>
-        <CardContent className="pt-4">
-          <div className="flex gap-2 items-center">
-            <Badge variant="outline">Debug Panel</Badge>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => {
-                console.log('🧪 Test Edit Dialog - Current subscribers:', subscribers);
-                if (subscribers.length > 0) {
-                  console.log('🧪 Opening edit dialog for first subscriber');
-                  openEditDialog(subscribers[0]);
-                } else {
-                  console.log('🧪 No subscribers available for testing');
-                }
-              }}
-            >
-              Test Edit Dialog
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => {
-                console.log('🧪 Current state:', {
-                  showEditDialog,
-                  editingSubscriber,
-                  formData,
-                  subscribers: subscribers.length
-                });
-              }}
-            >
-              Log State
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12">
-                  <input
-                    type="checkbox"
-                    checked={selectedSubscribers.length === filteredSubscribers.length && filteredSubscribers.length > 0}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedSubscribers(filteredSubscribers.map(s => s.id));
-                      } else {
-                        setSelectedSubscribers([]);
-                      }
-                    }}
-                  />
-                </TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>E-Mail</TableHead>
-                <TableHead>Firma</TableHead>
-                <TableHead>Listen</TableHead>
-                <TableHead>Tags</TableHead>
-                <TableHead>Quelle</TableHead>
-                <TableHead>Angemeldet</TableHead>
-                <TableHead>Aktionen</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={10} className="text-center py-8">
-                    Lade Abonnenten...
-                  </TableCell>
-                </TableRow>
-              ) : filteredSubscribers.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+          {/* Subscribers List */}
+          {isMobile ? (
+            // Mobile Card View
+            <div className="space-y-3">
+              {filteredSubscribers.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <div className="text-muted-foreground">
                     Keine Abonnenten gefunden
-                  </TableCell>
-                </TableRow>
+                  </div>
+                </Card>
               ) : (
                 filteredSubscribers.map(subscriber => (
-                  <TableRow key={subscriber.id}>
-                    <TableCell>
-                      <input
-                        type="checkbox"
-                        checked={selectedSubscribers.includes(subscriber.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedSubscribers(prev => [...prev, subscriber.id]);
-                          } else {
-                            setSelectedSubscribers(prev => prev.filter(id => id !== subscriber.id));
-                          }
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(subscriber.status)}
-                        <Badge variant={getStatusColor(subscriber.status) as any}>
-                          {subscriber.status}
-                        </Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">
-                          {subscriber.first_name} {subscriber.last_name}
-                        </div>
-                        {subscriber.phone && (
-                          <div className="text-xs text-muted-foreground">
-                            {subscriber.phone}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-mono text-sm">{subscriber.email}</div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">{subscriber.company || '-'}</div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {getSubscriberLists(subscriber.id).map((list: any) => (
-                          <div key={list.id} className="flex items-center gap-1">
-                            <Badge variant="outline" className="text-xs">
-                              {list.name}
-                            </Badge>
-                            <button
-                              onClick={() => handleRemoveFromList(subscriber.id, list.id)}
-                              className="text-red-500 hover:text-red-700"
-                              title="Aus Liste entfernen"
-                            >
-                              <XCircle className="h-3 w-3" />
-                            </button>
-                          </div>
-                        ))}
-                        {getSubscriberLists(subscriber.id).length === 0 && (
-                          <span className="text-muted-foreground text-sm">Keine Listen</span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {subscriber.tags && subscriber.tags.length > 0 ? (
-                          subscriber.tags.slice(0, 2).map(tag => (
-                            <Badge key={tag} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))
-                        ) : (
-                          <span className="text-muted-foreground text-sm">-</span>
-                        )}
-                        {subscriber.tags && subscriber.tags.length > 2 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{subscriber.tags.length - 2}
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="text-xs">
-                        {subscriber.source || 'unbekannt'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        {format(new Date(subscriber.created_at), 'PPP', { locale: de })}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log('🔄 Edit button clicked for subscriber:', subscriber.email, subscriber.id);
-                            openEditDialog(subscriber);
-                          }}
-                          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8"
-                          title="Bearbeiten"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log('🗑️ Delete button clicked for subscriber:', subscriber.email, subscriber.id);
-                            handleDeleteSubscriber(subscriber.id);
-                          }}
-                          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-red-50 hover:text-red-700 h-8 w-8 text-red-600"
-                          title="Löschen"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                  <MobileSubscriberCard key={subscriber.id} subscriber={subscriber} />
                 ))
               )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+            </div>
+          ) : (
+            // Desktop Table View
+            <Card>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">
+                        <input
+                          type="checkbox"
+                          checked={selectedSubscribers.length === filteredSubscribers.length && filteredSubscribers.length > 0}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedSubscribers(filteredSubscribers.map(s => s.id));
+                            } else {
+                              setSelectedSubscribers([]);
+                            }
+                          }}
+                        />
+                      </TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>E-Mail</TableHead>
+                      <TableHead>Firma</TableHead>
+                      <TableHead>Listen</TableHead>
+                      <TableHead>Tags</TableHead>
+                      <TableHead>Quelle</TableHead>
+                      <TableHead>Angemeldet</TableHead>
+                      <TableHead>Aktionen</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredSubscribers.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                          Keine Abonnenten gefunden
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredSubscribers.map(subscriber => (
+                        <TableRow key={subscriber.id}>
+                          <TableCell>
+                            <input
+                              type="checkbox"
+                              checked={selectedSubscribers.includes(subscriber.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedSubscribers(prev => [...prev, subscriber.id]);
+                                } else {
+                                  setSelectedSubscribers(prev => prev.filter(id => id !== subscriber.id));
+                                }
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            {getStatusBadge(subscriber.status)}
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">
+                                {subscriber.first_name} {subscriber.last_name}
+                              </div>
+                              {subscriber.phone && (
+                                <div className="text-xs text-muted-foreground">
+                                  {subscriber.phone}
+                                </div>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="font-mono text-sm">{subscriber.email}</div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">{subscriber.company || '-'}</div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {getSubscriberLists(subscriber.id).map((list: any) => (
+                                <Badge key={list.id} variant="outline" className="text-xs">
+                                  {list.name}
+                                </Badge>
+                              ))}
+                              {getSubscriberLists(subscriber.id).length === 0 && (
+                                <span className="text-muted-foreground text-sm">Keine Listen</span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {subscriber.tags && subscriber.tags.length > 0 ? (
+                                subscriber.tags.slice(0, 2).map(tag => (
+                                  <Badge key={tag} variant="outline" className="text-xs">
+                                    {tag}
+                                  </Badge>
+                                ))
+                              ) : (
+                                <span className="text-muted-foreground text-sm">-</span>
+                              )}
+                              {subscriber.tags && subscriber.tags.length > 2 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{subscriber.tags.length - 2}
+                                </Badge>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="text-xs">
+                              {subscriber.source || 'unbekannt'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
+                              {format(new Date(subscriber.created_at), 'PPP', { locale: de })}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => openEditDialog(subscriber)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleDeleteSubscriber(subscriber.id)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="lists" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>E-Mail-Listen</CardTitle>
+              <CardDescription>Verwalten Sie Ihre Abonnenten-Listen</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center text-muted-foreground py-8">
+                Listen-Verwaltung wird bald verfügbar sein
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Analytics</CardTitle>
+              <CardDescription>Abonnenten-Statistiken und Berichte</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center text-muted-foreground py-8">
+                Analytics werden bald verfügbar sein
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Add Subscriber Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md mx-4 sm:mx-auto">
           <DialogHeader>
             <DialogTitle>Neuen Abonnent hinzufügen</DialogTitle>
             <DialogDescription>
@@ -1083,7 +1000,7 @@ export default function SubscriberManagement() {
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="add-first-name">Vorname</Label>
                 <Input
@@ -1103,17 +1020,17 @@ export default function SubscriberManagement() {
                 />
               </div>
             </div>
-            
+
             <div>
               <Label htmlFor="add-company">Firma</Label>
               <Input
                 id="add-company"
                 value={formData.company}
                 onChange={(e) => setFormData({...formData, company: e.target.value})}
-                placeholder="Beispiel GmbH"
+                placeholder="Musterfirma GmbH"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="add-phone">Telefon</Label>
               <Input
@@ -1123,24 +1040,21 @@ export default function SubscriberManagement() {
                 placeholder="+49 123 456789"
               />
             </div>
-            
+
             <div>
-              <Label htmlFor="add-tags">Tags (durch Komma getrennt)</Label>
+              <Label htmlFor="add-tags">Tags (kommagetrennt)</Label>
               <Input
                 id="add-tags"
                 value={formData.tags}
                 onChange={(e) => setFormData({...formData, tags: e.target.value})}
-                placeholder="webdesign, marketing, premium"
+                placeholder="interessent, newsletter"
               />
             </div>
-            
-            <div className="grid grid-cols-2 gap-3">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <Label>Status</Label>
-                <Select 
-                  value={formData.status} 
-                  onValueChange={(value: any) => setFormData({...formData, status: value})}
-                >
+                <Label htmlFor="add-status">Status</Label>
+                <Select value={formData.status} onValueChange={(value: any) => setFormData({...formData, status: value})}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -1151,46 +1065,27 @@ export default function SubscriberManagement() {
                 </Select>
               </div>
               <div>
-                <Label>Quelle</Label>
-                <Select 
-                  value={formData.source} 
-                  onValueChange={(value) => setFormData({...formData, source: value})}
-                >
+                <Label htmlFor="add-source">Quelle</Label>
+                <Select value={formData.source} onValueChange={(value) => setFormData({...formData, source: value})}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="manual">Manuell</SelectItem>
-                    <SelectItem value="website_newsletter">Website</SelectItem>
-                    <SelectItem value="contact_form">Kontaktformular</SelectItem>
+                    <SelectItem value="website">Website</SelectItem>
+                    <SelectItem value="import">Import</SelectItem>
+                    <SelectItem value="api">API</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            
-            <div className="flex gap-3 pt-4">
-              <Button 
-                onClick={(e) => {
-                  e.preventDefault();
-                  console.log('Add subscriber button clicked');
-                  handleAddSubscriber();
-                }} 
-                className="flex-1"
-                disabled={!formData.email}
-              >
-                <UserPlus className="h-4 w-4 mr-2" />
-                Hinzufügen
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  console.log('Cancel add button clicked');
-                  setShowAddDialog(false);
-                  resetForm();
-                }}
-                className="flex-1"
-              >
+
+            <div className="flex gap-2 pt-4">
+              <Button variant="outline" onClick={() => setShowAddDialog(false)} className="flex-1">
                 Abbrechen
+              </Button>
+              <Button onClick={handleAddSubscriber} className="flex-1">
+                Hinzufügen
               </Button>
             </div>
           </div>
@@ -1198,19 +1093,12 @@ export default function SubscriberManagement() {
       </Dialog>
 
       {/* Edit Subscriber Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={(open) => {
-        console.log('Edit dialog open state changed:', open);
-        setShowEditDialog(open);
-        if (!open) {
-          setEditingSubscriber(null);
-          resetForm();
-        }
-      }}>
-        <DialogContent className="max-w-md">
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-md mx-4 sm:mx-auto">
           <DialogHeader>
             <DialogTitle>Abonnent bearbeiten</DialogTitle>
             <DialogDescription>
-              Bearbeiten Sie die Daten von: {editingSubscriber?.email}
+              Bearbeiten Sie die Informationen des Abonnenten
             </DialogDescription>
           </DialogHeader>
           
@@ -1222,17 +1110,19 @@ export default function SubscriberManagement() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
+                placeholder="beispiel@firma.de"
                 required
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="edit-first-name">Vorname</Label>
                 <Input
                   id="edit-first-name"
                   value={formData.first_name}
                   onChange={(e) => setFormData({...formData, first_name: e.target.value})}
+                  placeholder="Max"
                 />
               </div>
               <div>
@@ -1241,44 +1131,45 @@ export default function SubscriberManagement() {
                   id="edit-last-name"
                   value={formData.last_name}
                   onChange={(e) => setFormData({...formData, last_name: e.target.value})}
+                  placeholder="Mustermann"
                 />
               </div>
             </div>
-            
+
             <div>
               <Label htmlFor="edit-company">Firma</Label>
               <Input
                 id="edit-company"
                 value={formData.company}
                 onChange={(e) => setFormData({...formData, company: e.target.value})}
+                placeholder="Musterfirma GmbH"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="edit-phone">Telefon</Label>
               <Input
                 id="edit-phone"
                 value={formData.phone}
                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                placeholder="+49 123 456789"
               />
             </div>
-            
+
             <div>
-              <Label htmlFor="edit-tags">Tags (durch Komma getrennt)</Label>
+              <Label htmlFor="edit-tags">Tags (kommagetrennt)</Label>
               <Input
                 id="edit-tags"
                 value={formData.tags}
                 onChange={(e) => setFormData({...formData, tags: e.target.value})}
+                placeholder="interessent, newsletter"
               />
             </div>
-            
-            <div className="grid grid-cols-2 gap-3">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <Label>Status</Label>
-                <Select 
-                  value={formData.status} 
-                  onValueChange={(value: any) => setFormData({...formData, status: value})}
-                >
+                <Label htmlFor="edit-status">Status</Label>
+                <Select value={formData.status} onValueChange={(value: any) => setFormData({...formData, status: value})}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -1291,104 +1182,72 @@ export default function SubscriberManagement() {
                 </Select>
               </div>
               <div>
-                <Label>Quelle</Label>
-                <Select 
-                  value={formData.source} 
-                  onValueChange={(value) => setFormData({...formData, source: value})}
-                >
+                <Label htmlFor="edit-source">Quelle</Label>
+                <Select value={formData.source} onValueChange={(value) => setFormData({...formData, source: value})}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="manual">Manuell</SelectItem>
-                    <SelectItem value="website_newsletter">Website</SelectItem>
-                    <SelectItem value="contact_form">Kontaktformular</SelectItem>
+                    <SelectItem value="website">Website</SelectItem>
+                    <SelectItem value="import">Import</SelectItem>
+                    <SelectItem value="api">API</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            
-            <div className="flex gap-3 pt-4">
-              <Button 
-                onClick={(e) => {
-                  e.preventDefault();
-                  console.log('Save edit button clicked');
-                  handleEditSubscriber();
-                }}
-                className="flex-1"
-                disabled={!formData.email}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Speichern
-              </Button>
+
+            <div className="flex gap-2 pt-4">
               <Button 
                 variant="outline" 
                 onClick={() => {
-                  console.log('Cancel edit button clicked');
                   setShowEditDialog(false);
                   setEditingSubscriber(null);
                   resetForm();
-                }}
+                }} 
                 className="flex-1"
               >
                 Abbrechen
+              </Button>
+              <Button onClick={handleEditSubscriber} className="flex-1">
+                Speichern
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Import Subscribers Dialog */}
+      {/* Import Dialog */}
       <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-md mx-4 sm:mx-auto">
           <DialogHeader>
             <DialogTitle>Abonnenten importieren</DialogTitle>
             <DialogDescription>
-              Importieren Sie Abonnenten im CSV-Format. Die erste Zeile sollte die Spaltenüberschriften enthalten.
+              Fügen Sie CSV-Daten ein (erste Zeile muss Header enthalten)
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
             <div>
-              <Label>CSV-Format Beispiel:</Label>
-              <div className="bg-muted p-3 rounded text-sm font-mono">
-                email,first_name,last_name,company,phone,tags<br/>
-                max@example.com,Max,Mustermann,Beispiel GmbH,+49123456789,premium;webdesign<br/>
-                anna@firma.de,Anna,Schmidt,Test AG,,marketing
-              </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="import-data">CSV-Daten einfügen:</Label>
+              <Label>CSV-Daten</Label>
               <textarea
-                id="import-data"
-                className="w-full h-48 p-3 border rounded-md font-mono text-sm"
+                className="w-full h-32 p-2 text-sm border rounded-md"
                 value={importData}
                 onChange={(e) => setImportData(e.target.value)}
-                placeholder="email,first_name,last_name,company,phone,tags
-max@example.com,Max,Mustermann,Beispiel GmbH,+49123456789,premium;webdesign
-anna@firma.de,Anna,Schmidt,Test AG,,marketing"
+                placeholder="email,first_name,last_name,company&#10;max@example.com,Max,Mustermann,Firma GmbH&#10;..."
               />
             </div>
-            
-            <div className="flex gap-3">
-              <Button 
-                onClick={handleImportSubscribers}
-                disabled={!importData.trim()}
-                className="flex-1"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Importieren
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setShowImportDialog(false);
-                  setImportData('');
-                }}
-                className="flex-1"
-              >
+
+            <div className="text-xs text-muted-foreground">
+              Unterstützte Spalten: email (erforderlich), first_name, last_name, company, phone
+            </div>
+
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setShowImportDialog(false)} className="flex-1">
                 Abbrechen
+              </Button>
+              <Button onClick={handleImportSubscribers} className="flex-1">
+                Importieren
               </Button>
             </div>
           </div>

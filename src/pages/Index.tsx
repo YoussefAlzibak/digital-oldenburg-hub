@@ -9,6 +9,7 @@ import { CustomerReviews } from "@/components/CustomerReviews";
 import AppointmentBooking from "@/components/AppointmentBooking";
 import ContactStatusTracker from "@/components/ContactStatusTracker";
 import NewsletterSignup from "@/components/NewsletterSignup";
+import { WebsiteMobileNav } from "@/components/WebsiteMobileNav";
 import { 
   Globe, 
   Users, 
@@ -404,7 +405,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       {/* Enhanced Header with Geometric Figures */}
       <header className="header-enhanced fixed top-0 w-full z-50">
         <div className="header-geometric-bg">
@@ -473,7 +474,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section - Responsive Layout */}
-      <section className="relative hero-dark min-h-[100svh] md:min-h-screen flex items-center overflow-hidden pt-20 md:pt-24">
+      <section id="hero" className="relative hero-dark min-h-[100svh] md:min-h-screen flex items-center overflow-hidden pt-20 md:pt-24">
         <div className="absolute inset-0 floating-shapes">
           <div className="it-shape git-branch shape-1"><Code className="h-6 w-6 md:h-8 md:w-8 text-[hsl(var(--brand-primary))]" /></div>
           <div className="it-shape server-rack shape-2"><Monitor className="h-7 w-7 md:h-10 md:w-10 text-[hsl(var(--brand-accent))]" /></div>
@@ -742,7 +743,7 @@ const Index = () => {
       </section>
 
       {/* Team Section */}
-      <section className="py-24 bg-white">
+      <section id="about" className="py-24 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
             <h2 className="text-heading text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up">Unser Team</h2>
@@ -1203,6 +1204,9 @@ const Index = () => {
           </div>
         </div>
       </footer>
+      
+      {/* Mobile Navigation for Website */}
+      <WebsiteMobileNav />
     </div>
   );
 };

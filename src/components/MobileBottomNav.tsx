@@ -34,6 +34,11 @@ const moreItems = [
 export function MobileBottomNav() {
   const location = useLocation();
   
+  // Only show on admin routes
+  if (!location.pathname.startsWith('/admin')) {
+    return null;
+  }
+  
   const isActive = (path: string, exact = false) => {
     if (exact) {
       return location.pathname === path;

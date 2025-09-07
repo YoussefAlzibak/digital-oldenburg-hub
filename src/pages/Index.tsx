@@ -405,7 +405,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-20 sm:pb-0">
       {/* Enhanced Header with Geometric Figures */}
       <header className="header-enhanced fixed top-0 w-full z-50">
         <div className="header-geometric-bg">
@@ -432,6 +432,25 @@ const Index = () => {
                 <div className="text-xs font-medium text-gray-500 uppercase tracking-widest mt-1">Digital Excellence</div>
               </div>
             </div>
+            
+            <nav className="hidden md:flex lg:hidden items-center space-x-6">
+              <a href="#services" onClick={(e) => { e.preventDefault(); document.querySelector('#services')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors cursor-pointer">
+                Services
+              </a>
+              <a href="#portfolio" onClick={(e) => { e.preventDefault(); document.querySelector('#portfolio')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors cursor-pointer">
+                Portfolio
+              </a>
+              <a href="#about" onClick={(e) => { e.preventDefault(); document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors cursor-pointer">
+                Über uns
+              </a>
+              <a href="#contact" onClick={(e) => { e.preventDefault(); document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors cursor-pointer">
+                Kontakt
+              </a>
+              <Button size="sm" className="ml-4" onClick={() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })}>
+                <Calendar className="h-4 w-4 mr-2" />
+                Termin
+              </Button>
+            </nav>
             
             <nav className="hidden lg:flex items-center space-x-10 animate-fade-right">
               <a href="#services" className="nav-link">
@@ -461,14 +480,6 @@ const Index = () => {
               </Button>
             </nav>
 
-            {/* Mobile Menu Button */}
-            <button className="md:hidden p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
-              <div className="w-6 h-6 flex flex-col justify-center space-y-1">
-                <div className="w-full h-0.5 bg-[hsl(var(--brand-primary))] rounded-full"></div>
-                <div className="w-full h-0.5 bg-[hsl(var(--brand-primary))] rounded-full"></div>
-                <div className="w-full h-0.5 bg-[hsl(var(--brand-primary))] rounded-full"></div>
-              </div>
-            </button>
           </div>
         </div>
       </header>

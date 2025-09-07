@@ -38,7 +38,7 @@ export function WebsiteMobileNav() {
   };
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-md border-t border-border z-[9999] shadow-lg">
+    <nav className="sm:hidden fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-md border-t border-border z-[9999] shadow-lg">
       <div className="flex justify-around items-center h-16 px-2">
         {navItems.map((item) => (
           <Button

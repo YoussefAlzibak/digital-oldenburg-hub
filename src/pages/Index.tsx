@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "react-router-dom";
 import ConsultationRequestForm from "@/components/ConsultationRequestForm";
 import { CustomerReviews } from "@/components/CustomerReviews";
 import AppointmentBooking from "@/components/AppointmentBooking";
@@ -434,21 +435,23 @@ const Index = () => {
             </div>
             
             <nav className="hidden md:flex lg:hidden items-center space-x-6">
-              <a href="#services" onClick={(e) => { e.preventDefault(); document.querySelector('#services')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors cursor-pointer">
+              <Link to="/services" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
                 Services
-              </a>
-              <a href="#portfolio" onClick={(e) => { e.preventDefault(); document.querySelector('#portfolio')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors cursor-pointer">
+              </Link>
+              <Link to="/portfolio" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
                 Portfolio
-              </a>
-              <a href="#about" onClick={(e) => { e.preventDefault(); document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors cursor-pointer">
+              </Link>
+              <Link to="/about" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
                 Über uns
-              </a>
-              <a href="#contact" onClick={(e) => { e.preventDefault(); document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors cursor-pointer">
+              </Link>
+              <Link to="/contact" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
                 Kontakt
-              </a>
-              <Button size="sm" className="ml-4" onClick={() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })}>
-                <Calendar className="h-4 w-4 mr-2" />
-                Termin
+              </Link>
+              <Button size="sm" className="ml-4" asChild>
+                <Link to="/contact">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Termin
+                </Link>
               </Button>
             </nav>
             

@@ -456,30 +456,32 @@ const Index = () => {
             </nav>
             
             <nav className="hidden lg:flex items-center space-x-10 animate-fade-right">
-              <a href="#services" className="nav-link">
+              <Link to="/services" className="nav-link">
                 <Globe className="nav-icon" />
                 <span>Services</span>
-              </a>
-              <a href="#portfolio" className="nav-link">
+              </Link>
+              <Link to="/portfolio" className="nav-link">
                 <Monitor className="nav-icon" />
                 <span>Portfolio</span>
-              </a>
-              <a href="#about" className="nav-link">
+              </Link>
+              <Link to="/about" className="nav-link">
                 <Users2 className="nav-icon" />
                 <span>Über uns</span>
-              </a>
-              <a href="#contact" className="nav-link">
+              </Link>
+              <Link to="/contact" className="nav-link">
                 <MessageCircle className="nav-icon" />
                 <span>Kontakt</span>
-              </a>
-              <a href="/auth" className="nav-link text-xs opacity-60 hover:opacity-100">
+              </Link>
+              <Link to="/auth" className="nav-link text-xs opacity-60 hover:opacity-100">
                 <Shield className="nav-icon h-3 w-3" />
                 <span>Admin</span>
-              </a>
-              <Button className="cta-button group">
-                <Calendar className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
-                <span>Beratung anfragen</span>
-                <div className="cta-glow"></div>
+              </Link>
+              <Button className="cta-button group" asChild>
+                <Link to="/contact">
+                  <Calendar className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
+                  <span>Beratung anfragen</span>
+                  <div className="cta-glow"></div>
+                </Link>
               </Button>
             </nav>
 
@@ -533,16 +535,20 @@ const Index = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center animate-fade-up delay-400 px-4 md:px-0">
-                <Button size="lg" className="group relative overflow-hidden bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] hover:shadow-2xl hover:shadow-[hsl(var(--brand-primary))]/25 text-white px-8 md:px-12 py-4 md:py-6 text-base md:text-lg font-bold rounded-2xl transition-all hover:scale-105 duration-300">
-                  <span className="relative z-10 flex items-center">
-                    Portfolio entdecken
-                    <ArrowRight className="ml-2 md:ml-3 h-4 w-4 md:h-5 md:w-5 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                  <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <Button size="lg" className="group relative overflow-hidden bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] hover:shadow-2xl hover:shadow-[hsl(var(--brand-primary))]/25 text-white px-8 md:px-12 py-4 md:py-6 text-base md:text-lg font-bold rounded-2xl transition-all hover:scale-105 duration-300" asChild>
+                  <Link to="/portfolio">
+                    <span className="relative z-10 flex items-center">
+                      Portfolio entdecken
+                      <ArrowRight className="ml-2 md:ml-3 h-4 w-4 md:h-5 md:w-5 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                    <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="group px-8 md:px-12 py-4 md:py-6 text-base md:text-lg border-2 border-white/30 text-white hover:bg-white/10 hover:border-white font-bold rounded-2xl transition-all hover:scale-105 duration-300 backdrop-blur-sm">
-                  <Calendar className="mr-2 md:mr-3 h-4 w-4 md:h-5 md:w-5 group-hover:rotate-12 transition-transform" />
-                  Kostenlose Beratung
+                <Button variant="outline" size="lg" className="group px-8 md:px-12 py-4 md:py-6 text-base md:text-lg border-2 border-white/30 text-white hover:bg-white/10 hover:border-white font-bold rounded-2xl transition-all hover:scale-105 duration-300 backdrop-blur-sm" asChild>
+                  <Link to="/contact">
+                    <Calendar className="mr-2 md:mr-3 h-4 w-4 md:h-5 md:w-5 group-hover:rotate-12 transition-transform" />
+                    Kostenlose Beratung
+                  </Link>
                 </Button>
               </div>
               
@@ -628,6 +634,15 @@ const Index = () => {
               </Card>
             ))}
           </div>
+          
+          <div className="text-center mt-16">
+            <Button size="lg" className="bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] hover:shadow-xl text-white px-12 py-6 text-lg font-bold rounded-2xl transition-all hover:scale-105 duration-300" asChild>
+              <Link to="/services">
+                Alle Services entdecken
+                <ArrowRight className="ml-3 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -708,6 +723,15 @@ const Index = () => {
                   </CardContent>
                 </Card>
               ))}
+          </div>
+          
+          <div className="text-center mt-16">
+            <Button size="lg" className="bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] hover:shadow-xl text-white px-12 py-6 text-lg font-bold rounded-2xl transition-all hover:scale-105 duration-300" asChild>
+              <Link to="/portfolio">
+                Komplettes Portfolio ansehen
+                <ArrowRight className="ml-3 h-5 w-5" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -1170,8 +1194,8 @@ const Index = () => {
             <div>
               <h4 className="font-semibold mb-4">Unternehmen</h4>
               <ul className="space-y-2 text-background/70">
-                <li>Über uns</li>
-                <li>Portfolio</li>
+                <li><Link to="/about" className="hover:text-background transition-colors">Über uns</Link></li>
+                <li><Link to="/portfolio" className="hover:text-background transition-colors">Portfolio</Link></li>
                 <li>Blog</li>
                 <li>Karriere</li>
               </ul>
@@ -1179,18 +1203,18 @@ const Index = () => {
             <div>
               <h4 className="font-semibold mb-4">Services</h4>
               <ul className="space-y-2 text-background/70">
-                <li>Webdesign & Development</li>
-                <li>CRM & HubSpot Solutions</li>
-                <li>IT-Services & Smart Home</li>
-                <li>Print Design & Branding</li>
+                <li><Link to="/services" className="hover:text-background transition-colors">Webdesign & Development</Link></li>
+                <li><Link to="/services" className="hover:text-background transition-colors">CRM & HubSpot Solutions</Link></li>
+                <li><Link to="/services" className="hover:text-background transition-colors">IT-Services & Smart Home</Link></li>
+                <li><Link to="/services" className="hover:text-background transition-colors">Print Design & Branding</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Kontakt</h4>
               <ul className="space-y-2 text-background/70">
                 <li>Oldenburg, Niedersachsen</li>
-                <li>info@unicumtec.de</li>
-                <li>+49 (0) 441 XXX XXX</li>
+                <li><Link to="/contact" className="hover:text-background transition-colors">info@unicumtec.de</Link></li>
+                <li><Link to="/contact" className="hover:text-background transition-colors">+49 (0) 441 XXX XXX</Link></li>
               </ul>
             </div>
               <div>

@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import ConsultationRequestForm from "@/components/ConsultationRequestForm";
@@ -60,11 +61,13 @@ import teamImage from "@/assets/team-image.webp";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("Alle");
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     name: "",
     email: "",
-    message: "",
+    company: "",
     service: "",
+    budget: "",
+    message: "",
     phone: ""
   });
   const [activeFAQ, setActiveFAQ] = useState<number | null>(null);
@@ -74,7 +77,7 @@ const Index = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.email || !formData.message) {
+    if (!formData.name || !formData.email || !formData.message || !formData.service) {
       toast({
         title: "Fehler",
         description: "Bitte füllen Sie alle Pflichtfelder aus.",
@@ -92,8 +95,10 @@ const Index = () => {
           name: formData.name,
           email: formData.email,
           phone: formData.phone || null,
-          service_type: 'general_inquiry',
-          message: formData.message
+          service_type: formData.service,
+          message: formData.message,
+          company: formData.company || null,
+          budget: formData.budget || null
         }])
         .select('id')
         .single();
@@ -114,8 +119,10 @@ const Index = () => {
               name: formData.name,
               email: formData.email,
               phone: formData.phone,
-              service_type: 'general_inquiry',
-              message: formData.message
+              service_type: formData.service,
+              message: formData.message,
+              company: formData.company,
+              budget: formData.budget
             }
           }
         });
@@ -128,8 +135,10 @@ const Index = () => {
       setFormData({
         name: "",
         email: "",
-        message: "",
+        company: "",
         service: "",
+        budget: "",
+        message: "",
         phone: ""
       });
       
@@ -377,6 +386,29 @@ const Index = () => {
       highlight: false
     }
   ];
+
+  const services_list = [
+    "Webdesign & Development",
+    "E-Commerce Lösungen",
+    "Mobile App Development",
+    "IT-Beratung",
+    "Cloud-Services",
+    "Digital Marketing",
+    "SEO & Analytics",
+    "Wartung & Support"
+  ];
+
+  const budgetRanges = [
+    "Unter 5.000€",
+    "5.000€ - 15.000€",
+    "15.000€ - 30.000€",
+    "30.000€ - 50.000€",
+    "Über 50.000€"
+  ];
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
   const faqs = [
     {
@@ -1026,60 +1058,99 @@ const Index = () => {
                 <div className="grid lg:grid-cols-2 gap-8">
                   <Card>
                     <CardContent className="p-8">
-                      <h3 className="text-3xl font-bold mb-8 gradient-text">Nachricht senden</h3>
-                      <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="grid grid-cols-2 gap-6">
-                          <Input 
-                            placeholder="Vorname" 
-                            className="h-12 hover-lift"
-                            value={formData.name.split(' ')[0] || ''}
-                            onChange={(e) => {
-                              const lastName = formData.name.split(' ').slice(1).join(' ');
-                              setFormData({...formData, name: `${e.target.value} ${lastName}`.trim()});
-                            }}
-                            required
-                          />
-                          <Input 
-                            placeholder="Nachname" 
-                            className="h-12 hover-lift"
-                            value={formData.name.split(' ').slice(1).join(' ') || ''}
-                            onChange={(e) => {
-                              const firstName = formData.name.split(' ')[0] || '';
-                              setFormData({...formData, name: `${firstName} ${e.target.value}`.trim()});
-                            }}
-                          />
-                        </div>
-                        <Input 
-                          placeholder="E-Mail-Adresse" 
-                          type="email" 
-                          className="h-12 hover-lift"
-                          value={formData.email}
-                          onChange={(e) => setFormData({...formData, email: e.target.value})}
-                          required
-                        />
-                        <Input 
-                          placeholder="Telefon" 
-                          type="tel" 
-                          className="h-12 hover-lift"
-                          value={formData.phone || ''}
-                          onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                        />
-                        <Textarea 
-                          placeholder="Beschreiben Sie Ihr Projekt..." 
-                          className="h-40 hover-lift"
-                          value={formData.message}
-                          onChange={(e) => setFormData({...formData, message: e.target.value})}
-                          required
-                        />
-                        <Button 
-                          type="submit"
-                          disabled={isSubmitting}
-                          className="w-full bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] text-white hover-scale shadow-xl h-12 text-lg font-semibold"
-                        >
-                          {isSubmitting ? 'Wird gesendet...' : 'Anfrage senden'}
-                          <ArrowRight className="ml-2 h-5 w-5" />
-                        </Button>
-                      </form>
+                      <h3 className="text-3xl font-bold mb-8 gradient-text">Projekt-Anfrage</h3>
+                       <form onSubmit={handleSubmit} className="space-y-6">
+                         <div className="grid grid-cols-2 gap-4">
+                           <div className="space-y-2">
+                             <label className="text-sm font-medium text-gray-700">Name *</label>
+                             <Input 
+                               placeholder="Ihr vollständiger Name"
+                               className="h-12 hover-lift"
+                               value={formData.name}
+                               onChange={(e) => handleInputChange("name", e.target.value)}
+                               required
+                             />
+                           </div>
+                           <div className="space-y-2">
+                             <label className="text-sm font-medium text-gray-700">E-Mail *</label>
+                             <Input 
+                               placeholder="ihre@email.de"
+                               type="email" 
+                               className="h-12 hover-lift"
+                               value={formData.email}
+                               onChange={(e) => handleInputChange("email", e.target.value)}
+                               required
+                             />
+                           </div>
+                         </div>
+
+                         <div className="space-y-2">
+                           <label className="text-sm font-medium text-gray-700">Unternehmen</label>
+                           <Input 
+                             placeholder="Ihr Unternehmen (optional)"
+                             className="h-12 hover-lift"
+                             value={formData.company}
+                             onChange={(e) => handleInputChange("company", e.target.value)}
+                           />
+                         </div>
+
+                         <div className="grid grid-cols-2 gap-4">
+                           <div className="space-y-2">
+                             <label className="text-sm font-medium text-gray-700">Service *</label>
+                             <Select onValueChange={(value) => handleInputChange("service", value)}>
+                               <SelectTrigger className="h-12">
+                                 <SelectValue placeholder="Wählen Sie einen Service" />
+                               </SelectTrigger>
+                               <SelectContent>
+                                 {services_list.map(service => (
+                                   <SelectItem key={service} value={service}>{service}</SelectItem>
+                                 ))}
+                               </SelectContent>
+                             </Select>
+                           </div>
+                           <div className="space-y-2">
+                             <label className="text-sm font-medium text-gray-700">Budget</label>
+                             <Select onValueChange={(value) => handleInputChange("budget", value)}>
+                               <SelectTrigger className="h-12">
+                                 <SelectValue placeholder="Budget-Bereich" />
+                               </SelectTrigger>
+                               <SelectContent>
+                                 {budgetRanges.map(range => (
+                                   <SelectItem key={range} value={range}>{range}</SelectItem>
+                                 ))}
+                               </SelectContent>
+                             </Select>
+                           </div>
+                         </div>
+
+                         <Input 
+                           placeholder="Telefon" 
+                           type="tel" 
+                           className="h-12 hover-lift"
+                           value={formData.phone}
+                           onChange={(e) => handleInputChange("phone", e.target.value)}
+                         />
+
+                         <div className="space-y-2">
+                           <label className="text-sm font-medium text-gray-700">Projektbeschreibung *</label>
+                           <Textarea 
+                             placeholder="Beschreiben Sie Ihr Projekt, Ihre Ziele und Anforderungen..."
+                             className="h-32 hover-lift"
+                             value={formData.message}
+                             onChange={(e) => handleInputChange("message", e.target.value)}
+                             required
+                           />
+                         </div>
+
+                         <Button 
+                           type="submit"
+                           disabled={isSubmitting}
+                           className="w-full bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] text-white hover-scale shadow-xl h-12 text-lg font-semibold"
+                         >
+                           {isSubmitting ? 'Wird gesendet...' : 'Anfrage senden'}
+                           <ArrowRight className="ml-2 h-5 w-5" />
+                         </Button>
+                       </form>
                     </CardContent>
                   </Card>
                   

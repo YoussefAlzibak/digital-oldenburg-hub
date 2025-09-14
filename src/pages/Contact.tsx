@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRight, Globe, Mail, Phone, MapPin, Clock, MessageCircle, Send, Calendar } from "lucide-react";
+import { ArrowRight, Globe, Mail, Phone, MapPin, Clock, MessageCircle, Send, Calendar, Monitor, Users2, Shield, Palette } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
@@ -76,28 +76,90 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-      {/* Header */}
-      <header className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-lg border-b">
-        <div className="container mx-auto px-6 py-4">
+    <div className="min-h-screen bg-background pb-20 sm:pb-0">
+      {/* Enhanced Header with Geometric Figures */}
+      <header className="header-enhanced fixed top-0 w-full z-50">
+        <div className="header-geometric-bg">
+          <div className="header-shape header-hexagon-1"></div>
+          <div className="header-shape header-triangle-1"></div>
+          <div className="header-shape header-diamond-1"></div>
+          <div className="header-shape header-circle-1"></div>
+          <div className="header-shape header-square-1"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 md:px-6 py-4 md:py-5 relative z-10">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
-                <Globe className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <div>
-                <div className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                  Digital Solutions
+            <div className="flex items-center space-x-3 md:space-x-4 animate-fade-left">
+              <div className="logo-container group">
+                <div className="logo-geometric">
+                  <div className="logo-primary-shape"></div>
+                  <div className="logo-accent-shape"></div>
+                  <div className="logo-inner-detail"></div>
                 </div>
               </div>
-            </Link>
-
-            <nav className="hidden md:flex items-center space-x-8">
-              <Link to="/" className="text-sm font-medium hover:text-primary transition-colors">Home</Link>
-              <Link to="/services" className="text-sm font-medium hover:text-primary transition-colors">Services</Link>
-              <Link to="/portfolio" className="text-sm font-medium hover:text-primary transition-colors">Portfolio</Link>
-              <Link to="/about" className="text-sm font-medium hover:text-primary transition-colors">Über uns</Link>
-              <Link to="/contact" className="text-sm font-medium text-primary">Kontakt</Link>
+              <div className="logo-text">
+                <span className="text-2xl md:text-3xl font-black text-[hsl(var(--brand-secondary))] tracking-tight">Unicum</span>
+                <span className="text-2xl md:text-3xl font-light text-[hsl(var(--brand-primary))] tracking-tight">Tec</span>
+                <div className="text-xs font-medium text-gray-500 uppercase tracking-widest mt-1">Digital Excellence</div>
+              </div>
+            </div>
+            
+            <nav className="hidden md:flex lg:hidden items-center space-x-6">
+              <Link to="/" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+                Home
+              </Link>
+              <Link to="/services" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+                Services
+              </Link>
+              <Link to="/portfolio" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+                Portfolio
+              </Link>
+              <Link to="/about" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+                Über uns
+              </Link>
+              <Link to="/contact" className="text-sm font-medium text-primary">
+                Kontakt
+              </Link>
+              <Button size="sm" className="ml-4" asChild>
+                <Link to="/contact">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Termin
+                </Link>
+              </Button>
+            </nav>
+            
+            <nav className="hidden lg:flex items-center space-x-10 animate-fade-right">
+              <Link to="/" className="nav-link">
+                <Globe className="nav-icon" />
+                <span>Home</span>
+              </Link>
+              <Link to="/services" className="nav-link">
+                <Palette className="nav-icon" />
+                <span>Services</span>
+              </Link>
+              <Link to="/portfolio" className="nav-link">
+                <Monitor className="nav-icon" />
+                <span>Portfolio</span>
+              </Link>
+              <Link to="/about" className="nav-link">
+                <Users2 className="nav-icon" />
+                <span>Über uns</span>
+              </Link>
+              <Link to="/contact" className="nav-link text-primary">
+                <MessageCircle className="nav-icon" />
+                <span>Kontakt</span>
+              </Link>
+              <Link to="/auth" className="nav-link text-xs opacity-60 hover:opacity-100">
+                <Shield className="nav-icon h-3 w-3" />
+                <span>Admin</span>
+              </Link>
+              <Button className="cta-button group" asChild>
+                <Link to="/contact">
+                  <Calendar className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
+                  <span>Beratung anfragen</span>
+                  <div className="cta-glow"></div>
+                </Link>
+              </Button>
             </nav>
           </div>
         </div>

@@ -1,15 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
-import ConsultationRequestForm from "@/components/ConsultationRequestForm";
 import { CustomerReviews } from "@/components/CustomerReviews";
-import AppointmentBooking from "@/components/AppointmentBooking";
-import ContactStatusTracker from "@/components/ContactStatusTracker";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import { WebsiteMobileNav } from "@/components/WebsiteMobileNav";
 import { 
@@ -26,9 +19,6 @@ import {
   Smartphone,
   Zap,
   Award,
-  Mail,
-  Phone,
-  MapPin,
   MessageCircle,
   Target,
   Lightbulb,
@@ -44,8 +34,6 @@ import {
   Cookie
 } from "lucide-react";
 import { useState } from "react";
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 
 // Import generated images
 import webdesignService from "@/assets/webdesign-service.webp";
@@ -61,97 +49,8 @@ import teamImage from "@/assets/team-image.webp";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("Alle");
-const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    company: "",
-    service: "",
-    budget: "",
-    message: "",
-    phone: ""
-  });
   const [activeFAQ, setActiveFAQ] = useState<number | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.name || !formData.email || !formData.message || !formData.service) {
-      toast({
-        title: "Fehler",
-        description: "Bitte füllen Sie alle Pflichtfelder aus.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      
-      const { data, error } = await supabase
-        .from('contact_requests')
-        .insert([{
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone || null,
-          service_type: formData.service,
-          message: formData.message,
-          company: formData.company || null,
-          budget: formData.budget || null
-        }])
-        .select('id')
-        .single();
-
-      if (error) throw error;
-
-      toast({
-        title: "Nachricht gesendet!",
-        description: "Vielen Dank für Ihre Nachricht. Wir melden uns innerhalb von 24 Stunden bei Ihnen.",
-      });
-
-      // Send confirmation email to customer
-      try {
-        await supabase.functions.invoke('send-contact-confirmation', {
-          body: {
-            contactRequest: {
-              id: data.id,
-              name: formData.name,
-              email: formData.email,
-              phone: formData.phone,
-              service_type: formData.service,
-              message: formData.message,
-              company: formData.company,
-              budget: formData.budget
-            }
-          }
-        });
-        console.log('Contact confirmation email sent successfully');
-      } catch (emailError) {
-        console.error('Contact confirmation email error:', emailError);
-      }
-
-      // Reset form
-      setFormData({
-        name: "",
-        email: "",
-        company: "",
-        service: "",
-        budget: "",
-        message: "",
-        phone: ""
-      });
-      
-    } catch (error: any) {
-      toast({
-        title: "Fehler",
-        description: "Ihre Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const services = [
     {
@@ -387,28 +286,6 @@ const [formData, setFormData] = useState({
     }
   ];
 
-  const services_list = [
-    "Webdesign & Development",
-    "E-Commerce Lösungen",
-    "Mobile App Development",
-    "IT-Beratung",
-    "Cloud-Services",
-    "Digital Marketing",
-    "SEO & Analytics",
-    "Wartung & Support"
-  ];
-
-  const budgetRanges = [
-    "Unter 5.000€",
-    "5.000€ - 15.000€",
-    "15.000€ - 30.000€",
-    "30.000€ - 50.000€",
-    "Über 50.000€"
-  ];
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
 
   const faqs = [
     {
@@ -1007,195 +884,6 @@ const [formData, setFormData] = useState({
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-24 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up gradient-text">Kontakt & Beratung</h2>
-            <p className="text-xl text-muted-foreground animate-fade-in-up stagger-1 max-w-3xl mx-auto">
-              Kontaktieren Sie uns für eine kostenlose Beratung oder buchen Sie direkt einen Termin.
-            </p>
-          </div>
-          
-          <div className="max-w-4xl mx-auto">
-            <Tabs defaultValue="consultation" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="consultation">Beratung anfragen</TabsTrigger>
-                <TabsTrigger value="appointment">Termin buchen</TabsTrigger>
-                <TabsTrigger value="contact">Kontakt</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="consultation" className="mt-6">
-                <ConsultationRequestForm />
-              </TabsContent>
-              
-              <TabsContent value="appointment" className="mt-6">
-                <AppointmentBooking />
-              </TabsContent>
-              
-              <TabsContent value="contact" className="mt-6">
-                <div className="grid lg:grid-cols-2 gap-8">
-                  <Card>
-                    <CardContent className="p-8">
-                      <h3 className="text-3xl font-bold mb-8 gradient-text">Projekt-Anfrage</h3>
-                       <form onSubmit={handleSubmit} className="space-y-6">
-                         <div className="grid grid-cols-2 gap-4">
-                           <div className="space-y-2">
-                             <label className="text-sm font-medium text-gray-700">Name *</label>
-                             <Input 
-                               placeholder="Ihr vollständiger Name"
-                               className="h-12 hover-lift"
-                               value={formData.name}
-                               onChange={(e) => handleInputChange("name", e.target.value)}
-                               required
-                             />
-                           </div>
-                           <div className="space-y-2">
-                             <label className="text-sm font-medium text-gray-700">E-Mail *</label>
-                             <Input 
-                               placeholder="ihre@email.de"
-                               type="email" 
-                               className="h-12 hover-lift"
-                               value={formData.email}
-                               onChange={(e) => handleInputChange("email", e.target.value)}
-                               required
-                             />
-                           </div>
-                         </div>
-
-                         <div className="space-y-2">
-                           <label className="text-sm font-medium text-gray-700">Unternehmen</label>
-                           <Input 
-                             placeholder="Ihr Unternehmen (optional)"
-                             className="h-12 hover-lift"
-                             value={formData.company}
-                             onChange={(e) => handleInputChange("company", e.target.value)}
-                           />
-                         </div>
-
-                         <div className="grid grid-cols-2 gap-4">
-                           <div className="space-y-2">
-                             <label className="text-sm font-medium text-gray-700">Service *</label>
-                             <Select onValueChange={(value) => handleInputChange("service", value)}>
-                               <SelectTrigger className="h-12">
-                                 <SelectValue placeholder="Wählen Sie einen Service" />
-                               </SelectTrigger>
-                               <SelectContent>
-                                 {services_list.map(service => (
-                                   <SelectItem key={service} value={service}>{service}</SelectItem>
-                                 ))}
-                               </SelectContent>
-                             </Select>
-                           </div>
-                           <div className="space-y-2">
-                             <label className="text-sm font-medium text-gray-700">Budget</label>
-                             <Select onValueChange={(value) => handleInputChange("budget", value)}>
-                               <SelectTrigger className="h-12">
-                                 <SelectValue placeholder="Budget-Bereich" />
-                               </SelectTrigger>
-                               <SelectContent>
-                                 {budgetRanges.map(range => (
-                                   <SelectItem key={range} value={range}>{range}</SelectItem>
-                                 ))}
-                               </SelectContent>
-                             </Select>
-                           </div>
-                         </div>
-
-                         <Input 
-                           placeholder="Telefon" 
-                           type="tel" 
-                           className="h-12 hover-lift"
-                           value={formData.phone}
-                           onChange={(e) => handleInputChange("phone", e.target.value)}
-                         />
-
-                         <div className="space-y-2">
-                           <label className="text-sm font-medium text-gray-700">Projektbeschreibung *</label>
-                           <Textarea 
-                             placeholder="Beschreiben Sie Ihr Projekt, Ihre Ziele und Anforderungen..."
-                             className="h-32 hover-lift"
-                             value={formData.message}
-                             onChange={(e) => handleInputChange("message", e.target.value)}
-                             required
-                           />
-                         </div>
-
-                         <Button 
-                           type="submit"
-                           disabled={isSubmitting}
-                           className="w-full bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] text-white hover-scale shadow-xl h-12 text-lg font-semibold"
-                         >
-                           {isSubmitting ? 'Wird gesendet...' : 'Anfrage senden'}
-                           <ArrowRight className="ml-2 h-5 w-5" />
-                         </Button>
-                       </form>
-                    </CardContent>
-                  </Card>
-                  
-                  <div className="space-y-6">
-                    <Card>
-                      <CardContent className="p-6">
-                        <h4 className="text-lg font-semibold mb-4">Status verfolgen</h4>
-                        <p className="text-muted-foreground text-sm mb-4">
-                          Überprüfen Sie den Status Ihrer Anfrage oder Ihres Termins
-                        </p>
-                        <ContactStatusTracker />
-                      </CardContent>
-                    </Card>
-                    
-                    <Card>
-                      <CardContent className="p-6">
-                        <h4 className="text-lg font-semibold mb-4">Direktkontakt</h4>
-                        <div className="space-y-3 text-sm">
-                          <div className="flex items-center gap-3">
-                            <Phone className="h-4 w-4" />
-                            <div>
-                              <p className="font-medium">+49 (0) 441 XXX XXX</p>
-                              <p className="text-muted-foreground">Mo-Fr: 9:00 - 18:00 Uhr</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <Mail className="h-4 w-4" />
-                            <div>
-                              <p className="font-medium">info@unicumtec.de</p>
-                              <p className="text-muted-foreground">Antwort binnen 24h</p>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-          
-          <div className="mt-20 text-center">
-            <h3 className="text-3xl font-bold text-[hsl(var(--brand-secondary))] mb-8">Kontaktinformationen</h3>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="flex flex-col items-center space-y-4 group cursor-pointer transition-all hover:scale-105">
-                <div className="h-16 w-16 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                  <MapPin className="h-8 w-8 text-white" />
-                </div>
-                <span className="text-lg font-semibold text-[hsl(var(--brand-secondary))]">Oldenburg, Niedersachsen</span>
-              </div>
-              <div className="flex flex-col items-center space-y-4 group cursor-pointer transition-all hover:scale-105">
-                <div className="h-16 w-16 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                  <Mail className="h-8 w-8 text-white" />
-                </div>
-                <span className="text-lg font-semibold text-[hsl(var(--brand-secondary))]">info@unicumtec.de</span>
-              </div>
-              <div className="flex flex-col items-center space-y-4 group cursor-pointer transition-all hover:scale-105">
-                <div className="h-16 w-16 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                  <Phone className="h-8 w-8 text-white" />
-                </div>
-                <span className="text-lg font-semibold text-[hsl(var(--brand-secondary))]">+49 (0) 441 XXX XXX</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Newsletter Section */}
       <section className="py-20 bg-gradient-to-br from-gray-50 to-white">

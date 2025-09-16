@@ -466,27 +466,6 @@ const [formData, setFormData] = useState({
               </div>
             </div>
             
-            <nav className="hidden md:flex lg:hidden items-center space-x-6">
-              <Link to="/services" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-                Services
-              </Link>
-              <Link to="/portfolio" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-                Portfolio
-              </Link>
-              <Link to="/about" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-                Über uns
-              </Link>
-              <Link to="/contact" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-                Kontakt
-              </Link>
-              <Button size="sm" className="ml-4" asChild>
-                <Link to="/contact">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Termin
-                </Link>
-              </Button>
-            </nav>
-            
             <nav className="hidden lg:flex items-center space-x-10 animate-fade-right">
               <Link to="/services" className="nav-link">
                 <Globe className="nav-icon" />
@@ -812,50 +791,86 @@ const [formData, setFormData] = useState({
         </div>
       </section>
 
-      {/* Team Section */}
-      <section id="about" className="py-24 bg-white">
+      {/* About & Team Section */}
+      <section id="about" className="py-32 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
-            <h2 className="text-heading text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up">Unser Team</h2>
-            <p className="text-subheading text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto">
-              Experten mit Leidenschaft für digitale Innovation
+            <h2 className="text-4xl md:text-5xl font-black text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up uppercase tracking-tight">
+              ÜBER UNICUM TEC
+            </h2>
+            <p className="text-xl text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto font-medium">
+              Ihr Partner für digitalen Erfolg in Oldenburg - Experten mit Leidenschaft für Innovation
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
-            {team.map((member, index) => (
-              <Card key={index} className={`card-clean text-center p-8 group animate-fade-up delay-${index * 100}`}>
-                <div className="relative mb-8">
-                  <img 
-                    src={member.image} 
-                    alt={member.name}
-                    className="w-32 h-32 rounded-full mx-auto object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-[hsl(var(--brand-primary))] text-white px-4 py-1">
-                      {member.role.split(' ')[0]}
-                    </Badge>
+
+          <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
+            <div className="animate-fade-up">
+              <h3 className="text-3xl font-bold mb-8 text-[hsl(var(--brand-secondary))]">Unsere Mission</h3>
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                Mit über 5 Jahren Erfahrung in der digitalen Welt verbinden wir kreatives Webdesign mit strategischem CRM-Management. Unsere Mission: Ihre Kundenkommunikation zu optimieren und messbare Ergebnisse zu erzielen.
+              </p>
+              
+              <div className="grid grid-cols-3 gap-8">
+                {stats.map((stat, index) => (
+                  <div key={index} className="text-center animate-fade-up" style={{animationDelay: `${index * 100}ms`}}>
+                    <div className="text-3xl md:text-4xl font-black text-[hsl(var(--brand-primary))] mb-2">{stat.number}</div>
+                    <div className="text-sm text-gray-600 font-medium uppercase tracking-wide">{stat.label}</div>
                   </div>
-                </div>
-                <CardHeader className="p-0 mb-6">
-                  <CardTitle className="text-xl mb-2 text-[hsl(var(--brand-secondary))]">
-                    {member.name}
-                  </CardTitle>
-                  <CardDescription className="text-gray-600 font-medium">
-                    {member.role}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {member.specialties.map((specialty, i) => (
-                      <Badge key={i} variant="outline" className="text-xs border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))]">
-                        {specialty}
+                ))}
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-6 animate-fade-up delay-200">
+              <div className="space-y-6">
+                <Badge variant="secondary" className="w-fit bg-[hsl(var(--brand-primary))]/10 text-[hsl(var(--brand-primary))] px-4 py-2 font-semibold">Webdesign</Badge>
+                <Badge variant="secondary" className="w-fit bg-[hsl(var(--brand-primary))]/10 text-[hsl(var(--brand-primary))] px-4 py-2 font-semibold">CRM-Integration</Badge>
+                <Badge variant="secondary" className="w-fit bg-[hsl(var(--brand-primary))]/10 text-[hsl(var(--brand-primary))] px-4 py-2 font-semibold">UI/UX Design</Badge>
+              </div>
+              <div className="space-y-6">
+                <Badge variant="secondary" className="w-fit bg-[hsl(var(--brand-primary))]/10 text-[hsl(var(--brand-primary))] px-4 py-2 font-semibold">Marketing Automation</Badge>
+                <Badge variant="secondary" className="w-fit bg-[hsl(var(--brand-primary))]/10 text-[hsl(var(--brand-primary))] px-4 py-2 font-semibold">Data Analytics</Badge>
+                <Badge variant="secondary" className="w-fit bg-[hsl(var(--brand-primary))]/10 text-[hsl(var(--brand-primary))] px-4 py-2 font-semibold">API Development</Badge>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mb-20">
+            <h3 className="text-3xl font-bold text-[hsl(var(--brand-secondary))] mb-12">Unser Team</h3>
+            <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+              {team.map((member, index) => (
+                <Card key={index} className="bg-white border-0 shadow-xl hover:shadow-2xl rounded-2xl overflow-hidden p-8 group transition-all duration-300 hover:scale-105">
+                  <div className="relative mb-8">
+                    <img 
+                      src={member.image} 
+                      alt={member.name}
+                      className="w-32 h-32 rounded-full mx-auto object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
+                      <Badge className="bg-[hsl(var(--brand-primary))] text-white px-4 py-2 font-bold">
+                        {member.role.split(' ')[0]}
                       </Badge>
-                    ))}
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <CardHeader className="p-0 mb-6">
+                    <CardTitle className="text-2xl mb-2 text-[hsl(var(--brand-secondary))] font-black">
+                      {member.name}
+                    </CardTitle>
+                    <CardDescription className="text-gray-600 font-medium text-lg">
+                      {member.role}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {member.specialties.map((specialty, i) => (
+                        <Badge key={i} variant="outline" className="text-xs border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))] bg-[hsl(var(--brand-primary))]/5 font-semibold">
+                          {specialty}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -968,42 +983,6 @@ const [formData, setFormData] = useState({
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="py-24 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="animate-fade-in-left">
-              <h2 className="text-4xl md:text-5xl font-bold mb-8 gradient-text">Über uns</h2>
-              <p className="text-2xl text-muted-foreground mb-8 font-medium">
-                Ihr Partner für digitalen Erfolg in Oldenburg
-              </p>
-              <p className="text-lg text-muted-foreground mb-12 leading-relaxed">
-                Mit über 5 Jahren Erfahrung in der digitalen Welt verbinden wir kreatives Webdesign mit strategischem CRM-Management. Unsere Mission: Ihre Kundenkommunikation zu optimieren und messbare Ergebnisse zu erzielen.
-              </p>
-              <div className="grid grid-cols-3 gap-8">
-                {stats.map((stat, index) => (
-                  <div key={index} className={`text-center hover-scale animate-fade-in-up stagger-${index + 1}`}>
-                    <div className="text-3xl md:text-4xl font-bold gradient-text mb-2">{stat.number}</div>
-                    <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-6 animate-fade-in-right">
-              <div className="space-y-6">
-                <Badge variant="secondary" className="w-fit hover-scale bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] px-4 py-2">Webdesign</Badge>
-                <Badge variant="secondary" className="w-fit hover-scale bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] px-4 py-2">CRM-Integration</Badge>
-                <Badge variant="secondary" className="w-fit hover-scale bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] px-4 py-2">UI/UX Design</Badge>
-              </div>
-              <div className="space-y-6">
-                <Badge variant="secondary" className="w-fit hover-scale bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] px-4 py-2">Marketing Automation</Badge>
-                <Badge variant="secondary" className="w-fit hover-scale bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] px-4 py-2">Data Analytics</Badge>
-                <Badge variant="secondary" className="w-fit hover-scale bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] px-4 py-2">API Development</Badge>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Guarantees Section */}
       <section className="py-24 section-gradient section-pattern">
@@ -1192,49 +1171,26 @@ const [formData, setFormData] = useState({
             </Tabs>
           </div>
           
-          <div className="mt-20 space-y-12 animate-fade-in-right">
-            <div>
-              <h3 className="text-3xl font-bold mb-8 text-center">Kontaktinformationen</h3>
-              <div className="grid md:grid-cols-3 gap-8 text-center">
-                <div className="flex flex-col items-center space-y-4 hover-scale">
-                  <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg flex items-center justify-center">
-                    <MapPin className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="text-lg">Oldenburg, Niedersachsen</span>
+          <div className="mt-20 text-center">
+            <h3 className="text-3xl font-bold text-[hsl(var(--brand-secondary))] mb-8">Kontaktinformationen</h3>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="flex flex-col items-center space-y-4 group cursor-pointer transition-all hover:scale-105">
+                <div className="h-16 w-16 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                  <MapPin className="h-8 w-8 text-white" />
                 </div>
-                <div className="flex flex-col items-center space-y-4 hover-scale">
-                  <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg flex items-center justify-center">
-                    <Mail className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="text-lg">info@unicumtec.de</span>
-                </div>
-                <div className="flex flex-col items-center space-y-4 hover-scale">
-                  <div className="h-12 w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-lg flex items-center justify-center">
-                    <Phone className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="text-lg">+49 (0) 441 XXX XXX</span>
-                </div>
+                <span className="text-lg font-semibold text-[hsl(var(--brand-secondary))]">Oldenburg, Niedersachsen</span>
               </div>
-            </div>
-            <div className="text-center">
-              <h4 className="text-2xl font-semibold mb-6">Warum Unicum Tec?</h4>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
-                <div className="flex items-center space-x-3 hover-scale">
-                  <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
-                  <span className="text-sm">Lokaler Partner in Oldenburg</span>
+              <div className="flex flex-col items-center space-y-4 group cursor-pointer transition-all hover:scale-105">
+                <div className="h-16 w-16 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                  <Mail className="h-8 w-8 text-white" />
                 </div>
-                <div className="flex items-center space-x-3 hover-scale">
-                  <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
-                  <span className="text-sm">5+ Jahre Erfahrung</span>
+                <span className="text-lg font-semibold text-[hsl(var(--brand-secondary))]">info@unicumtec.de</span>
+              </div>
+              <div className="flex flex-col items-center space-y-4 group cursor-pointer transition-all hover:scale-105">
+                <div className="h-16 w-16 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                  <Phone className="h-8 w-8 text-white" />
                 </div>
-                <div className="flex items-center space-x-3 hover-scale">
-                  <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
-                  <span className="text-sm">98% Kundenzufriedenheit</span>
-                </div>
-                <div className="flex items-center space-x-3 hover-scale">
-                  <CheckCircle className="h-6 w-6 text-[hsl(var(--brand-success))]" />
-                  <span className="text-sm">30 Tage Geld-zurück-Garantie</span>
-                </div>
+                <span className="text-lg font-semibold text-[hsl(var(--brand-secondary))]">+49 (0) 441 XXX XXX</span>
               </div>
             </div>
           </div>

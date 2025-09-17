@@ -342,6 +342,35 @@ const Index = () => {
                 <div className="text-xs font-medium text-gray-500 uppercase tracking-widest mt-1">Digital Excellence</div>
               </div>
             </div>
+            <nav className="hidden md:flex lg:hidden items-center space-x-6">
+              <Link to="/services" className="nav-link">
+                <Palette className="nav-icon h-4 w-4" />
+                <span>Services</span>
+              </Link>
+              <Link to="/portfolio" className="nav-link">
+                <Monitor className="nav-icon h-4 w-4" />
+                <span>Portfolio</span>
+              </Link>
+              <Link to="/about" className="nav-link">
+                <Users2 className="nav-icon h-4 w-4" />
+                <span>Über uns</span>
+              </Link>
+              <Link to="/contact" className="nav-link">
+                <MessageCircle className="nav-icon h-4 w-4" />
+                <span>Kontakt</span>
+              </Link>
+              <Link to="/auth" className="nav-link text-xs opacity-60 hover:opacity-100">
+                <Shield className="nav-icon h-3 w-3" />
+                <span>Admin</span>
+              </Link>
+              <Button size="sm" className="cta-button group" asChild>
+                <Link to="/contact">
+                  <Calendar className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
+                  <span>Beratung</span>
+                  <div className="cta-glow"></div>
+                </Link>
+              </Button>
+            </nav>
             
             <nav className="hidden lg:flex items-center space-x-10 animate-fade-right">
               <Link to="/services" className="nav-link">

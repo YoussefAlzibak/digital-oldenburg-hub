@@ -5,19 +5,29 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRight, Globe, Mail, Phone, MapPin, Clock, MessageCircle, Send, Calendar, Monitor, Users2, Shield, Palette } from "lucide-react";
+import { ArrowRight, Globe, Mail, Phone, MapPin, Clock, MessageCircle, Send, Calendar, Monitor, Users2, Shield, Palette, Video, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import ConsultationRequestForm from "@/components/ConsultationRequestForm";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { WebsiteMobileNav } from "@/components/WebsiteMobileNav";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     company: "",
     service: "",
     budget: "",
-    message: ""
+    message: "",
+    preferred_date: "",
+    preferred_time: "",
+    consultation_type: "online"
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const contactInfo = [
     {
@@ -65,10 +75,89 @@ const Contact = () => {
     "Über 50.000€"
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Hier würde die Form-Übermittlung implementiert werden
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('contact_requests')
+        .insert([{
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || null,
+          company: formData.company || null,
+          service_type: formData.service,
+          message: formData.message || null,
+          preferred_date: formData.preferred_date || null,
+          preferred_time: formData.preferred_time || null
+        }])
+        .select('id')
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Kontaktanfrage gesendet!",
+        description: "Wir melden uns innerhalb von 24 Stunden bei Ihnen zurück.",
+      });
+
+      // Trigger contact form automation and dashboard notification
+      try {
+        await supabase.functions.invoke('trigger-contact-automation', {
+          body: {
+            contactRequestId: data.id,
+            email: formData.email,
+            name: formData.name,
+            serviceType: formData.service
+          }
+        });
+      } catch (automationError) {
+        console.error('Contact form automation error:', automationError);
+      }
+
+      // Send confirmation email to customer
+      try {
+        await supabase.functions.invoke('send-contact-confirmation', {
+          body: {
+            contactRequest: {
+              id: data.id,
+              name: formData.name,
+              email: formData.email,
+              phone: formData.phone,
+              company: formData.company,
+              service_type: formData.service,
+              message: formData.message,
+              preferred_date: formData.preferred_date,
+              preferred_time: formData.preferred_time
+            }
+          }
+        });
+      } catch (emailError) {
+        console.error('Contact confirmation email error:', emailError);
+      }
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        company: "",
+        service: "",
+        budget: "",
+        message: "",
+        preferred_date: "",
+        preferred_time: "",
+        consultation_type: "online"
+      });
+    } catch (error) {
+      toast({
+        title: "Fehler",
+        description: "Ihre Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -129,10 +218,6 @@ const Contact = () => {
             </nav>
             
             <nav className="hidden lg:flex items-center space-x-10 animate-fade-right">
-              <Link to="/" className="nav-link">
-                <Globe className="nav-icon" />
-                <span>Home</span>
-              </Link>
               <Link to="/services" className="nav-link">
                 <Palette className="nav-icon" />
                 <span>Services</span>
@@ -145,7 +230,7 @@ const Contact = () => {
                 <Users2 className="nav-icon" />
                 <span>Über uns</span>
               </Link>
-              <Link to="/contact" className="nav-link text-primary">
+              <Link to="/contact" className="nav-link">
                 <MessageCircle className="nav-icon" />
                 <span>Kontakt</span>
               </Link>
@@ -161,6 +246,8 @@ const Contact = () => {
                 </Link>
               </Button>
             </nav>
+
+            <WebsiteMobileNav />
           </div>
         </div>
       </header>
@@ -199,7 +286,10 @@ const Contact = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Name *</Label>
+                      <Label htmlFor="name" className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        Name *
+                      </Label>
                       <Input
                         id="name"
                         value={formData.name}
@@ -209,7 +299,10 @@ const Contact = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email">E-Mail *</Label>
+                      <Label htmlFor="email" className="flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        E-Mail *
+                      </Label>
                       <Input
                         id="email"
                         type="email"
@@ -218,6 +311,41 @@ const Contact = () => {
                         placeholder="ihre@email.de"
                         required
                       />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        Telefon
+                      </Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange("phone", e.target.value)}
+                        placeholder="+49 (0) 123 456 789"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="consultation_type">Beratungsart</Label>
+                      <Select onValueChange={(value) => handleInputChange("consultation_type", value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Art der Beratung" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="online">
+                            <div className="flex items-center gap-2">
+                              <Video className="h-4 w-4" />
+                              Online (Video-Call)
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="phone">Telefonisch</SelectItem>
+                          <SelectItem value="office">Vor Ort in unserem Büro</SelectItem>
+                          <SelectItem value="client">Vor Ort beim Kunden</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
@@ -260,6 +388,38 @@ const Contact = () => {
                     </div>
                   </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="preferred_date">Wunschtermin</Label>
+                      <Input
+                        id="preferred_date"
+                        type="date"
+                        min={new Date().toISOString().split('T')[0]}
+                        value={formData.preferred_date}
+                        onChange={(e) => handleInputChange("preferred_date", e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="preferred_time" className="flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        Uhrzeit
+                      </Label>
+                      <Select onValueChange={(value) => handleInputChange("preferred_time", value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Wählen Sie eine Uhrzeit" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="09:00">09:00 Uhr</SelectItem>
+                          <SelectItem value="10:00">10:00 Uhr</SelectItem>
+                          <SelectItem value="11:00">11:00 Uhr</SelectItem>
+                          <SelectItem value="14:00">14:00 Uhr</SelectItem>
+                          <SelectItem value="15:00">15:00 Uhr</SelectItem>
+                          <SelectItem value="16:00">16:00 Uhr</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="message">Projektbeschreibung *</Label>
                     <Textarea
@@ -272,9 +432,9 @@ const Contact = () => {
                     />
                   </div>
 
-                  <Button type="submit" size="lg" className="w-full">
+                  <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
                     <Send className="h-5 w-5 mr-2" />
-                    Anfrage senden
+                    {isSubmitting ? 'Wird gesendet...' : 'Kontaktanfrage senden'}
                   </Button>
                 </form>
               </CardContent>
@@ -307,17 +467,29 @@ const Contact = () => {
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold mb-4">Schnelle Kontaktaufnahme</h3>
                   <div className="space-y-3">
-                    <Button variant="outline" size="lg" className="w-full justify-start">
-                      <Calendar className="h-5 w-5 mr-3" />
-                      Kostenlosen Termin buchen
+                    <Button variant="outline" size="lg" className="w-full justify-start" asChild>
+                      <Link to="/contact#consultation">
+                        <Calendar className="h-5 w-5 mr-3" />
+                        Kostenlosen Termin buchen
+                      </Link>
                     </Button>
-                    <Button variant="outline" size="lg" className="w-full justify-start">
-                      <Phone className="h-5 w-5 mr-3" />
-                      Sofort anrufen
+                    <Button variant="outline" size="lg" className="w-full justify-start" asChild>
+                      <a href="tel:+4912345678">
+                        <Phone className="h-5 w-5 mr-3" />
+                        Sofort anrufen
+                      </a>
                     </Button>
-                    <Button variant="outline" size="lg" className="w-full justify-start">
-                      <Mail className="h-5 w-5 mr-3" />
-                      E-Mail schreiben
+                    <Button variant="outline" size="lg" className="w-full justify-start" asChild>
+                      <a href="mailto:hello@digitalsolutions.de">
+                        <Mail className="h-5 w-5 mr-3" />
+                        E-Mail schreiben
+                      </a>
+                    </Button>
+                    <Button variant="outline" size="lg" className="w-full justify-start" asChild>
+                      <Link to="/auth">
+                        <Shield className="h-5 w-5 mr-3" />
+                        Dashboard Login
+                      </Link>
                     </Button>
                   </div>
                 </CardContent>
@@ -365,6 +537,25 @@ const Contact = () => {
         </div>
       </section>
 
+      {/* Enhanced Consultation Form Section */}
+      <section id="consultation" className="py-20 bg-muted/30">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <Badge className="mb-4 px-4 py-2 text-sm bg-primary/10 text-primary border-primary/20">
+              Video-Beratung verfügbar
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Kostenlose Beratung anfragen
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Vereinbaren Sie einen unverbindlichen Beratungstermin mit unseren Experten. 
+              Online per Video-Call, telefonisch oder vor Ort.
+            </p>
+          </div>
+          <ConsultationRequestForm />
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20">
         <div className="container mx-auto px-6">
@@ -385,6 +576,12 @@ const Contact = () => {
               </Button>
               <Button variant="outline" size="lg" asChild>
                 <Link to="/portfolio">Portfolio ansehen</Link>
+              </Button>
+              <Button variant="outline" size="lg" asChild>
+                <Link to="/auth">
+                  <Shield className="ml-2 h-5 w-5" />
+                  Dashboard zugreifen
+                </Link>
               </Button>
             </div>
           </div>

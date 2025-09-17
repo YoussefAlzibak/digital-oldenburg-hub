@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Globe, Users, Award, Target, Heart, Lightbulb, Shield, Zap, Monitor, Users2, MessageCircle, Calendar, Palette } from "lucide-react";
 import { Link } from "react-router-dom";
 import teamImage from "@/assets/team-image.webp";
+import { WebsiteMobileNav } from "@/components/WebsiteMobileNav";
 
 const About = () => {
   const values = [
@@ -310,6 +311,8 @@ const About = () => {
           </div>
         </div>
       </section>
+      
+      <WebsiteMobileNav />
     </div>
   );
 };

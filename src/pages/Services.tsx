@@ -7,6 +7,7 @@ import webdesignImage from "@/assets/webdesign-service.webp";
 import itImage from "@/assets/it-service.webp";
 import printImage from "@/assets/print-service.webp";
 import crmImage from "@/assets/crm-service.webp";
+import { WebsiteMobileNav } from "@/components/WebsiteMobileNav";
 
 const Services = () => {
   const services = [
@@ -265,6 +266,8 @@ const Services = () => {
           </div>
         </div>
       </section>
+      
+      <WebsiteMobileNav />
     </div>
   );
 };

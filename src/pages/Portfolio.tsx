@@ -8,6 +8,7 @@ import portfolioEcommerce from "@/assets/portfolio-ecommerce.webp";
 import portfolioMobile from "@/assets/portfolio-mobile.webp";
 import portfolioSaas from "@/assets/portfolio-saas.webp";
 import portfolioSmarthome from "@/assets/portfolio-smarthome.webp";
+import { WebsiteMobileNav } from "@/components/WebsiteMobileNav";
 
 const Portfolio = () => {
   const projects = [
@@ -316,6 +317,8 @@ const Portfolio = () => {
           </div>
         </div>
       </section>
+      
+      <WebsiteMobileNav />
     </div>
   );
 };

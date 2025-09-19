@@ -474,7 +474,7 @@ const Contact = () => {
                       </Link>
                     </Button>
                     <Button variant="outline" size="lg" className="w-full justify-start" asChild>
-                      <a href="tel:+4912345678">
+                      <a href="tel:+491234567890">
                         <Phone className="h-5 w-5 mr-3" />
                         Sofort anrufen
                       </a>
@@ -503,9 +503,11 @@ const Contact = () => {
                     Haben Sie Fragen zu unseren Services, Preisen oder dem Ablauf? 
                     Schauen Sie in unsere FAQ oder kontaktieren Sie uns direkt.
                   </p>
-                  <Button variant="outline" size="sm">
-                    FAQ ansehen
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="#consultation">
+                      FAQ ansehen
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -579,7 +581,7 @@ const Contact = () => {
               </Button>
               <Button variant="outline" size="lg" asChild>
                 <Link to="/auth">
-                  <Shield className="ml-2 h-5 w-5" />
+                  <Shield className="h-4 w-4 mr-2" />
                   Dashboard zugreifen
                 </Link>
               </Button>

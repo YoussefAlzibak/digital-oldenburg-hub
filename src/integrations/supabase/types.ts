@@ -845,7 +845,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_customer_reviews: {
+        Row: {
+          company: string | null
+          created_at: string | null
+          customer_name: string | null
+          id: string | null
+          is_approved: boolean | null
+          is_featured: boolean | null
+          is_public: boolean | null
+          rating: number | null
+          review_date: string | null
+          review_text: string | null
+          service_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string | null
+          customer_name?: string | null
+          id?: string | null
+          is_approved?: boolean | null
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          rating?: number | null
+          review_date?: string | null
+          review_text?: string | null
+          service_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string | null
+          customer_name?: string | null
+          id?: string | null
+          is_approved?: boolean | null
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          rating?: number | null
+          review_date?: string | null
+          review_text?: string | null
+          service_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_google_calendar_settings: {

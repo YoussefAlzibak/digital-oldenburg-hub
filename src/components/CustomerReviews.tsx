@@ -30,10 +30,8 @@ export const CustomerReviews = () => {
   const fetchReviews = async () => {
     try {
       const { data, error } = await supabase
-        .from("customer_reviews")
+        .from("public_customer_reviews")
         .select("*")
-        .eq("is_approved", true)
-        .eq("is_public", true)
         .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(6);

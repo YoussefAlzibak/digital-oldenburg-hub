@@ -7,7 +7,7 @@ import webdesignImage from "@/assets/webdesign-service.webp";
 import itImage from "@/assets/it-service.webp";
 import printImage from "@/assets/print-service.webp";
 import crmImage from "@/assets/crm-service.webp";
-import { WebsiteMobileNav } from "@/components/WebsiteMobileNav";
+import { WebsiteLayout } from "@/components/WebsiteLayout";
 
 const Services = () => {
   const services = [
@@ -57,7 +57,7 @@ const Services = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-20 sm:pb-0">
+    <WebsiteLayout>
       {/* Enhanced Header with Geometric Figures */}
       <header className="header-enhanced fixed top-0 w-full z-50">
         <div className="header-geometric-bg">

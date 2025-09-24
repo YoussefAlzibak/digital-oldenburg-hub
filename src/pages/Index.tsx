@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { CustomerReviews } from "@/components/CustomerReviews";
 import NewsletterSignup from "@/components/NewsletterSignup";
-import { WebsiteMobileNav } from "@/components/WebsiteMobileNav";
+import { WebsiteLayout } from "@/components/WebsiteLayout";
 import { 
   Globe, 
   Users, 
@@ -51,7 +51,6 @@ import teamImage from "@/assets/team-image.webp";
 const Index = () => {
   const [activeTab, setActiveTab] = useState("Alle");
   const [activeFAQ, setActiveFAQ] = useState<number | null>(null);
-
 
   const services = [
     {
@@ -287,7 +286,6 @@ const Index = () => {
     }
   ];
 
-
   const faqs = [
     {
       question: "Wie lange dauert die Entwicklung einer Website?",
@@ -316,207 +314,113 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-20 sm:pb-0">
-      {/* Enhanced Header with Navigation */}
-      <header className="header-enhanced sticky top-0 z-50 bg-gradient-to-r from-primary/95 to-primary-foreground/95 backdrop-blur-lg shadow-2xl border-b border-primary/20">
-        <div className="header-geometric-bg">
-          <div className="header-shape header-hexagon-1 animate-float" style={{animationDelay: '0s'}}></div>
-          <div className="header-shape header-triangle-1 animate-float" style={{animationDelay: '0.5s'}}></div>
-          <div className="header-shape header-diamond-1 animate-float" style={{animationDelay: '1s'}}></div>
-          <div className="header-shape header-circle-1 animate-float" style={{animationDelay: '1.5s'}}></div>
-          <div className="header-shape header-square-1 animate-float" style={{animationDelay: '2s'}}></div>
+    <WebsiteLayout>
+      {/* Hero Section */}
+      <section className="hero-section-enhanced relative overflow-hidden bg-gradient-to-br from-primary via-primary-foreground to-secondary">
+        <div className="hero-geometric-bg">
+          <div className="hero-particle" style={{top: '10%', left: '15%', animationDelay: '0s'}}></div>
+          <div className="hero-particle" style={{top: '70%', left: '80%', animationDelay: '1s'}}></div>
+          <div className="hero-particle" style={{top: '30%', left: '70%', animationDelay: '0.5s'}}></div>
+          <div className="hero-glow hero-glow-1" style={{animationDelay: '0s'}}></div>
+          <div className="hero-glow hero-glow-2" style={{animationDelay: '2s'}}></div>
+          <div className="hero-glow hero-glow-3" style={{animationDelay: '1s'}}></div>
         </div>
         
-        <div className="container mx-auto px-4 md:px-6 py-4 md:py-5 relative z-10">
-          <div className="flex items-center justify-between">
-            {/* Enhanced Logo */}
-            <Link to="/" className="flex items-center space-x-3 md:space-x-4 animate-fade-left group">
-              <div className="logo-container">
-                <div className="logo-geometric group-hover:scale-110 transition-transform duration-300">
-                  <div className="logo-primary-shape animate-pulse"></div>
-                  <div className="logo-accent-shape"></div>
-                  <div className="logo-inner-detail animate-spin" style={{animationDuration: '20s'}}></div>
+        <div className="container mx-auto px-4 md:px-6 py-20 md:py-32 relative z-10">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="hero-content animate-fade-right">
+                <div className="hero-badge bg-accent/20 text-accent border border-accent/30 inline-flex items-center px-4 py-2 rounded-full text-sm font-medium mb-6 backdrop-blur-sm">
+                  <Zap className="h-4 w-4 mr-2 animate-pulse" />
+                  Ihr Partner für digitale Excellence
                 </div>
-              </div>
-              <div className="logo-text">
-                <span className="text-2xl md:text-3xl font-black text-[hsl(var(--brand-secondary))] tracking-tight group-hover:text-accent transition-colors duration-300">Unicum</span>
-                <span className="text-2xl md:text-3xl font-light text-[hsl(var(--brand-primary))] tracking-tight">Tec</span>
-                <div className="text-xs font-medium text-gray-500 uppercase tracking-widest mt-1 group-hover:text-white transition-colors duration-300">Digital Excellence</div>
-              </div>
-            </Link>
-
-            {/* Enhanced Tablet Navigation */}
-            <nav className="hidden md:flex lg:hidden items-center space-x-4">
-              <Link to="/services" className="nav-link group flex items-center px-3 py-2 text-white/90 hover:text-white font-medium transition-all duration-300 hover:bg-white/10 rounded-lg">
-                <Palette className="nav-icon h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                <span className="relative">
-                  Services
-                  <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-                </span>
-              </Link>
-              <Link to="/portfolio" className="nav-link group flex items-center px-3 py-2 text-white/90 hover:text-white font-medium transition-all duration-300 hover:bg-white/10 rounded-lg">
-                <Monitor className="nav-icon h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                <span className="relative">
-                  Portfolio
-                  <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-                </span>
-              </Link>
-              <Link to="/about" className="nav-link group flex items-center px-3 py-2 text-white/90 hover:text-white font-medium transition-all duration-300 hover:bg-white/10 rounded-lg">
-                <Users2 className="nav-icon h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                <span className="relative">
-                  Über uns
-                  <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-                </span>
-              </Link>
-              <Link to="/contact" className="cta-button group bg-accent hover:bg-accent/90 text-primary font-semibold px-4 py-2 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-accent/25 hover:scale-105">
-                <MessageCircle className="h-4 w-4 mr-2 group-hover:animate-pulse" />
-                Kontakt
-              </Link>
-            </nav>
-            
-            {/* Enhanced Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-1 animate-fade-right">
-              <Link to="/" className="nav-link group flex items-center px-4 py-2 text-white/90 hover:text-white font-medium transition-all duration-300 hover:bg-white/10 rounded-lg">
-                <Home className="nav-icon w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                <span className="relative">
-                  Home
-                  <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-                </span>
-              </Link>
-              <Link to="/services" className="nav-link group flex items-center px-4 py-2 text-white/90 hover:text-white font-medium transition-all duration-300 hover:bg-white/10 rounded-lg">
-                <Globe className="nav-icon w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                <span className="relative">
-                  Services
-                  <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-                </span>
-              </Link>
-              <Link to="/portfolio" className="nav-link group flex items-center px-4 py-2 text-white/90 hover:text-white font-medium transition-all duration-300 hover:bg-white/10 rounded-lg">
-                <Monitor className="nav-icon w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                <span className="relative">
-                  Portfolio
-                  <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-                </span>
-              </Link>
-              <Link to="/about" className="nav-link group flex items-center px-4 py-2 text-white/90 hover:text-white font-medium transition-all duration-300 hover:bg-white/10 rounded-lg">
-                <Users2 className="nav-icon w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                <span className="relative">
-                  Über uns
-                  <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-                </span>
-              </Link>
-              <Link to="/contact" className="nav-link group flex items-center px-4 py-2 text-white/90 hover:text-white font-medium transition-all duration-300 hover:bg-white/10 rounded-lg">
-                <MessageCircle className="nav-icon w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                <span className="relative">
-                  Kontakt
-                  <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-                </span>
-              </Link>
-              <Link to="/auth" className="nav-link group flex items-center px-3 py-2 text-white/60 hover:text-white/80 text-xs transition-all duration-300 hover:bg-white/5 rounded-lg">
-                <Shield className="nav-icon h-3 w-3 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                <span>Admin</span>
-              </Link>
-              <Button className="cta-button group bg-accent hover:bg-accent/90 text-primary font-semibold px-6 py-2 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-accent/25 hover:scale-105 ml-4" asChild>
-                <Link to="/contact">
-                  <Calendar className="h-4 w-4 mr-2 group-hover:rotate-12 group-hover:animate-pulse transition-transform duration-300" />
-                  <span>Beratung anfragen</span>
-                  <div className="cta-glow"></div>
-                </Link>
-              </Button>
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero Section - Responsive Layout */}
-      <section id="hero" className="relative hero-dark min-h-[100svh] md:min-h-screen flex items-center overflow-hidden pt-20 md:pt-24">
-        <div className="absolute inset-0 floating-shapes">
-          <div className="it-shape git-branch shape-1"><Code className="h-6 w-6 md:h-8 md:w-8 text-[hsl(var(--brand-primary))]" /></div>
-          <div className="it-shape server-rack shape-2"><Monitor className="h-7 w-7 md:h-10 md:w-10 text-[hsl(var(--brand-accent))]" /></div>
-          <div className="it-shape database-icon shape-3"><Settings className="h-6 w-6 md:h-8 md:w-8 text-[hsl(var(--brand-secondary))]" /></div>
-          <div className="it-shape mobile-dev shape-4"><Smartphone className="h-6 w-6 md:h-9 md:w-9 text-[hsl(var(--brand-primary))]" /></div>
-          <div className="it-shape web-globe shape-5"><Globe className="h-7 w-7 md:h-10 md:w-10 text-[hsl(var(--brand-accent))]" /></div>
-          <div className="it-shape lightning-fast shape-6"><Zap className="h-6 w-6 md:h-8 md:w-8 text-[hsl(var(--brand-secondary))]" /></div>
-          <div className="it-shape rocket-launch shape-7"><Rocket className="h-6 w-6 md:h-8 md:w-8 text-[hsl(var(--brand-primary))]" /></div>
-        </div>
-        
-        <div className="container mx-auto px-4 md:px-6 relative z-10 w-full">
-          <div className="flex items-center justify-center min-h-[70vh] md:min-h-[80vh]">
-            {/* Centered Content */}
-            <div className="text-center space-y-6 md:space-y-10 animate-fade-up max-w-5xl">
-              <div className="space-y-4 md:space-y-6">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black text-white leading-[0.9] tracking-tight">
-                  Digitale 
-                  <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))]">
-                    Excellence
-                  </span>
-                  <br />
-                  <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-gray-300 font-light">
-                    für Ihren Erfolg
-                  </span>
+                
+                <h1 className="hero-title text-4xl md:text-6xl font-black mb-6 leading-tight">
+                  <span className="text-white block">Digitale</span>
+                  <span className="hero-gradient-text bg-gradient-to-r from-accent via-accent-foreground to-primary-foreground bg-clip-text text-transparent block">Transformation</span>
+                  <span className="text-white/90 block">neu definiert</span>
                 </h1>
                 
-                <div className="flex items-center justify-center space-x-3 md:space-x-4 mb-6 md:mb-8">
-                  <div className="flex space-x-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 md:h-5 md:w-5 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <span className="text-white/80 font-medium text-sm md:text-base">4.9/5 Kundenbewertung</span>
+                <p className="hero-subtitle text-lg md:text-xl text-white/80 mb-8 leading-relaxed max-w-2xl">
+                  Wir verwandeln Ihre Visionen in leistungsstarke digitale Lösungen. Von modernen Websites über CRM-Systeme bis hin zu Smart Home Automation - Ihr Erfolg ist unser Antrieb.
+                </p>
+                
+                <div className="hero-stats grid grid-cols-3 gap-6 mb-8">
+                  {stats.map((stat, index) => (
+                    <div key={index} className="text-center">
+                      <div className="text-2xl md:text-3xl font-black text-accent">{stat.number}</div>
+                      <div className="text-sm text-white/70">{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="hero-actions flex flex-col sm:flex-row gap-4">
+                  <Link 
+                    to="/contact" 
+                    className="hero-cta-primary group bg-accent hover:bg-accent/90 text-primary font-semibold px-8 py-4 rounded-full inline-flex items-center justify-center transition-all duration-300 hover:shadow-xl hover:shadow-accent/25 hover:scale-105"
+                  >
+                    <MessageCircle className="h-5 w-5 mr-2 group-hover:animate-pulse" />
+                    Kostenloses Beratungsgespräch
+                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                  <Link 
+                    to="/portfolio" 
+                    className="hero-cta-secondary group bg-white/10 hover:bg-white/20 text-white font-medium px-8 py-4 rounded-full inline-flex items-center justify-center transition-all duration-300 backdrop-blur-sm border border-white/20 hover:border-white/40"
+                  >
+                    <Monitor className="h-5 w-5 mr-2" />
+                    Portfolio ansehen
+                  </Link>
                 </div>
               </div>
               
-              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed font-light animate-fade-up delay-200 px-4 md:px-0">
-                Ihre Full-Service Digitalagentur in Oldenburg. Wir transformieren Geschäftsprozesse durch innovative 
-                <span className="text-[hsl(var(--brand-accent))] font-medium"> Webdesign-Lösungen</span>, professionelle 
-                <span className="text-[hsl(var(--brand-primary))] font-medium"> CRM-Systeme</span> und modernste IT-Services.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center animate-fade-up delay-400 px-4 md:px-0">
-                <Button size="lg" className="group relative overflow-hidden bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] hover:shadow-2xl hover:shadow-[hsl(var(--brand-primary))]/25 text-white px-8 md:px-12 py-4 md:py-6 text-base md:text-lg font-bold rounded-2xl transition-all hover:scale-105 duration-300" asChild>
-                  <Link to="/portfolio">
-                    <span className="relative z-10 flex items-center">
-                      Portfolio entdecken
-                      <ArrowRight className="ml-2 md:ml-3 h-4 w-4 md:h-5 md:w-5 group-hover:translate-x-1 transition-transform" />
-                    </span>
-                    <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  </Link>
-                </Button>
-                <Button variant="outline" size="lg" className="group px-8 md:px-12 py-4 md:py-6 text-base md:text-lg border-2 border-white/30 text-white hover:bg-white/10 hover:border-white font-bold rounded-2xl transition-all hover:scale-105 duration-300 backdrop-blur-sm" asChild>
-                  <Link to="/contact">
-                    <Calendar className="mr-2 md:mr-3 h-4 w-4 md:h-5 md:w-5 group-hover:rotate-12 transition-transform" />
-                    Kostenlose Beratung
-                  </Link>
-                </Button>
-              </div>
-              
-              {/* Trust Indicators */}
-              <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 pt-6 md:pt-8 animate-fade-up delay-600 px-4 md:px-0">
-                <div className="flex items-center space-x-2 md:space-x-3">
-                  <div className="h-10 w-10 md:h-12 md:w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center">
-                    <CheckCircle className="h-5 w-5 md:h-6 md:w-6 text-white" />
+              <div className="hero-visual relative animate-fade-left">
+                <div className="hero-image-container relative">
+                  <div className="hero-floating-card bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl max-w-sm ml-auto mb-6 animate-float">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 bg-accent rounded-xl flex items-center justify-center">
+                        <BarChart className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-foreground">Performance Boost</div>
+                        <div className="text-sm text-muted-foreground">Website Optimierung</div>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Ladezeit</span>
+                        <span className="font-medium text-green-600">-67%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Conversion</span>
+                        <span className="font-medium text-green-600">+240%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">SEO Score</span>
+                        <span className="font-medium text-green-600">98/100</span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xl md:text-2xl font-bold text-white">150+</div>
-                    <div className="text-xs md:text-sm text-gray-400">Projekte</div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 md:space-x-3">
-                  <div className="h-10 w-10 md:h-12 md:w-12 bg-gradient-to-r from-[hsl(var(--brand-accent))] to-[hsl(var(--brand-primary))] rounded-2xl flex items-center justify-center">
-                    <Users className="h-5 w-5 md:h-6 md:w-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="text-xl md:text-2xl font-bold text-white">98%</div>
-                    <div className="text-xs md:text-sm text-gray-400">Zufriedenheit</div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 md:space-x-3">
-                  <div className="h-10 w-10 md:h-12 md:w-12 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] rounded-2xl flex items-center justify-center">
-                    <Rocket className="h-5 w-5 md:h-6 md:w-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="text-xl md:text-2xl font-bold text-white">5+</div>
-                    <div className="text-xs md:text-sm text-gray-400">Jahre</div>
+                  
+                  <div className="hero-floating-card bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl max-w-sm animate-float" style={{animationDelay: '1s'}}>
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+                        <Users className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-foreground">CRM Integration</div>
+                        <div className="text-sm text-muted-foreground">HubSpot Automation</div>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Leads erfasst</span>
+                        <span className="font-medium text-primary">2.547</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Conversion Rate</span>
+                        <span className="font-medium text-primary">18.5%</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -525,307 +429,311 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Services Section - Modern Grid Layout */}
-      <section id="services" className="py-32 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-black text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up uppercase tracking-tight">
-              UNSERE SERVICES
+      {/* Services Overview Section */}
+      <section className="services-overview py-20 md:py-32 bg-gradient-subtle">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="section-header text-center mb-16">
+            <Badge variant="outline" className="badge-enhanced mb-4">
+              <Globe className="h-4 w-4 mr-2" />
+              Unsere Services
+            </Badge>
+            <h2 className="section-title text-3xl md:text-5xl font-black mb-6">
+              Digitale Lösungen, die <span className="text-gradient">begeistern</span>
             </h2>
-            <p className="text-xl text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto font-medium">
-              Für euch entwickelt - Maßgeschneiderte Lösungen für Ihre digitale Transformation
+            <p className="section-subtitle text-lg text-muted-foreground max-w-3xl mx-auto">
+              Von der ersten Idee bis zur erfolgreichen Implementation - wir begleiten Sie auf jedem Schritt Ihrer digitalen Transformation.
             </p>
           </div>
-          
-          <div className="grid lg:grid-cols-2 gap-16">
+
+          <div className="services-grid grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {services.map((service, index) => (
-              <Card key={index} className={`group cursor-pointer transition-all duration-300 hover:scale-105 animate-fade-up delay-${index * 100} bg-white border-0 shadow-xl hover:shadow-2xl rounded-2xl overflow-hidden`}>
-                <div className="relative h-64 overflow-hidden">
-                  <img 
-                    src={service.image} 
-                    alt={service.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  <div className="absolute bottom-6 left-6">
-                    <div className="h-16 w-16 bg-[hsl(var(--brand-primary))] rounded-2xl flex items-center justify-center shadow-lg">
-                      <service.icon className="h-8 w-8 text-white" />
-                    </div>
-                  </div>
-                </div>
+              <Card key={index} className="service-card group overflow-hidden bg-gradient-to-br from-card via-card to-card/80 border-primary/10 hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:scale-[1.02]">
                 <CardContent className="p-8">
-                  <CardTitle className="text-2xl mb-4 text-[hsl(var(--brand-secondary))] font-black uppercase tracking-tight">
-                    {service.title}
-                  </CardTitle>
-                  <CardDescription className="text-gray-600 text-base leading-relaxed mb-6 font-medium">
-                    {service.description}
-                  </CardDescription>
-                  <ul className="space-y-3">
-                    {service.features.map((feature, i) => (
-                      <li key={i} className="flex items-center space-x-3">
-                        <div className="h-2 w-2 bg-[hsl(var(--brand-primary))] rounded-full"></div>
-                        <span className="text-sm font-semibold text-gray-700">{feature}</span>
-                      </li>
+                  <div className="service-icon w-16 h-16 bg-gradient-to-br from-primary to-primary-foreground rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <service.icon className="h-8 w-8 text-white" />
+                  </div>
+                  
+                  <CardHeader className="p-0 mb-4">
+                    <CardTitle className="service-title text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                      {service.title}
+                    </CardTitle>
+                    <CardDescription className="service-description text-muted-foreground leading-relaxed">
+                      {service.description}
+                    </CardDescription>
+                  </CardHeader>
+                  
+                  <div className="service-features space-y-3 mb-6">
+                    {service.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-center text-sm text-muted-foreground">
+                        <CheckCircle className="h-4 w-4 text-primary mr-3 flex-shrink-0" />
+                        {feature}
+                      </div>
                     ))}
-                  </ul>
+                  </div>
+                  
+                  <div className="service-image relative overflow-hidden rounded-xl mb-6">
+                    <img 
+                      src={service.image} 
+                      alt={service.title}
+                      className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
+                  
+                  <Link 
+                    to="/services" 
+                    className="service-cta group/cta w-full bg-primary/5 hover:bg-primary text-muted-foreground hover:text-white font-medium py-3 px-6 rounded-xl inline-flex items-center justify-center transition-all duration-300 border border-primary/10 hover:border-primary hover:shadow-lg"
+                  >
+                    Mehr erfahren
+                    <ArrowRight className="h-4 w-4 ml-2 group-hover/cta:translate-x-1 transition-transform" />
+                  </Link>
                 </CardContent>
               </Card>
             ))}
           </div>
-          
-          <div className="text-center mt-16">
-            <Button size="lg" className="bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] hover:shadow-xl text-white px-12 py-6 text-lg font-bold rounded-2xl transition-all hover:scale-105 duration-300" asChild>
-              <Link to="/services">
-                Alle Services entdecken
-                <ArrowRight className="ml-3 h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
         </div>
       </section>
 
-
-      {/* Portfolio Section - Enhanced & Centered */}
-      <section id="portfolio" className="py-32 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-20 max-w-4xl mx-auto">
-            <h2 className="text-4xl md:text-5xl font-black text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up uppercase tracking-tight">
-              ERFOLGREICHE PROJEKTE
+      {/* Portfolio Preview Section */}
+      <section className="portfolio-preview py-20 md:py-32 bg-background">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="section-header text-center mb-16">
+            <Badge variant="outline" className="badge-enhanced mb-4">
+              <Monitor className="h-4 w-4 mr-2" />
+              Portfolio
+            </Badge>
+            <h2 className="section-title text-3xl md:text-5xl font-black mb-6">
+              Erfolgsgeschichten unserer <span className="text-gradient">Kunden</span>
             </h2>
-            <p className="text-xl text-gray-600 animate-fade-up delay-200 font-medium">
-              Innovative Lösungen, die begeistern und Ergebnisse liefern
+            <p className="section-subtitle text-lg text-muted-foreground max-w-3xl mx-auto">
+              Entdecken Sie unsere neuesten Projekte und lassen Sie sich von den Ergebnissen inspirieren.
             </p>
-            
-            <div className="flex flex-wrap justify-center gap-4 mb-16 animate-fade-up delay-300">
-              {["Alle", "E-Commerce", "Corporate", "SaaS", "Mobile", "IoT"].map((tab) => (
-                <Button
-                  key={tab}
-                  variant={activeTab === tab ? "default" : "outline"}
-                  onClick={() => setActiveTab(tab)}
-                  className={`rounded-full px-8 py-3 font-bold uppercase tracking-wide text-sm transition-all duration-300 ${
-                    activeTab === tab 
-                      ? "bg-[hsl(var(--brand-primary))] text-white shadow-lg scale-105" 
-                      : "border-2 border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))] hover:text-white hover:scale-105"
-                  }`}
-                >
-                  {tab}
-                </Button>
-              ))}
-            </div>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="portfolio-tabs flex flex-wrap justify-center gap-2 mb-12">
+            {["Alle", "E-Commerce", "Corporate", "SaaS", "Mobile", "IoT"].map((tab) => (
+              <Button
+                key={tab}
+                variant={activeTab === tab ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveTab(tab)}
+                className={`portfolio-tab transition-all duration-300 ${
+                  activeTab === tab 
+                    ? "bg-primary text-primary-foreground shadow-lg scale-105" 
+                    : "hover:bg-primary/10 hover:border-primary/20"
+                }`}
+              >
+                {tab}
+              </Button>
+            ))}
+          </div>
+
+          <div className="portfolio-grid grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {projects
               .filter(project => activeTab === "Alle" || project.category === activeTab)
               .map((project, index) => (
-                <Card key={index} className={`group cursor-pointer transition-all duration-500 hover:scale-105 animate-fade-up delay-${index * 100} bg-white border-0 shadow-xl hover:shadow-2xl rounded-2xl overflow-hidden`}>
-                  <div className="aspect-video relative overflow-hidden">
-                    <img 
-                      src={project.image} 
-                      alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="absolute top-4 right-4">
-                      <Badge className="bg-[hsl(var(--brand-primary))] text-white font-bold uppercase tracking-wide">
-                        {project.category}
-                      </Badge>
-                    </div>
+              <Card key={index} className="portfolio-card group overflow-hidden bg-card border-primary/10 hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:scale-[1.02]">
+                <div className="portfolio-image relative overflow-hidden">
+                  <img 
+                    src={project.image} 
+                    alt={project.title}
+                    className="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute top-4 left-4">
+                    <Badge variant="secondary" className="bg-white/90 text-foreground">
+                      {project.category}
+                    </Badge>
                   </div>
-                  <CardContent className="p-8">
-                    <CardTitle className="text-xl mb-3 text-[hsl(var(--brand-secondary))] group-hover:text-[hsl(var(--brand-primary))] transition-colors font-black uppercase tracking-tight">
-                      {project.title}
-                    </CardTitle>
-                    <CardDescription className="text-gray-600 leading-relaxed mb-6 font-medium">
-                      {project.description}
-                    </CardDescription>
-                    
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {project.tags.map((tag, i) => (
-                        <Badge key={i} variant="outline" className="text-xs font-semibold border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))] bg-[hsl(var(--brand-primary))]/5">
+                  <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="flex gap-2">
+                      {project.tags.slice(0, 2).map((tag, idx) => (
+                        <Badge key={idx} variant="outline" className="bg-white/20 border-white/30 text-white text-xs">
                           {tag}
                         </Badge>
                       ))}
                     </div>
-                    
-                    {project.metrics && (
-                      <div className="grid grid-cols-3 gap-2 pt-6 border-t border-gray-100">
-                        {Object.entries(project.metrics).map(([key, value], i) => (
-                          <div key={i} className="text-center">
-                            <div className="text-lg font-black text-[hsl(var(--brand-primary))]">{value}</div>
-                            <div className="text-xs text-gray-500 uppercase tracking-wide font-semibold">{key}</div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-          </div>
-          
-          <div className="text-center mt-16">
-            <Button size="lg" className="bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-accent))] hover:shadow-xl text-white px-12 py-6 text-lg font-bold rounded-2xl transition-all hover:scale-105 duration-300" asChild>
-              <Link to="/portfolio">
-                Komplettes Portfolio ansehen
-                <ArrowRight className="ml-3 h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Customer Reviews Section */}
-      <CustomerReviews />
-
-      {/* Blog Section */}
-      <section className="py-24 section-gradient section-pattern">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up gradient-text">Unser Blog</h2>
-            <p className="text-xl text-muted-foreground animate-fade-in-up stagger-1 max-w-3xl mx-auto">Aktuelle Insights, Trends und Best Practices aus der digitalen Welt</p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogPosts.map((post, index) => (
-              <Card key={index} className={`overflow-hidden hover-lift glass-card group animate-fade-in-up stagger-${index + 1}`}>
-                <div className="aspect-video bg-gradient-to-br from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] flex items-center justify-center relative overflow-hidden">
-                  <Globe className="h-16 w-16 text-[hsl(var(--brand-primary))] group-hover:animate-float transition-all duration-300" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
                 </div>
-                <CardHeader className="p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <Badge variant="secondary" className="bg-gradient-to-r from-[hsl(var(--brand-primary)/0.1)] to-[hsl(var(--brand-secondary)/0.1)]">{post.category}</Badge>
-                    <span className="text-sm text-muted-foreground">{post.date}</span>
+                
+                <CardContent className="p-6">
+                  <CardHeader className="p-0 mb-4">
+                    <CardTitle className="portfolio-title text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                      {project.title}
+                    </CardTitle>
+                    <CardDescription className="portfolio-description text-muted-foreground leading-relaxed text-sm">
+                      {project.description}
+                    </CardDescription>
+                  </CardHeader>
+                  
+                  <div className="portfolio-metrics grid grid-cols-3 gap-4 mb-4 p-4 bg-primary/5 rounded-lg">
+                    {Object.entries(project.metrics).map(([key, value], idx) => (
+                      <div key={idx} className="text-center">
+                        <div className="text-sm font-semibold text-primary">{value}</div>
+                        <div className="text-xs text-muted-foreground capitalize">{key}</div>
+                      </div>
+                    ))}
                   </div>
-                  <CardTitle className="text-xl hover:text-[hsl(var(--brand-primary))] transition-colors cursor-pointer group-hover:gradient-text">
-                    {post.title}
-                  </CardTitle>
-                  <CardDescription className="leading-relaxed">{post.excerpt}</CardDescription>
-                </CardHeader>
-                <CardContent className="p-6 pt-0">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">{post.readTime}</span>
-                    <Button variant="ghost" size="sm" className="hover-scale group/btn">
-                      Weiterlesen <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
-                    </Button>
-                  </div>
+                  
+                  <Link 
+                    to="/portfolio" 
+                    className="portfolio-cta group/cta w-full bg-primary/5 hover:bg-primary text-muted-foreground hover:text-white font-medium py-2 px-4 rounded-lg inline-flex items-center justify-center transition-all duration-300 border border-primary/10 hover:border-primary text-sm"
+                  >
+                    Details ansehen
+                    <ArrowRight className="h-4 w-4 ml-2 group-hover/cta:translate-x-1 transition-transform" />
+                  </Link>
                 </CardContent>
               </Card>
             ))}
           </div>
-          <div className="text-center mt-16">
-            <Button variant="outline" className="hover-lift px-8 py-3">Alle Artikel anzeigen</Button>
-          </div>
-        </div>
-      </section>
-
-      {/* About & Team Section */}
-      <section id="about" className="py-32 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-black text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up uppercase tracking-tight">
-              ÜBER UNICUM TEC
-            </h2>
-            <p className="text-xl text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto font-medium">
-              Ihr Partner für digitalen Erfolg in Oldenburg - Experten mit Leidenschaft für Innovation
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
-            <div className="animate-fade-up">
-              <h3 className="text-3xl font-bold mb-8 text-[hsl(var(--brand-secondary))]">Unsere Mission</h3>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                Mit über 5 Jahren Erfahrung in der digitalen Welt verbinden wir kreatives Webdesign mit strategischem CRM-Management. Unsere Mission: Ihre Kundenkommunikation zu optimieren und messbare Ergebnisse zu erzielen.
-              </p>
-              
-              <div className="grid grid-cols-3 gap-8">
-                {stats.map((stat, index) => (
-                  <div key={index} className="text-center animate-fade-up" style={{animationDelay: `${index * 100}ms`}}>
-                    <div className="text-3xl md:text-4xl font-black text-[hsl(var(--brand-primary))] mb-2">{stat.number}</div>
-                    <div className="text-sm text-gray-600 font-medium uppercase tracking-wide">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-6 animate-fade-up delay-200">
-              <div className="space-y-6">
-                <Badge variant="secondary" className="w-fit bg-[hsl(var(--brand-primary))]/10 text-[hsl(var(--brand-primary))] px-4 py-2 font-semibold">Webdesign</Badge>
-                <Badge variant="secondary" className="w-fit bg-[hsl(var(--brand-primary))]/10 text-[hsl(var(--brand-primary))] px-4 py-2 font-semibold">CRM-Integration</Badge>
-                <Badge variant="secondary" className="w-fit bg-[hsl(var(--brand-primary))]/10 text-[hsl(var(--brand-primary))] px-4 py-2 font-semibold">UI/UX Design</Badge>
-              </div>
-              <div className="space-y-6">
-                <Badge variant="secondary" className="w-fit bg-[hsl(var(--brand-primary))]/10 text-[hsl(var(--brand-primary))] px-4 py-2 font-semibold">Marketing Automation</Badge>
-                <Badge variant="secondary" className="w-fit bg-[hsl(var(--brand-primary))]/10 text-[hsl(var(--brand-primary))] px-4 py-2 font-semibold">Data Analytics</Badge>
-                <Badge variant="secondary" className="w-fit bg-[hsl(var(--brand-primary))]/10 text-[hsl(var(--brand-primary))] px-4 py-2 font-semibold">API Development</Badge>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mb-20">
-            <h3 className="text-3xl font-bold text-[hsl(var(--brand-secondary))] mb-12">Unser Team</h3>
-            <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
-              {team.map((member, index) => (
-                <Card key={index} className="bg-white border-0 shadow-xl hover:shadow-2xl rounded-2xl overflow-hidden p-8 group transition-all duration-300 hover:scale-105">
-                  <div className="relative mb-8">
-                    <img 
-                      src={member.image} 
-                      alt={member.name}
-                      className="w-32 h-32 rounded-full mx-auto object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-[hsl(var(--brand-primary))] text-white px-4 py-2 font-bold">
-                        {member.role.split(' ')[0]}
-                      </Badge>
-                    </div>
-                  </div>
-                  <CardHeader className="p-0 mb-6">
-                    <CardTitle className="text-2xl mb-2 text-[hsl(var(--brand-secondary))] font-black">
-                      {member.name}
-                    </CardTitle>
-                    <CardDescription className="text-gray-600 font-medium text-lg">
-                      {member.role}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="flex flex-wrap gap-2 justify-center">
-                      {member.specialties.map((specialty, i) => (
-                        <Badge key={i} variant="outline" className="text-xs border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))] bg-[hsl(var(--brand-primary))]/5 font-semibold">
-                          {specialty}
-                        </Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+          
+          <div className="text-center mt-12">
+            <Link 
+              to="/portfolio" 
+              className="btn-enhanced group bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4 rounded-full inline-flex items-center transition-all duration-300 hover:shadow-xl hover:shadow-primary/25 hover:scale-105"
+            >
+              <Monitor className="h-5 w-5 mr-2" />
+              Alle Projekte ansehen
+              <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Process Section */}
-      <section className="py-24 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-20">
-            <h2 className="text-heading text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up">Unser Prozess</h2>
-            <p className="text-subheading text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto">
-              Von der ersten Idee bis zum erfolgreichen Launch - so arbeiten wir
+      <section className="process-section py-20 md:py-32 bg-gradient-subtle">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="section-header text-center mb-16">
+            <Badge variant="outline" className="badge-enhanced mb-4">
+              <Target className="h-4 w-4 mr-2" />
+              Unser Prozess
+            </Badge>
+            <h2 className="section-title text-3xl md:text-5xl font-black mb-6">
+              Von der <span className="text-gradient">Idee</span> zum Erfolg
+            </h2>
+            <p className="section-subtitle text-lg text-muted-foreground max-w-3xl mx-auto">
+              Unser bewährter 4-Schritte-Prozess garantiert Ihnen transparente Zusammenarbeit und exzellente Ergebnisse.
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+          <div className="process-timeline grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
             {processes.map((process, index) => (
-              <Card key={index} className={`card-clean text-center p-8 group animate-fade-up delay-${index * 100} relative`}>
-                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
-                  <div className="w-12 h-12 bg-[hsl(var(--brand-primary))] rounded-full flex items-center justify-center text-white font-bold text-lg">
-                    {process.number}
-                  </div>
+              <Card key={index} className="process-card group text-center bg-card border-primary/10 hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:scale-[1.02] relative">
+                <div className="process-number absolute -top-4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">
+                  {process.number}
                 </div>
-                <CardContent className="pt-8">
-                  <div className="h-16 w-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-6 group-hover:bg-[hsl(var(--brand-primary))] transition-colors duration-300">
-                    <process.icon className="h-8 w-8 text-[hsl(var(--brand-primary))] group-hover:text-white transition-colors duration-300" />
+                
+                <CardContent className="p-8 pt-12">
+                  <div className="process-icon w-16 h-16 bg-gradient-to-br from-primary to-primary-foreground rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <process.icon className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-4 text-[hsl(var(--brand-secondary))]">{process.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{process.description}</p>
+                  
+                  <CardHeader className="p-0 mb-4">
+                    <CardTitle className="process-title text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                      {process.title}
+                    </CardTitle>
+                    <CardDescription className="process-description text-muted-foreground leading-relaxed">
+                      {process.description}
+                    </CardDescription>
+                  </CardHeader>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Team Section */}
+      <section className="team-section py-20 md:py-32 bg-background">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="section-header text-center mb-16">
+            <Badge variant="outline" className="badge-enhanced mb-4">
+              <Users2 className="h-4 w-4 mr-2" />
+              Unser Team
+            </Badge>
+            <h2 className="section-title text-3xl md:text-5xl font-black mb-6">
+              Die <span className="text-gradient">Experten</span> hinter Ihrem Erfolg
+            </h2>
+            <p className="section-subtitle text-lg text-muted-foreground max-w-3xl mx-auto">
+              Lernen Sie unser erfahrenes Team kennen, das mit Leidenschaft und Expertise Ihre digitalen Projekte zum Leben erweckt.
+            </p>
+          </div>
+
+          <div className="team-grid grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {team.map((member, index) => (
+              <Card key={index} className="team-card group text-center bg-card border-primary/10 hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:scale-[1.02]">
+                <CardContent className="p-8">
+                  <div className="team-image relative w-32 h-32 mx-auto mb-6 overflow-hidden rounded-2xl">
+                    <img 
+                      src={member.image} 
+                      alt={member.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
+                  
+                  <CardHeader className="p-0 mb-4">
+                    <CardTitle className="team-name text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                      {member.name}
+                    </CardTitle>
+                    <CardDescription className="team-role text-primary font-medium text-lg">
+                      {member.role}
+                    </CardDescription>
+                  </CardHeader>
+                  
+                  <div className="team-specialties space-y-2">
+                    {member.specialties.map((specialty, idx) => (
+                      <Badge key={idx} variant="outline" className="mr-2 mb-2 border-primary/20 text-muted-foreground hover:bg-primary/10">
+                        {specialty}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="testimonials-section py-20 md:py-32 bg-gradient-subtle">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="section-header text-center mb-16">
+            <Badge variant="outline" className="badge-enhanced mb-4">
+              <Star className="h-4 w-4 mr-2" />
+              Kundenstimmen
+            </Badge>
+            <h2 className="section-title text-3xl md:text-5xl font-black mb-6">
+              Was unsere <span className="text-gradient">Kunden</span> sagen
+            </h2>
+            <p className="section-subtitle text-lg text-muted-foreground max-w-3xl mx-auto">
+              Lesen Sie die Erfahrungen unserer zufriedenen Kunden und lassen Sie sich von den Erfolgsgeschichten inspirieren.
+            </p>
+          </div>
+
+          <div className="testimonials-grid grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="testimonial-card group bg-card border-primary/10 hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:scale-[1.02]">
+                <CardContent className="p-8">
+                  <div className="testimonial-rating flex mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                  
+                  <blockquote className="testimonial-text text-muted-foreground leading-relaxed mb-6 italic">
+                    "{testimonial.text}"
+                  </blockquote>
+                  
+                  <div className="testimonial-author flex items-center">
+                    <div className="author-avatar w-12 h-12 bg-gradient-to-br from-primary to-primary-foreground rounded-full flex items-center justify-center text-white font-bold mr-4">
+                      {testimonial.initials}
+                    </div>
+                    <div>
+                      <div className="author-name font-semibold text-foreground">{testimonial.name}</div>
+                      <div className="author-role text-sm text-muted-foreground">{testimonial.role}</div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -834,42 +742,166 @@ const Index = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-20">
-            <h2 className="text-heading text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up">Transparente Preise</h2>
-            <p className="text-subheading text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto">
-              Wählen Sie das Paket, das zu Ihren Anforderungen passt
+      <section className="pricing-section py-20 md:py-32 bg-background">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="section-header text-center mb-16">
+            <Badge variant="outline" className="badge-enhanced mb-4">
+              <Euro className="h-4 w-4 mr-2" />
+              Transparente Preise
+            </Badge>
+            <h2 className="section-title text-3xl md:text-5xl font-black mb-6">
+              Investieren Sie in Ihren <span className="text-gradient">digitalen Erfolg</span>
+            </h2>
+            <p className="section-subtitle text-lg text-muted-foreground max-w-3xl mx-auto">
+              Wählen Sie das passende Paket für Ihre Bedürfnisse. Alle Preise sind transparent und ohne versteckte Kosten.
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+
+          <div className="pricing-grid grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {pricing.map((plan, index) => (
-              <Card key={index} className={`${plan.highlight ? 'ring-2 ring-[hsl(var(--brand-primary))] scale-105' : ''} card-clean p-8 group animate-fade-up delay-${index * 100} relative`}>
+              <Card key={index} className={`pricing-card group transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] ${
+                plan.highlight 
+                  ? "bg-gradient-to-br from-primary via-primary to-primary-foreground text-white border-2 border-accent scale-105" 
+                  : "bg-card border-primary/10 hover:border-primary/20"
+              }`}>
                 {plan.highlight && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-[hsl(var(--brand-primary))] text-white px-4 py-2">
-                      Beliebteste Wahl
-                    </Badge>
+                  <div className="pricing-badge absolute -top-4 left-1/2 transform -translate-x-1/2 bg-accent text-primary px-4 py-1 rounded-full text-sm font-medium">
+                    Beliebteste Wahl
                   </div>
                 )}
-                <CardHeader className="text-center p-0 mb-8">
-                  <CardTitle className="text-2xl mb-2 text-[hsl(var(--brand-secondary))]">{plan.name}</CardTitle>
-                  <div className="text-4xl font-bold text-[hsl(var(--brand-primary))] mb-2">{plan.price}</div>
-                  <CardDescription className="text-gray-600">{plan.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <ul className="space-y-4 mb-8">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-center space-x-3">
-                        <CheckCircle className="h-5 w-5 text-[hsl(var(--brand-success))]" />
-                        <span className="text-sm">{feature}</span>
-                      </li>
+                
+                <CardContent className="p-8 relative">
+                  <CardHeader className="p-0 mb-6 text-center">
+                    <CardTitle className={`pricing-name text-2xl font-bold mb-2 ${
+                      plan.highlight ? "text-white" : "text-foreground"
+                    }`}>
+                      {plan.name}
+                    </CardTitle>
+                    <div className={`pricing-price text-4xl font-black mb-2 ${
+                      plan.highlight ? "text-white" : "text-primary"
+                    }`}>
+                      {plan.price}
+                    </div>
+                    <CardDescription className={`pricing-description ${
+                      plan.highlight ? "text-white/80" : "text-muted-foreground"
+                    }`}>
+                      {plan.description}
+                    </CardDescription>
+                  </CardHeader>
+                  
+                  <div className="pricing-features space-y-4 mb-8">
+                    {plan.features.map((feature, idx) => (
+                      <div key={idx} className={`flex items-center text-sm ${
+                        plan.highlight ? "text-white/90" : "text-muted-foreground"
+                      }`}>
+                        <CheckCircle className={`h-4 w-4 mr-3 flex-shrink-0 ${
+                          plan.highlight ? "text-accent" : "text-primary"
+                        }`} />
+                        {feature}
+                      </div>
                     ))}
-                  </ul>
-                  <Button className={`w-full ${plan.highlight ? 'button-primary' : 'border-2 border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))] hover:text-white'}`}>
-                    {plan.name === 'Enterprise' ? 'Beratung anfragen' : 'Paket wählen'}
-                  </Button>
+                  </div>
+                  
+                  <Link 
+                    to="/contact" 
+                    className={`pricing-cta group/cta w-full font-medium py-3 px-6 rounded-xl inline-flex items-center justify-center transition-all duration-300 ${
+                      plan.highlight 
+                        ? "bg-accent hover:bg-accent/90 text-primary hover:shadow-lg" 
+                        : "bg-primary hover:bg-primary/90 text-primary-foreground hover:shadow-lg"
+                    }`}
+                  >
+                    Jetzt anfragen
+                    <ArrowRight className="h-4 w-4 ml-2 group-hover/cta:translate-x-1 transition-transform" />
+                  </Link>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Guarantees Section */}
+      <section className="guarantees-section py-20 md:py-32 bg-gradient-subtle">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="section-header text-center mb-16">
+            <Badge variant="outline" className="badge-enhanced mb-4">
+              <Shield className="h-4 w-4 mr-2" />
+              Unsere Garantien
+            </Badge>
+            <h2 className="section-title text-3xl md:text-5xl font-black mb-6">
+              Ihre <span className="text-gradient">Sicherheit</span> ist unser Versprechen
+            </h2>
+            <p className="section-subtitle text-lg text-muted-foreground max-w-3xl mx-auto">
+              Mit unseren Garantien gehen Sie keinerlei Risiko ein. Ihre Zufriedenheit und Sicherheit stehen an erster Stelle.
+            </p>
+          </div>
+
+          <div className="guarantees-grid grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            {guarantees.map((guarantee, index) => (
+              <Card key={index} className="guarantee-card group text-center bg-card border-primary/10 hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:scale-[1.02]">
+                <CardContent className="p-8">
+                  <div className="guarantee-icon w-16 h-16 bg-gradient-to-br from-primary to-primary-foreground rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <guarantee.icon className="h-8 w-8 text-white" />
+                  </div>
+                  
+                  <CardHeader className="p-0">
+                    <CardTitle className="guarantee-title text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-300 mb-2">
+                      {guarantee.label}
+                    </CardTitle>
+                    <CardDescription className="guarantee-description text-muted-foreground text-sm">
+                      {guarantee.description}
+                    </CardDescription>
+                  </CardHeader>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Blog Preview Section */}
+      <section className="blog-preview py-20 md:py-32 bg-background">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="section-header text-center mb-16">
+            <Badge variant="outline" className="badge-enhanced mb-4">
+              <FileText className="h-4 w-4 mr-2" />
+              Aktuelles & Insights
+            </Badge>
+            <h2 className="section-title text-3xl md:text-5xl font-black mb-6">
+              Bleiben Sie auf dem <span className="text-gradient">neuesten Stand</span>
+            </h2>
+            <p className="section-subtitle text-lg text-muted-foreground max-w-3xl mx-auto">
+              Entdecken Sie die neuesten Trends, Tipps und Insights aus der Welt der digitalen Transformation.
+            </p>
+          </div>
+
+          <div className="blog-grid grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {blogPosts.map((post, index) => (
+              <Card key={index} className="blog-card group overflow-hidden bg-card border-primary/10 hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:scale-[1.02]">
+                <CardContent className="p-6">
+                  <div className="blog-meta flex items-center gap-4 mb-4">
+                    <Badge variant="secondary" className="blog-category bg-primary/10 text-primary border-0">
+                      {post.category}
+                    </Badge>
+                    <span className="blog-date text-sm text-muted-foreground">{post.date}</span>
+                  </div>
+                  
+                  <CardHeader className="p-0 mb-4">
+                    <CardTitle className="blog-title text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300 leading-tight">
+                      {post.title}
+                    </CardTitle>
+                    <CardDescription className="blog-excerpt text-muted-foreground leading-relaxed">
+                      {post.excerpt}
+                    </CardDescription>
+                  </CardHeader>
+                  
+                  <div className="blog-footer flex items-center justify-between text-sm text-muted-foreground">
+                    <span className="blog-read-time">{post.readTime}</span>
+                    <Button variant="ghost" size="sm" className="blog-read-more group/read p-0 h-auto font-medium text-primary hover:text-primary hover:bg-transparent">
+                      Weiterlesen
+                      <ArrowRight className="h-4 w-4 ml-1 group-hover/read:translate-x-1 transition-transform" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -878,139 +910,64 @@ const Index = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-20">
-            <h2 className="text-heading text-[hsl(var(--brand-secondary))] mb-6 animate-fade-up">Häufige Fragen</h2>
-            <p className="text-subheading text-gray-600 animate-fade-up delay-200 max-w-3xl mx-auto">
-              Alles was Sie über unsere Services wissen müssen
+      <section className="faq-section py-20 md:py-32 bg-gradient-subtle">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="section-header text-center mb-16">
+            <Badge variant="outline" className="badge-enhanced mb-4">
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Häufige Fragen
+            </Badge>
+            <h2 className="section-title text-3xl md:text-5xl font-black mb-6">
+              Haben Sie noch <span className="text-gradient">Fragen?</span>
+            </h2>
+            <p className="section-subtitle text-lg text-muted-foreground max-w-3xl mx-auto">
+              Hier finden Sie Antworten auf die am häufigsten gestellten Fragen. Sollten Sie weitere Fragen haben, kontaktieren Sie uns gerne.
             </p>
           </div>
-          
-          <div className="max-w-4xl mx-auto">
+
+          <div className="faq-list max-w-4xl mx-auto space-y-4">
             {faqs.map((faq, index) => (
-              <Card key={index} className={`card-clean mb-4 overflow-hidden animate-fade-up delay-${index * 50}`}>
-                <button
-                  onClick={() => setActiveFAQ(activeFAQ === index ? null : index)}
-                  className="w-full p-6 text-left hover:bg-gray-50 transition-colors duration-200"
-                >
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-[hsl(var(--brand-secondary))]">{faq.question}</h3>
-                    <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${activeFAQ === index ? 'rotate-180' : ''}`} />
-                  </div>
-                </button>
-                {activeFAQ === index && (
-                  <div className="px-6 pb-6">
-                    <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
-                  </div>
-                )}
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-      {/* Guarantees Section */}
-      <section className="py-24 section-gradient section-pattern">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up gradient-text">Vertrauen durch Qualität</h2>
-            <p className="text-xl text-muted-foreground animate-fade-in-up stagger-1 max-w-3xl mx-auto">Ihre Sicherheit ist unser Versprechen. Mit Zertifikaten, Garantien und transparenten Prozessen.</p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {guarantees.map((guarantee, index) => (
-              <Card key={index} className={`text-center p-8 hover-lift glass-card group animate-scale-in stagger-${index + 1}`}>
-                <CardContent className="pt-8">
-                  <div className="h-16 w-16 bg-gradient-to-r from-[hsl(var(--brand-primary))] to-[hsl(var(--brand-secondary))] rounded-xl flex items-center justify-center mx-auto mb-6 group-hover:animate-float shadow-lg">
-                    <guarantee.icon className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="font-semibold mb-3 text-lg group-hover:text-[hsl(var(--brand-primary))] transition-colors">{guarantee.label}</h3>
-                  <p className="text-base text-muted-foreground leading-relaxed">{guarantee.description}</p>
+              <Card key={index} className="faq-item bg-card border-primary/10 hover:border-primary/20 transition-all duration-300">
+                <CardContent className="p-0">
+                  <button
+                    className="faq-question w-full text-left p-6 flex items-center justify-between hover:bg-primary/5 transition-colors duration-300"
+                    onClick={() => setActiveFAQ(activeFAQ === index ? null : index)}
+                  >
+                    <span className="faq-question-text font-semibold text-foreground pr-4">{faq.question}</span>
+                    <ChevronDown className={`h-5 w-5 text-primary transition-transform duration-300 flex-shrink-0 ${
+                      activeFAQ === index ? "rotate-180" : ""
+                    }`} />
+                  </button>
+                  
+                  {activeFAQ === index && (
+                    <div className="faq-answer p-6 pt-0 border-t border-primary/10">
+                      <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
           </div>
+          
+          <div className="text-center mt-12">
+            <Link 
+              to="/contact" 
+              className="btn-enhanced group bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4 rounded-full inline-flex items-center transition-all duration-300 hover:shadow-xl hover:shadow-primary/25 hover:scale-105"
+            >
+              <MessageCircle className="h-5 w-5 mr-2" />
+              Weitere Fragen? Kontaktieren Sie uns
+              <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
         </div>
       </section>
 
+      {/* Reviews Section */}
+      <CustomerReviews />
 
       {/* Newsletter Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-[hsl(var(--brand-secondary))] mb-4">
-                Bleiben Sie informiert
-              </h2>
-              <p className="text-lg text-gray-600">
-                Erhalten Sie regelmäßig die neuesten Updates, Tipps und Trends direkt in Ihr Postfach.
-              </p>
-            </div>
-            <NewsletterSignup />
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-foreground text-background py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <h4 className="font-semibold mb-4">Unternehmen</h4>
-              <ul className="space-y-2 text-background/70">
-                <li><Link to="/about" className="hover:text-background transition-colors">Über uns</Link></li>
-                <li><Link to="/portfolio" className="hover:text-background transition-colors">Portfolio</Link></li>
-                <li>Blog</li>
-                <li>Karriere</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Services</h4>
-              <ul className="space-y-2 text-background/70">
-                <li><Link to="/services" className="hover:text-background transition-colors">Webdesign & Development</Link></li>
-                <li><Link to="/services" className="hover:text-background transition-colors">CRM & HubSpot Solutions</Link></li>
-                <li><Link to="/services" className="hover:text-background transition-colors">IT-Services & Smart Home</Link></li>
-                <li><Link to="/services" className="hover:text-background transition-colors">Print Design & Branding</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Kontakt</h4>
-              <ul className="space-y-2 text-background/70">
-                <li>Oldenburg, Niedersachsen</li>
-                <li><Link to="/contact" className="hover:text-background transition-colors">info@unicumtec.de</Link></li>
-                <li><Link to="/contact" className="hover:text-background transition-colors">+49 (0) 441 XXX XXX</Link></li>
-              </ul>
-            </div>
-              <div>
-                <h4 className="font-semibold mb-4">Rechtliches</h4>
-                <ul className="space-y-2 text-background/70">
-                  <li>Datenschutz</li>
-                  <li>Impressum</li>
-                  <li>AGB</li>
-                  <li>
-                    <button 
-                      onClick={() => {
-                        localStorage.removeItem('cookie-consent');
-                        window.location.reload();
-                      }}
-                      className="hover:text-background transition-colors"
-                    >
-                      Cookie-Einstellungen
-                    </button>
-                  </li>
-                </ul>
-              </div>
-          </div>
-          <div className="border-t border-background/20 mt-8 pt-8 text-center text-background/70">
-            <p>&copy; 2024 Unicum Tec. Alle Rechte vorbehalten. | Datenschutz | Impressum | AGB</p>
-          </div>
-        </div>
-      </footer>
-      
-      {/* Mobile Navigation for Website */}
-      <WebsiteMobileNav />
-    </div>
+      <NewsletterSignup />
+    </WebsiteLayout>
   );
 };
 

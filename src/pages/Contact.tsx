@@ -166,7 +166,7 @@ const Contact = () => {
 
   return (
     <WebsiteLayout>
-      {/* Enhanced Header with Geometric Figures */}
+      {/* Hero Section */}
       <header className="header-enhanced fixed top-0 w-full z-50">
         <div className="header-geometric-bg">
           <div className="header-shape header-hexagon-1"></div>
@@ -246,8 +246,6 @@ const Contact = () => {
                 </Link>
               </Button>
             </nav>
-
-            <WebsiteMobileNav />
           </div>
         </div>
       </header>
@@ -589,7 +587,7 @@ const Contact = () => {
           </div>
         </div>
       </section>
-    </div>
+    </WebsiteLayout>
   );
 };
 

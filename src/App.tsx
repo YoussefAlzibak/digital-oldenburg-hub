@@ -6,6 +6,7 @@ import Services from "./pages/Services";
 import Portfolio from "./pages/Portfolio";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import BookAppointment from "./pages/BookAppointment";
 import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
 import CookieConsent from "./components/CookieConsent";
@@ -22,6 +23,7 @@ function App() {
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/book-appointment" element={<BookAppointment />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin/*" element={<Admin />} />
         </Routes>

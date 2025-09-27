@@ -157,11 +157,47 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_review_emails: {
+        Row: {
+          created_at: string
+          customer_email: string
+          id: string
+          review_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_email: string
+          id?: string
+          review_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string
+          id?: string
+          review_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_review_emails_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "customer_reviews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_review_emails_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "public_customer_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_reviews: {
         Row: {
           company: string | null
           created_at: string
-          customer_email: string
+          customer_email: string | null
           customer_name: string
           id: string
           is_approved: boolean
@@ -176,7 +212,7 @@ export type Database = {
         Insert: {
           company?: string | null
           created_at?: string
-          customer_email: string
+          customer_email?: string | null
           customer_name: string
           id?: string
           is_approved?: boolean
@@ -191,7 +227,7 @@ export type Database = {
         Update: {
           company?: string | null
           created_at?: string
-          customer_email?: string
+          customer_email?: string | null
           customer_name?: string
           id?: string
           is_approved?: boolean

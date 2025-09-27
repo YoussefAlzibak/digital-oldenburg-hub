@@ -466,7 +466,7 @@ const Contact = () => {
                   <h3 className="text-xl font-semibold mb-4">Schnelle Kontaktaufnahme</h3>
                   <div className="space-y-3">
                     <Button variant="outline" size="lg" className="w-full justify-start" asChild>
-                      <Link to="/contact#consultation">
+                      <Link to="/dashboard/appointments">
                         <Calendar className="h-5 w-5 mr-3" />
                         Kostenlosen Termin buchen
                       </Link>

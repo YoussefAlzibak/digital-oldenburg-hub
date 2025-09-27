@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -37,30 +38,41 @@ const handler = async (req: Request): Promise<Response> => {
     const { emailData, smtpSettings }: EmailRequest = await req.json();
 
     console.log('Sending email via SMTP to:', emailData.to);
-    console.log('SMTP Host:', smtpSettings?.host);
 
     // Get SMTP settings from request or database
     let smtp = smtpSettings;
     
+    // If SMTP settings not provided, fetch from database
     if (!smtp) {
-      // Fetch SMTP settings from Supabase
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+      const supabaseUrl = Deno.env.get('SUPABASE_URL');
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
       
-      const response = await fetch(`${supabaseUrl}/rest/v1/smtp_settings?is_active=eq.true&order=created_at.desc&limit=1`, {
-        headers: {
-          'Authorization': `Bearer ${supabaseAnonKey}`,
-          'apikey': supabaseAnonKey,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      const smtpData = await response.json();
-      if (!smtpData || smtpData.length === 0) {
-        throw new Error('Keine aktiven SMTP-Einstellungen gefunden');
+      if (!supabaseUrl || !supabaseKey) {
+        throw new Error('Supabase configuration missing');
       }
+
+      const supabase = createClient(supabaseUrl, supabaseKey);
       
-      smtp = smtpData[0];
+      const { data: settings, error: settingsError } = await supabase
+        .from('smtp_settings')
+        .select('*')
+        .eq('is_active', true)
+        .single();
+
+      if (settingsError || !settings) {
+        throw new Error('No active SMTP settings found');
+      }
+
+      // Add password from secrets for enhanced security
+      const smtpPassword = Deno.env.get('SMTP_PASSWORD');
+      if (!smtpPassword) {
+        throw new Error('SMTP password not configured in secrets');
+      }
+
+      smtp = {
+        ...settings,
+        password: smtpPassword
+      };
     }
 
     if (!smtp) {
@@ -167,7 +179,7 @@ async function sendSMTPEmail(smtp: SMTPSettings, to: string, message: string) {
     console.log('SMTP connection closed successfully');
   } catch (error) {
     console.error('SMTP Error:', error);
-    throw new Error(`SMTP Fehler: ${error.message}`);
+    throw new Error(`SMTP Fehler: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 

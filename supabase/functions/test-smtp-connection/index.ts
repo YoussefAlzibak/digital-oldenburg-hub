@@ -9,7 +9,6 @@ interface SMTPSettings {
   host: string;
   port: number;
   username: string;
-  password: string;
   secure: boolean;
 }
 
@@ -24,7 +23,18 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Testing SMTP connection to:', smtpSettings.host + ':' + smtpSettings.port);
 
-    const result = await testSMTPConnection(smtpSettings);
+    // Get password from secure secrets
+    const smtpPassword = Deno.env.get('SMTP_PASSWORD');
+    if (!smtpPassword) {
+      throw new Error('SMTP password not configured in secrets');
+    }
+
+    const fullSmtpSettings = {
+      ...smtpSettings,
+      password: smtpPassword
+    };
+
+    const result = await testSMTPConnection(fullSmtpSettings);
 
     return new Response(
       JSON.stringify(result),
@@ -51,7 +61,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 };
 
-async function testSMTPConnection(smtp: SMTPSettings): Promise<{success: boolean; error?: string}> {
+async function testSMTPConnection(smtp: SMTPSettings & { password: string }): Promise<{success: boolean; error?: string}> {
   try {
     console.log(`Testing connection to ${smtp.host}:${smtp.port}`);
     

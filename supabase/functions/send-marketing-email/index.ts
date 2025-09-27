@@ -59,9 +59,9 @@ const handler = async (req: Request): Promise<Response> => {
       if (listError) throw listError;
 
       recipients = listSubscribers
-        ?.map(ls => ls.email_subscribers)
-        ?.filter(sub => sub && sub.status === 'active')
-        ?.map(sub => sub.email) || [];
+        ?.flatMap(ls => ls.email_subscribers || [])
+        ?.filter((sub: any) => sub && sub.status === 'active')
+        ?.map((sub: any) => sub.email) || [];
     }
 
     if (recipients.length === 0) {

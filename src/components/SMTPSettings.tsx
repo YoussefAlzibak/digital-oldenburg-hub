@@ -14,7 +14,6 @@ interface SMTPSettings {
   host: string;
   port: number;
   username: string;
-  password: string;
   secure: boolean;
   from_email: string;
   from_name: string;
@@ -26,7 +25,6 @@ export default function SMTPSettings() {
     host: '',
     port: 587,
     username: '',
-    password: '',
     secure: true,
     from_email: '',
     from_name: 'Digital Masters',
@@ -223,13 +221,15 @@ export default function SMTPSettings() {
             </div>
             <div>
               <Label htmlFor="password">Passwort</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={settings.password}
-                onChange={(e) => setSettings({ ...settings, password: e.target.value })}
-              />
+              <div className="bg-muted/50 p-3 rounded-md border">
+                <p className="text-sm text-muted-foreground">
+                  🔒 <strong>Sicher gespeichert</strong>
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  SMTP-Passwort wird sicher in Supabase Secrets verwaltet. 
+                  Kontaktieren Sie den Administrator zum Aktualisieren.
+                </p>
+              </div>
             </div>
           </div>
         </div>

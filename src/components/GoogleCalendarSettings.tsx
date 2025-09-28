@@ -15,7 +15,6 @@ import { Calendar, Clock, Settings, Globe, Users, AlertTriangle, CheckCircle, XC
 interface GoogleCalendarConfig {
   id?: string;
   client_id: string;
-  client_secret: string;
   calendar_id: string;
   buffer_minutes: number;
   auto_sync: boolean;
@@ -38,7 +37,6 @@ const WORKING_DAYS = [
 export default function GoogleCalendarSettings() {
   const [config, setConfig] = useState<GoogleCalendarConfig>({
     client_id: '',
-    client_secret: '',
     calendar_id: '',
     buffer_minutes: 15,
     auto_sync: true,
@@ -77,7 +75,6 @@ export default function GoogleCalendarSettings() {
         setConfig({
           id: settings.id,
           client_id: settings.client_id,
-          client_secret: settings.client_secret,
           calendar_id: settings.calendar_id,
           buffer_minutes: settings.buffer_minutes,
           auto_sync: settings.auto_sync,
@@ -103,26 +100,16 @@ export default function GoogleCalendarSettings() {
   const saveSettings = async () => {
     setSaving(true);
     try {
-      // Deactivate all existing settings
-      await supabase
-        .from('google_calendar_settings')
-        .update({ is_active: false, updated_at: new Date().toISOString() })
-        .eq('is_active', true);
-
-      // Insert new active settings
-      const { error } = await supabase
-        .from('google_calendar_settings')
-        .insert({
-          client_id: config.client_id,
-          client_secret: config.client_secret,
-          calendar_id: config.calendar_id,
-          buffer_minutes: config.buffer_minutes,
-          auto_sync: config.auto_sync,
-          working_hours_start: config.working_hours_start,
-          working_hours_end: config.working_hours_end,
-          working_days: config.working_days,
-          is_active: true,
-        });
+      // Use the database function to save settings (client_secret is now stored securely in Supabase secrets)
+      const { error } = await supabase.rpc('save_google_calendar_settings', {
+        p_client_id: config.client_id,
+        p_calendar_id: config.calendar_id,
+        p_buffer_minutes: config.buffer_minutes,
+        p_auto_sync: config.auto_sync,
+        p_working_hours_start: config.working_hours_start,
+        p_working_hours_end: config.working_hours_end,
+        p_working_days: config.working_days,
+      });
 
       if (error) throw error;
 
@@ -149,7 +136,6 @@ export default function GoogleCalendarSettings() {
       const { data, error } = await supabase.functions.invoke('test-google-calendar', {
         body: {
           client_id: config.client_id,
-          client_secret: config.client_secret,
           calendar_id: config.calendar_id,
         }
       });
@@ -266,16 +252,16 @@ export default function GoogleCalendarSettings() {
                 <div className="space-y-2">
                   <Label htmlFor="client_secret" className="flex items-center gap-2">
                     OAuth Client Secret
-                    <Badge variant="secondary" className="text-xs">Erforderlich</Badge>
+                    <Badge variant="secondary" className="text-xs">Sicher gespeichert</Badge>
                   </Label>
-                  <Input
-                    id="client_secret"
-                    type="password"
-                    placeholder="GOCSPX-..."
-                    value={config.client_secret}
-                    onChange={(e) => setConfig(prev => ({ ...prev, client_secret: e.target.value }))}
-                    className="font-mono text-sm"
-                  />
+                  <Alert>
+                    <Info className="h-4 w-4" />
+                    <AlertDescription>
+                      🔒 <strong>Sicherheitsschutz aktiv:</strong> Der Client Secret wird sicher in den Supabase Secrets gespeichert und nicht in der Datenbank.
+                      <br />
+                      Konfigurieren Sie den GOOGLE_CLIENT_SECRET über die Supabase Admin-Oberfläche.
+                    </AlertDescription>
+                  </Alert>
                 </div>
               </div>
 

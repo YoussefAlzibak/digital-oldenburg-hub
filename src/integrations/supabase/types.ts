@@ -685,7 +685,6 @@ export type Database = {
           buffer_minutes: number
           calendar_id: string
           client_id: string
-          client_secret: string
           created_at: string
           id: string
           is_active: boolean
@@ -699,7 +698,6 @@ export type Database = {
           buffer_minutes?: number
           calendar_id?: string
           client_id: string
-          client_secret: string
           created_at?: string
           id?: string
           is_active?: boolean
@@ -713,7 +711,6 @@ export type Database = {
           buffer_minutes?: number
           calendar_id?: string
           client_id?: string
-          client_secret?: string
           created_at?: string
           id?: string
           is_active?: boolean
@@ -932,7 +929,6 @@ export type Database = {
           buffer_minutes: number
           calendar_id: string
           client_id: string
-          client_secret: string
           created_at: string
           id: string
           is_active: boolean
@@ -956,7 +952,6 @@ export type Database = {
           p_buffer_minutes: number
           p_calendar_id: string
           p_client_id: string
-          p_client_secret: string
           p_working_days: string[]
           p_working_hours_end: string
           p_working_hours_start: string

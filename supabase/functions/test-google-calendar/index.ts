@@ -13,13 +13,16 @@ serve(async (req) => {
   }
 
   try {
-    const { client_id, client_secret, calendar_id } = await req.json()
+    const { client_id, calendar_id } = await req.json()
+    
+    // Get client_secret from environment (Supabase secrets)
+    const client_secret = Deno.env.get('GOOGLE_CLIENT_SECRET')
 
     console.log('Testing Google Calendar connection', { client_id, calendar_id })
 
-    // For now, just validate that the credentials are provided
+    // Validate that all required credentials are provided
     if (!client_id || !client_secret || !calendar_id) {
-      throw new Error('Missing required credentials')
+      throw new Error('Missing required credentials: client_id, client_secret, or calendar_id')
     }
 
     // In a real implementation, you would:

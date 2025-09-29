@@ -93,7 +93,7 @@ export function DashboardSidebar() {
     if (exact) {
       return currentPath === path;
     }
-    return currentPath === path || currentPath.startsWith(path + '/');
+    return currentPath === path || currentPath.startsWith(path);
   };
 
   const getNavCls = (item: { url: string, exact?: boolean }) => 

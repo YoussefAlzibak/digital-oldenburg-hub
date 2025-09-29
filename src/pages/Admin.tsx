@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import Dashboard from "./Dashboard";
+import AdminRoutes from "@/components/AdminRoutes";
 
 export default function Admin() {
   const [loading, setLoading] = useState(true);
@@ -58,5 +58,5 @@ export default function Admin() {
     return null;
   }
 
-  return <Dashboard />;
+  return <AdminRoutes />;
 }

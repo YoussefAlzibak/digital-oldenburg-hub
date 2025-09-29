@@ -1,17 +1,17 @@
-import { DashboardLayout } from "@/components/DashboardLayout";
 import { Routes, Route } from "react-router-dom";
-import Overview from "./dashboard/Overview";
-import Requests from "./dashboard/Requests";
-import Appointments from "./dashboard/Appointments";
-import Calendar from "./dashboard/Calendar";
-import Analytics from "./dashboard/Analytics";
-import Subscribers from "./dashboard/Subscribers";
-import EmailSettings from "./dashboard/EmailSettings";
-import EmailMarketing from "./dashboard/EmailMarketing";
-import Renewals from "./dashboard/Renewals";
-import CalendarSettings from "./dashboard/CalendarSettings";
+import { DashboardLayout } from "@/components/DashboardLayout";
+import Overview from "@/pages/dashboard/Overview";
+import Requests from "@/pages/dashboard/Requests";
+import Appointments from "@/pages/dashboard/Appointments";
+import Calendar from "@/pages/dashboard/Calendar";
+import Analytics from "@/pages/dashboard/Analytics";
+import Subscribers from "@/pages/dashboard/Subscribers";
+import EmailSettings from "@/pages/dashboard/EmailSettings";
+import EmailMarketing from "@/pages/dashboard/EmailMarketing";
+import Renewals from "@/pages/dashboard/Renewals";
+import CalendarSettings from "@/pages/dashboard/CalendarSettings";
 
-export default function Dashboard() {
+export default function AdminRoutes() {
   return (
     <DashboardLayout>
       <Routes>

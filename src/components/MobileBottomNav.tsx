@@ -43,7 +43,7 @@ export function MobileBottomNav() {
     if (exact) {
       return location.pathname === path;
     }
-    return location.pathname === path || location.pathname.startsWith(path + '/');
+    return location.pathname === path || location.pathname.startsWith(path);
   };
 
   const hasMoreItemActive = moreItems.some(item => isActive(item.url));
@@ -84,7 +84,7 @@ export function MobileBottomNav() {
               <span className="text-xs font-medium">Mehr</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48 mb-2">
+          <DropdownMenuContent align="end" className="w-48 mb-2 bg-card">
             {moreItems.map((item) => (
               <DropdownMenuItem key={item.title} asChild>
                 <NavLink

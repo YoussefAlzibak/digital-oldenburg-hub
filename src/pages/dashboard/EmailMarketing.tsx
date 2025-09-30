@@ -258,11 +258,11 @@ export default function EmailMarketing() {
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/admin/renewals')}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/admin/automations')}>
           <CardContent className="p-6 text-center">
             <RotateCcw className="h-12 w-12 mx-auto mb-4 text-primary" />
             <h3 className="font-semibold mb-2">Automatisierungen</h3>
-            <p className="text-sm text-muted-foreground">Verlängerungs-E-Mails und Automatisierungen</p>
+            <p className="text-sm text-muted-foreground">E-Mail-Sequenzen und automatisierte Workflows</p>
           </CardContent>
         </Card>
 

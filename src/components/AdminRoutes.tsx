@@ -11,6 +11,7 @@ import EmailMarketing from "@/pages/dashboard/EmailMarketing";
 import Campaigns from "@/pages/dashboard/Campaigns";
 import Renewals from "@/pages/dashboard/Renewals";
 import CalendarSettings from "@/pages/dashboard/CalendarSettings";
+import Automations from "@/pages/dashboard/Automations";
 
 export default function AdminRoutes() {
   return (
@@ -25,6 +26,7 @@ export default function AdminRoutes() {
         <Route path="/email-settings" element={<EmailSettings />} />
         <Route path="/email-marketing" element={<EmailMarketing />} />
         <Route path="/campaigns" element={<Campaigns />} />
+        <Route path="/automations" element={<Automations />} />
         <Route path="/renewals" element={<Renewals />} />
         <Route path="/calendar-settings" element={<CalendarSettings />} />
       </Routes>

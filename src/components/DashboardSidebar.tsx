@@ -43,7 +43,8 @@ const emailItems = [
   { title: "Abonnenten", url: "/admin/subscribers", icon: UserCheck },
   { title: "Marketing", url: "/admin/email-marketing", icon: Mail },
   { title: "Kampagnen", url: "/admin/campaigns", icon: Send },
-  { title: "Verlängerungen", url: "/admin/renewals", icon: RotateCcw },
+  { title: "Automatisierungen", url: "/admin/automations", icon: RotateCcw },
+  { title: "Verlängerungen", url: "/admin/renewals", icon: Calendar },
 ];
 
 const settingsItems = [

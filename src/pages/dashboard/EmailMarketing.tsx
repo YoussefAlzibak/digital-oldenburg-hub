@@ -144,7 +144,7 @@ export default function EmailMarketing() {
             <Settings className="h-4 w-4 mr-2" />
             Einstellungen
           </Button>
-          <Button onClick={() => navigate('/admin/subscribers')}>
+          <Button onClick={() => navigate('/admin/campaigns')}>
             <Plus className="h-4 w-4 mr-2" />
             Neue Kampagne
           </Button>
@@ -201,7 +201,7 @@ export default function EmailMarketing() {
             <CardTitle>Letzte Kampagnen</CardTitle>
             <CardDescription>Übersicht über Ihre neuesten E-Mail-Kampagnen</CardDescription>
           </div>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => navigate('/admin/campaigns')}>
             Alle anzeigen
           </Button>
         </CardHeader>
@@ -241,7 +241,15 @@ export default function EmailMarketing() {
       </Card>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/admin/campaigns')}>
+          <CardContent className="p-6 text-center">
+            <Send className="h-12 w-12 mx-auto mb-4 text-primary" />
+            <h3 className="font-semibold mb-2">Kampagnen erstellen</h3>
+            <p className="text-sm text-muted-foreground">Neue E-Mail-Kampagnen erstellen und versenden</p>
+          </CardContent>
+        </Card>
+
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/admin/subscribers')}>
           <CardContent className="p-6 text-center">
             <Users className="h-12 w-12 mx-auto mb-4 text-primary" />

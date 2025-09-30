@@ -11,7 +11,8 @@ import {
   UserCheck,
   Shield,
   ArrowLeft,
-  LogOut
+  LogOut,
+  Send
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -41,6 +42,7 @@ const mainItems = [
 const emailItems = [
   { title: "Abonnenten", url: "/admin/subscribers", icon: UserCheck },
   { title: "Marketing", url: "/admin/email-marketing", icon: Mail },
+  { title: "Kampagnen", url: "/admin/campaigns", icon: Send },
   { title: "Verlängerungen", url: "/admin/renewals", icon: RotateCcw },
 ];
 

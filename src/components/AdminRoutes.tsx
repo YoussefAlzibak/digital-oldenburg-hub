@@ -8,6 +8,7 @@ import Analytics from "@/pages/dashboard/Analytics";
 import Subscribers from "@/pages/dashboard/Subscribers";
 import EmailSettings from "@/pages/dashboard/EmailSettings";
 import EmailMarketing from "@/pages/dashboard/EmailMarketing";
+import Campaigns from "@/pages/dashboard/Campaigns";
 import Renewals from "@/pages/dashboard/Renewals";
 import CalendarSettings from "@/pages/dashboard/CalendarSettings";
 
@@ -23,6 +24,7 @@ export default function AdminRoutes() {
         <Route path="/subscribers" element={<Subscribers />} />
         <Route path="/email-settings" element={<EmailSettings />} />
         <Route path="/email-marketing" element={<EmailMarketing />} />
+        <Route path="/campaigns" element={<Campaigns />} />
         <Route path="/renewals" element={<Renewals />} />
         <Route path="/calendar-settings" element={<CalendarSettings />} />
       </Routes>

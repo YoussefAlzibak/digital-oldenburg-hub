@@ -14,12 +14,11 @@ interface MarketingEmailRequest {
   subject: string;
   htmlContent: string;
   textContent?: string;
-  recipientEmails?: string[]; // For manual sends
+  recipientEmails?: string[];
   scheduledAt?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -27,24 +26,20 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const emailRequest: MarketingEmailRequest = await req.json();
 
-    console.log('Processing marketing email request:', {
+    console.log('Direkter E-Mail-Versand:', {
       campaignId: emailRequest.campaignId,
       automationId: emailRequest.automationId,
       listId: emailRequest.listId
     });
 
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
     let recipients: string[] = [];
 
-    let subscriberMap = new Map<string, string>(); // email -> subscriber_id
-
     // Get recipients based on request type
     if (emailRequest.recipientEmails) {
-      // Manual recipient list - get subscriber IDs
       const { data: subscribers, error: subError } = await supabase
         .from('email_subscribers')
         .select('id, email')
@@ -52,11 +47,8 @@ const handler = async (req: Request): Promise<Response> => {
         .eq('status', 'active');
 
       if (subError) throw subError;
-
       recipients = subscribers?.map(s => s.email) || [];
-      subscribers?.forEach(s => subscriberMap.set(s.email, s.id));
     } else if (emailRequest.listId) {
-      // Get subscribers from email list
       const { data: listSubscribers, error: listError } = await supabase
         .from('email_list_subscribers')
         .select(`
@@ -76,7 +68,6 @@ const handler = async (req: Request): Promise<Response> => {
         ?.map((ls: any) => ls.email_subscribers) || [];
 
       recipients = activeSubscribers.map((sub: any) => sub.email);
-      activeSubscribers.forEach((sub: any) => subscriberMap.set(sub.email, sub.id));
     }
 
     if (recipients.length === 0) {
@@ -89,90 +80,71 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log(`Found ${recipients.length} recipients`);
+    console.log(`Sende an ${recipients.length} Empfänger`);
 
-    // Get SMTP settings
-    const { data: smtpSettings, error: smtpError } = await supabase
-      .from('smtp_settings')
-      .select('*')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (smtpError || !smtpSettings) {
-      throw new Error('Keine aktiven SMTP-Einstellungen gefunden');
-    }
-
-    // Queue emails for sending
-    const emailQueue = recipients.map(email => ({
-      subscriber_id: subscriberMap.get(email) || null,
-      campaign_id: emailRequest.campaignId || null,
-      automation_id: emailRequest.automationId || null,
-      subject: emailRequest.subject,
-      html_content: emailRequest.htmlContent,
-      text_content: emailRequest.textContent || stripHtml(emailRequest.htmlContent),
-      scheduled_at: emailRequest.scheduledAt || new Date().toISOString(),
-      status: 'pending'
-    }));
-
-    // Insert emails into queue
-    const { error: queueError } = await supabase
-      .from('email_queue')
-      .insert(emailQueue);
-
-    if (queueError) {
-      console.error('Queue error:', queueError);
-      throw queueError;
-    }
-
-    console.log(`Successfully queued ${emailQueue.length} emails`);
-
-    // Update campaign stats if campaignId provided
+    // Update campaign status to sending
     if (emailRequest.campaignId) {
-      const { error: campaignError } = await supabase
+      await supabase
         .from('email_campaigns')
         .update({
           total_recipients: recipients.length,
-          status: emailRequest.scheduledAt ? 'scheduled' : 'sending',
-          sent_at: !emailRequest.scheduledAt ? new Date().toISOString() : null
+          status: 'sending',
+          sent_at: new Date().toISOString()
         })
         .eq('id', emailRequest.campaignId);
-
-      if (campaignError) console.error('Campaign update error:', campaignError);
     }
 
-    // Process email queue immediately if not scheduled
-    if (!emailRequest.scheduledAt) {
-      console.log('Processing email queue immediately...');
-      
-      // Use background task for immediate processing
-      const processEmails = async () => {
-        try {
-          const { error: processorError } = await supabase.functions.invoke('process-email-queue', {
-            body: { immediate: true, batchSize: 100 }
-          });
+    // Send emails directly via SMTP
+    let successCount = 0;
+    let failedCount = 0;
 
-          if (processorError) {
-            console.error('Queue processor error:', processorError);
+    for (const email of recipients) {
+      try {
+        const { error: sendError } = await supabase.functions.invoke('send-smtp-email', {
+          body: {
+            emailData: {
+              to: email,
+              subject: emailRequest.subject,
+              html: emailRequest.htmlContent,
+              text: emailRequest.textContent || stripHtml(emailRequest.htmlContent)
+            }
           }
-        } catch (error) {
-          console.error('Failed to invoke queue processor:', error);
-        }
-      };
+        });
 
-      // Start background processing without waiting
-      processEmails();
+        if (sendError) {
+          console.error(`Fehler beim Senden an ${email}:`, sendError);
+          failedCount++;
+        } else {
+          console.log(`E-Mail erfolgreich gesendet an ${email}`);
+          successCount++;
+        }
+      } catch (error) {
+        console.error(`Fehler beim Senden an ${email}:`, error);
+        failedCount++;
+      }
     }
 
-    console.log(`Queued ${recipients.length} emails for sending`);
+    // Update campaign stats
+    if (emailRequest.campaignId) {
+      await supabase
+        .from('email_campaigns')
+        .update({
+          delivered_count: successCount,
+          bounced_count: failedCount,
+          status: 'sent'
+        })
+        .eq('id', emailRequest.campaignId);
+    }
+
+    console.log(`Versand abgeschlossen: ${successCount} erfolgreich, ${failedCount} fehlgeschlagen`);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `${recipients.length} E-Mails wurden zur Warteschlange hinzugefügt`,
-        queuedCount: recipients.length,
-        scheduled: !!emailRequest.scheduledAt
+        message: `${successCount} E-Mails erfolgreich versendet${failedCount > 0 ? `, ${failedCount} fehlgeschlagen` : ''}`,
+        successCount,
+        failedCount,
+        totalRecipients: recipients.length
       }),
       {
         status: 200,
@@ -184,7 +156,7 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error: any) {
-    console.error('Error in send-marketing-email function:', error);
+    console.error('Fehler beim E-Mail-Versand:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {

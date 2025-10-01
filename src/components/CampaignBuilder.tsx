@@ -107,8 +107,7 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
     text_content: '',
     template_id: '',
     list_id: '',
-    scheduled_at: '',
-    template_type: 'campaign'
+    scheduled_at: ''
   });
   
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
@@ -185,8 +184,7 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
       text_content: campaign.text_content || '',
       template_id: campaign.template_id || '',
       list_id: campaign.list_id || '',
-      scheduled_at: campaign.scheduled_at || '',
-      template_type: 'campaign'
+      scheduled_at: campaign.scheduled_at || ''
     });
 
     if (campaign.scheduled_at) {
@@ -205,12 +203,14 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
       text_content: '',
       template_id: '',
       list_id: '',
-      scheduled_at: '',
-      template_type: 'campaign'
+      scheduled_at: ''
     });
     setSelectedDate(undefined);
     setSelectedTime('09:00');
     setIsScheduled(false);
+    setRecipientMode('list');
+    setSelectedSubscribers([]);
+    setSegmentFilters({ tags: [], company: '', source: '' });
   };
 
   const loadTemplate = async (templateId: string) => {
@@ -311,10 +311,29 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
   };
 
   const handleSave = async () => {
-    if (!formData.name || !formData.subject || !formData.html_content) {
+    // Validierung
+    if (!formData.name?.trim()) {
       toast({
         title: "Fehler",
-        description: "Bitte füllen Sie alle Pflichtfelder aus (Name, Betreff, Inhalt).",
+        description: "Bitte geben Sie einen Kampagnennamen ein.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.subject?.trim()) {
+      toast({
+        title: "Fehler",
+        description: "Bitte geben Sie einen E-Mail-Betreff ein.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.html_content?.trim()) {
+      toast({
+        title: "Fehler",
+        description: "Bitte erstellen Sie den E-Mail-Inhalt.",
         variant: "destructive"
       });
       return;
@@ -330,6 +349,7 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
       });
       return;
     }
+    
     if (recipientMode === 'custom' && selectedSubscribers.length === 0) {
       toast({
         title: "Fehler", 
@@ -337,6 +357,18 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
         variant: "destructive"
       });
       return;
+    }
+
+    if (recipientMode === 'segment') {
+      const segmentedEmails = getRecipientEmails();
+      if (segmentedEmails.length === 0) {
+        toast({
+          title: "Fehler",
+          description: "Ihre Segmentierung hat keine Empfänger gefunden. Bitte passen Sie die Filter an.",
+          variant: "destructive"
+        });
+        return;
+      }
     }
 
     try {
@@ -350,12 +382,16 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
         scheduledAt = scheduledDateTime.toISOString();
       }
 
+      // Prepare campaign data without template_type
       const campaignData = {
-        ...formData,
+        name: formData.name,
+        subject: formData.subject,
+        html_content: formData.html_content,
+        text_content: formData.text_content || '',
+        template_id: formData.template_id || null,
+        list_id: recipientMode === 'list' ? formData.list_id : null,
         scheduled_at: scheduledAt,
-        status: scheduledAt ? 'scheduled' : 'draft',
-        // Clear list_id if not using list mode
-        list_id: recipientMode === 'list' ? formData.list_id : null
+        status: campaign ? campaign.status : (scheduledAt ? 'scheduled' : 'draft')
       };
 
       let campaignId;
@@ -369,6 +405,11 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
 
         if (error) throw error;
         campaignId = campaign.id;
+        
+        toast({
+          title: "Erfolg",
+          description: "Kampagne wurde aktualisiert.",
+        });
       } else {
         // Create new campaign
         const { data, error } = await supabase
@@ -379,48 +420,48 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
 
         if (error) throw error;
         campaignId = data.id;
-      }
 
-      // Send the campaign if not scheduled
-      if (!scheduledAt) {
-        try {
-          const { error: sendError } = await supabase.functions.invoke('send-marketing-email', {
-            body: {
-              campaignId,
-              subject: formData.subject,
-              htmlContent: formData.html_content,
-              textContent: formData.text_content,
-              recipientEmails: recipientMode !== 'list' ? recipientEmails : undefined,
-              listId: recipientMode === 'list' ? formData.list_id : undefined
+        // Send the campaign if not scheduled
+        if (!scheduledAt) {
+          try {
+            const { error: sendError } = await supabase.functions.invoke('send-marketing-email', {
+              body: {
+                campaignId,
+                subject: formData.subject,
+                htmlContent: formData.html_content,
+                textContent: formData.text_content,
+                recipientEmails: recipientMode !== 'list' ? recipientEmails : undefined,
+                listId: recipientMode === 'list' ? formData.list_id : undefined
+              }
+            });
+
+            if (sendError) {
+              console.error('Error sending campaign:', sendError);
+              toast({
+                title: "Warnung",
+                description: "Kampagne wurde gespeichert, aber der Versand hatte Probleme.",
+                variant: "default"
+              });
+            } else {
+              toast({
+                title: "Erfolg",
+                description: "Kampagne wurde erstellt und wird versendet!",
+              });
             }
-          });
-
-          if (sendError) {
+          } catch (sendError) {
             console.error('Error sending campaign:', sendError);
             toast({
-              title: "Warnung",
+              title: "Warnung", 
               description: "Kampagne wurde gespeichert, aber der Versand hatte Probleme.",
               variant: "default"
             });
-          } else {
-            toast({
-              title: "Erfolg",
-              description: "Kampagne wurde gesendet!",
-            });
           }
-        } catch (sendError) {
-          console.error('Error sending campaign:', sendError);
+        } else {
           toast({
-            title: "Warnung", 
-            description: "Kampagne wurde gespeichert, aber der Versand hatte Probleme.",
-            variant: "default"
+            title: "Erfolg",
+            description: `Kampagne wurde für ${format(new Date(scheduledAt), 'PPP um HH:mm', { locale: de })} geplant.`,
           });
         }
-      } else {
-        toast({
-          title: "Erfolg",
-          description: `Kampagne wurde für ${format(new Date(scheduledAt), 'PPP um HH:mm', { locale: de })} geplant.`,
-        });
       }
 
       onSave();
@@ -429,7 +470,7 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
       console.error('Error saving campaign:', error);
       toast({
         title: "Fehler",
-        description: error.message,
+        description: error.message || "Kampagne konnte nicht gespeichert werden.",
         variant: "destructive"
       });
     } finally {

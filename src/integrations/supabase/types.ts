@@ -842,6 +842,7 @@ export type Database = {
           host: string
           id: string
           is_active: boolean
+          password: string | null
           port: number
           secure: boolean
           updated_at: string
@@ -854,6 +855,7 @@ export type Database = {
           host: string
           id?: string
           is_active?: boolean
+          password?: string | null
           port?: number
           secure?: boolean
           updated_at?: string
@@ -866,6 +868,7 @@ export type Database = {
           host?: string
           id?: string
           is_active?: boolean
+          password?: string | null
           port?: number
           secure?: boolean
           updated_at?: string

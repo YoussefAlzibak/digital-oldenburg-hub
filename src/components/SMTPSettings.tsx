@@ -14,6 +14,7 @@ interface SMTPSettings {
   host: string;
   port: number;
   username: string;
+  password: string;
   secure: boolean;
   from_email: string;
   from_name: string;
@@ -25,6 +26,7 @@ export default function SMTPSettings() {
     host: '',
     port: 587,
     username: '',
+    password: '',
     secure: true,
     from_email: '',
     from_name: 'Digital Masters',
@@ -221,15 +223,16 @@ export default function SMTPSettings() {
             </div>
             <div>
               <Label htmlFor="password">Passwort</Label>
-              <div className="bg-muted/50 p-3 rounded-md border">
-                <p className="text-sm text-muted-foreground">
-                  🔒 <strong>Sicher gespeichert</strong>
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  SMTP-Passwort wird sicher in Supabase Secrets verwaltet. 
-                  Kontaktieren Sie den Administrator zum Aktualisieren.
-                </p>
-              </div>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={settings.password}
+                onChange={(e) => setSettings({ ...settings, password: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Das Passwort wird sicher in der Datenbank gespeichert
+              </p>
             </div>
           </div>
         </div>
@@ -271,7 +274,7 @@ export default function SMTPSettings() {
         <div className="flex gap-3 pt-4">
           <Button
             onClick={testConnection}
-            disabled={testing || !settings.host || !settings.username}
+            disabled={testing || !settings.host || !settings.username || !settings.password}
             variant="outline"
             className="flex items-center gap-2"
           >
@@ -281,7 +284,7 @@ export default function SMTPSettings() {
           
           <Button
             onClick={saveSettings}
-            disabled={saving || !settings.host || !settings.username || !settings.from_email}
+            disabled={saving || !settings.host || !settings.username || !settings.password || !settings.from_email}
             className="flex items-center gap-2 bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary))]/90"
           >
             <Save className="h-4 w-4" />

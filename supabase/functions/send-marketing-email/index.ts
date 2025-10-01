@@ -146,14 +146,23 @@ const handler = async (req: Request): Promise<Response> => {
     if (!emailRequest.scheduledAt) {
       console.log('Processing email queue immediately...');
       
-      // Call email queue processor
-      const { error: processorError } = await supabase.functions.invoke('process-email-queue', {
-        body: { immediate: true }
-      });
+      // Use background task for immediate processing
+      const processEmails = async () => {
+        try {
+          const { error: processorError } = await supabase.functions.invoke('process-email-queue', {
+            body: { immediate: true, batchSize: 100 }
+          });
 
-      if (processorError) {
-        console.error('Queue processor error:', processorError);
-      }
+          if (processorError) {
+            console.error('Queue processor error:', processorError);
+          }
+        } catch (error) {
+          console.error('Failed to invoke queue processor:', error);
+        }
+      };
+
+      // Start background processing without waiting
+      processEmails();
     }
 
     console.log(`Queued ${recipients.length} emails for sending`);

@@ -182,7 +182,14 @@ export default function SMTPSettings() {
                 id="port"
                 type="number"
                 value={settings.port}
-                onChange={(e) => setSettings({ ...settings, port: parseInt(e.target.value) })}
+                onChange={(e) => {
+                  const port = parseInt(e.target.value);
+                  setSettings({ 
+                    ...settings, 
+                    port,
+                    secure: port === 465 // Auto-set secure for port 465
+                  });
+                }}
               />
             </div>
           </div>
@@ -196,7 +203,7 @@ export default function SMTPSettings() {
             <div>
               <Label htmlFor="secure">SSL/TLS Verschlüsselung</Label>
               <p className="text-xs text-muted-foreground">
-                Empfohlen für Port 465 (SSL) oder 587 (STARTTLS)
+                {settings.port === 465 ? 'SSL (Port 465)' : settings.port === 587 ? 'STARTTLS (Port 587)' : 'Empfohlen für Port 465 (SSL) oder 587 (STARTTLS)'}
               </p>
             </div>
           </div>
@@ -293,11 +300,15 @@ export default function SMTPSettings() {
         </div>
 
         {/* Hilfe-Text */}
-        <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-md">
-          <p><strong>Häufige Ports:</strong></p>
-          <p>• Port 25: Unverschlüsselt (nicht empfohlen)</p>
-          <p>• Port 587: STARTTLS (empfohlen)</p>
-          <p>• Port 465: SSL (legacy, aber funktional)</p>
+        <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-md space-y-2">
+          <p><strong>Häufige SMTP-Ports:</strong></p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Port 25: Unverschlüsselt (nicht empfohlen für Versand)</li>
+            <li>Port 587: STARTTLS - Verschlüsselung nach Verbindung (empfohlen ✓)</li>
+            <li>Port 465: SSL/TLS - Verschlüsselt von Anfang an</li>
+            <li>Port 2525: Alternative zu 587 (bei manchen Providern)</li>
+          </ul>
+          <p className="mt-2"><strong>Bulk-Versand:</strong> Das System ist für bis zu 100 E-Mails pro Kampagne optimiert</p>
         </div>
       </CardContent>
     </Card>

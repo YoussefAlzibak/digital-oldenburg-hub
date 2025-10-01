@@ -18,7 +18,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { immediate = false, batchSize = 10 }: QueueProcessRequest = await req.json().catch(() => ({}));
+    const { immediate = false, batchSize = 100 }: QueueProcessRequest = await req.json().catch(() => ({}));
 
     console.log('Processing email queue...', { immediate, batchSize });
 

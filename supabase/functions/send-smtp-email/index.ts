@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { createTransport } from "npm:nodemailer@6.9.7";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -74,32 +73,26 @@ const handler = async (req: Request): Promise<Response> => {
       };
     }
 
-    // Create transporter with nodemailer
-    const transporter = createTransport({
-      host: smtp.host,
-      port: smtp.port,
-      secure: smtp.secure,
-      auth: {
-        user: smtp.username,
-        pass: smtp.password,
-      },
-    });
+    // Send email via SMTP
+    await sendSMTPEmail(
+      smtp,
+      emailData.to,
+      createEmailMessage(
+        smtp.from_email,
+        smtp.from_name,
+        emailData.to,
+        emailData.subject,
+        emailData.html,
+        emailData.text || stripHtml(emailData.html)
+      )
+    );
 
-    // Send email
-    const info = await transporter.sendMail({
-      from: `"${smtp.from_name}" <${smtp.from_email}>`,
-      to: emailData.to,
-      subject: emailData.subject,
-      text: emailData.text || stripHtml(emailData.html),
-      html: emailData.html,
-    });
-
-    console.log('Email sent successfully:', info.messageId);
+    console.log('Email sent successfully to:', emailData.to);
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        messageId: info.messageId 
+        message: 'Email sent successfully'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -121,7 +114,112 @@ const handler = async (req: Request): Promise<Response> => {
   }
 };
 
-// Helper function to strip HTML tags
+async function sendSMTPEmail(smtp: SMTPSettings, to: string, message: string): Promise<void> {
+  let conn: Deno.Conn | null = null;
+  
+  try {
+    console.log(`Connecting to SMTP server ${smtp.host}:${smtp.port}`);
+    conn = await Deno.connect({
+      hostname: smtp.host,
+      port: smtp.port,
+    });
+
+    // Read greeting
+    await readResponse(conn);
+
+    // Send EHLO
+    await sendCommand(conn, `EHLO localhost\r\n`);
+    const ehloResponse = await readResponse(conn);
+
+    // Handle STARTTLS if needed
+    if (!smtp.secure && smtp.port !== 465 && ehloResponse.includes('STARTTLS')) {
+      await sendCommand(conn, 'STARTTLS\r\n');
+      const tlsResponse = await readResponse(conn);
+      
+      if (tlsResponse.startsWith('220')) {
+        const tlsConn = await Deno.startTls(conn, { hostname: smtp.host });
+        conn = tlsConn;
+        await sendCommand(conn, `EHLO localhost\r\n`);
+        await readResponse(conn);
+      }
+    }
+
+    // Authenticate
+    await sendCommand(conn, 'AUTH LOGIN\r\n');
+    await readResponse(conn);
+    
+    await sendCommand(conn, `${btoa(smtp.username)}\r\n`);
+    await readResponse(conn);
+    
+    await sendCommand(conn, `${btoa(smtp.password)}\r\n`);
+    const authResponse = await readResponse(conn);
+    
+    if (!authResponse.startsWith('235')) {
+      throw new Error(`Authentication failed: ${authResponse}`);
+    }
+
+    // Send email
+    await sendCommand(conn, `MAIL FROM:<${smtp.from_email}>\r\n`);
+    await readResponse(conn);
+
+    await sendCommand(conn, `RCPT TO:<${to}>\r\n`);
+    await readResponse(conn);
+
+    await sendCommand(conn, 'DATA\r\n');
+    await readResponse(conn);
+
+    await sendCommand(conn, message + '\r\n.\r\n');
+    await readResponse(conn);
+
+    // Quit
+    await sendCommand(conn, 'QUIT\r\n');
+    
+  } finally {
+    if (conn) {
+      try {
+        conn.close();
+      } catch (e) {
+        console.error('Error closing connection:', e);
+      }
+    }
+  }
+}
+
+function createEmailMessage(
+  fromEmail: string,
+  fromName: string,
+  to: string,
+  subject: string,
+  htmlContent: string,
+  textContent: string
+): string {
+  const boundary = `----=_Part_${Date.now()}`;
+  const date = new Date().toUTCString();
+
+  return [
+    `From: "${fromName}" <${fromEmail}>`,
+    `To: ${to}`,
+    `Subject: ${subject}`,
+    `Date: ${date}`,
+    `MIME-Version: 1.0`,
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    ``,
+    `--${boundary}`,
+    `Content-Type: text/plain; charset=utf-8`,
+    `Content-Transfer-Encoding: 7bit`,
+    ``,
+    textContent,
+    ``,
+    `--${boundary}`,
+    `Content-Type: text/html; charset=utf-8`,
+    `Content-Transfer-Encoding: 7bit`,
+    ``,
+    htmlContent,
+    ``,
+    `--${boundary}--`,
+  ].join('\r\n');
+}
+
 function stripHtml(html: string): string {
   return html
     .replace(/<[^>]*>/g, '')
@@ -131,6 +229,20 @@ function stripHtml(html: string): string {
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .trim();
+}
+
+async function readResponse(conn: Deno.Conn): Promise<string> {
+  const buffer = new Uint8Array(4096);
+  const bytesRead = await conn.read(buffer);
+  if (!bytesRead) throw new Error('Connection closed');
+  
+  const response = new TextDecoder().decode(buffer.subarray(0, bytesRead));
+  return response.trim();
+}
+
+async function sendCommand(conn: Deno.Conn, command: string): Promise<void> {
+  const encoder = new TextEncoder();
+  await conn.write(encoder.encode(command));
 }
 
 serve(handler);

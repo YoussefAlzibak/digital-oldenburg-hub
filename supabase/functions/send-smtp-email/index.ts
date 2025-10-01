@@ -134,8 +134,9 @@ async function sendSMTPEmail(smtp: SMTPSettings, to: string, message: string): P
     // Read greeting
     await readResponse(conn);
 
-    // EHLO
-    await sendCommand(conn, `EHLO localhost\r\n`);
+    // EHLO with sender domain
+    const heloDomain = smtp.from_email && smtp.from_email.includes('@') ? smtp.from_email.split('@')[1] : 'localhost';
+    await sendCommand(conn, `EHLO ${heloDomain}\r\n`);
     let ehloResponse = await readResponse(conn);
 
     // Upgrade with STARTTLS when on 587 or server advertises it and we didn't use implicit TLS
@@ -147,7 +148,7 @@ async function sendSMTPEmail(smtp: SMTPSettings, to: string, message: string): P
       }
       const tlsConn = await Deno.startTls(conn, { hostname: smtp.host });
       conn = tlsConn;
-      await sendCommand(conn, `EHLO localhost\r\n`);
+      await sendCommand(conn, `EHLO ${heloDomain}\r\n`);
       ehloResponse = await readResponse(conn);
     }
 

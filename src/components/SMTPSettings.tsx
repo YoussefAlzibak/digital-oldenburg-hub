@@ -113,7 +113,7 @@ export default function SMTPSettings() {
     setTesting(true);
     try {
       const { data, error } = await supabase.functions.invoke('test-smtp-connection', {
-        body: settings
+        body: { ...settings, test_recipient: settings.from_email }
       });
 
       if (error) throw error;
@@ -121,7 +121,7 @@ export default function SMTPSettings() {
       if (data.success) {
         toast({
           title: "Verbindung erfolgreich",
-          description: "SMTP-Server ist erreichbar und Authentifizierung funktioniert.",
+          description: "SMTP erreichbar, Login ok und Versand (MAIL FROM/RCPT TO) erlaubt.",
         });
       } else {
         toast({

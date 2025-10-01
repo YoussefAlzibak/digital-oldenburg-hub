@@ -19,10 +19,20 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const settings: SMTPSettings = await req.json();
-    console.log('Testing SMTP connection for host:', settings.host);
+    const body: any = await req.json();
+    const settings: SMTPSettings = {
+      host: body.host,
+      port: body.port,
+      username: body.username,
+      password: body.password,
+      secure: body.secure,
+    };
+    const fromEmail = body.from_email || body.username;
+    const testRecipient = body.test_recipient || body.from_email || body.username;
+    const heloDomain = body.helo_domain || (typeof fromEmail === 'string' && fromEmail.includes('@') ? fromEmail.split('@')[1] : 'localhost');
+    console.log('Testing SMTP connection for host:', settings.host, 'as', fromEmail, 'to', testRecipient);
 
-    const result = await testSMTPConnection(settings);
+    const result = await testSMTPConnection(settings, { fromEmail, testRecipient, heloDomain });
 
     if (result.success) {
       console.log('SMTP connection test successful');
@@ -61,8 +71,14 @@ const handler = async (req: Request): Promise<Response> => {
   }
 };
 
-async function testSMTPConnection(settings: SMTPSettings): Promise<{ success: boolean; error?: string }> {
+async function testSMTPConnection(
+  settings: SMTPSettings,
+  opts?: { fromEmail?: string; testRecipient?: string; heloDomain?: string }
+): Promise<{ success: boolean; error?: string }> {
   let conn: Deno.Conn | null = null;
+  const fromEmail = opts?.fromEmail || settings.username;
+  const testRecipient = opts?.testRecipient || fromEmail;
+  const heloDomain = opts?.heloDomain || (fromEmail.includes('@') ? fromEmail.split('@')[1] : 'localhost');
   
   try {
     // Decide connection mode
@@ -86,8 +102,8 @@ async function testSMTPConnection(settings: SMTPSettings): Promise<{ success: bo
       throw new Error(`Unexpected greeting: ${greeting}`);
     }
 
-    // EHLO
-    await sendCommand(conn, `EHLO localhost\r\n`);
+    // EHLO with domain
+    await sendCommand(conn, `EHLO ${heloDomain}\r\n`);
     let ehloResponse = await readResponse(conn);
     console.log('EHLO response:', ehloResponse);
 
@@ -101,7 +117,7 @@ async function testSMTPConnection(settings: SMTPSettings): Promise<{ success: bo
       }
       const tlsConn = await Deno.startTls(conn, { hostname: settings.host });
       conn = tlsConn;
-      await sendCommand(conn, `EHLO localhost\r\n`);
+      await sendCommand(conn, `EHLO ${heloDomain}\r\n`);
       ehloResponse = await readResponse(conn);
       console.log('Post-TLS EHLO:', ehloResponse);
     }
@@ -125,7 +141,25 @@ async function testSMTPConnection(settings: SMTPSettings): Promise<{ success: bo
 
     console.log('Authentication successful');
 
-    // QUIT
+    // Envelope test (no actual send)
+    await sendCommand(conn, `MAIL FROM:<${fromEmail}>\r\n`);
+    const mailFromResp = await readResponse(conn);
+    console.log('MAIL FROM response:', mailFromResp);
+    if (!mailFromResp.startsWith('250')) {
+      throw new Error(`MAIL FROM rejected: ${mailFromResp}`);
+    }
+
+    await sendCommand(conn, `RCPT TO:<${testRecipient}>\r\n`);
+    const rcptToResp = await readResponse(conn);
+    console.log('RCPT TO response:', rcptToResp);
+    if (!rcptToResp.startsWith('250') && !rcptToResp.startsWith('251')) {
+      throw new Error(`RCPT TO rejected: ${rcptToResp}`);
+    }
+
+    // Reset and quit
+    await sendCommand(conn, 'RSET\r\n');
+    await readResponse(conn);
+
     await sendCommand(conn, 'QUIT\r\n');
     await readResponse(conn);
 
@@ -138,7 +172,7 @@ async function testSMTPConnection(settings: SMTPSettings): Promise<{ success: bo
     if (settings.port !== 465) {
       try {
         console.log('Retrying with implicit TLS on port 465...');
-        const retry = await testSMTPConnection({ ...settings, port: 465, secure: true });
+        const retry = await testSMTPConnection({ ...settings, port: 465, secure: true }, { fromEmail, testRecipient, heloDomain });
         if (retry.success) return retry;
       } catch (_) {}
     }

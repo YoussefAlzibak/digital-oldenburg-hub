@@ -202,14 +202,18 @@ function createEmailMessage(
 ): string {
   const boundary = `----=_Part_${Date.now()}`;
   const date = new Date().toUTCString();
+  const messageId = `<${Date.now()}.${Math.random().toString(36).substring(7)}@unicum-tech.com>`;
 
   return [
     `From: "${fromName}" <${fromEmail}>`,
     `To: ${to}`,
     `Subject: ${subject}`,
     `Date: ${date}`,
+    `Message-ID: ${messageId}`,
     `MIME-Version: 1.0`,
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    `X-Mailer: Digital Masters Marketing Platform`,
+    `List-Unsubscribe: <https://kgwanyretbrxwtwduljg.supabase.co/unsubscribe>`,
     ``,
     `--${boundary}`,
     `Content-Type: text/plain; charset=utf-8`,

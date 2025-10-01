@@ -40,16 +40,29 @@ const handler = async (req: Request): Promise<Response> => {
 
     let recipients: string[] = [];
 
+    let subscriberMap = new Map<string, string>(); // email -> subscriber_id
+
     // Get recipients based on request type
     if (emailRequest.recipientEmails) {
-      // Manual recipient list
-      recipients = emailRequest.recipientEmails;
+      // Manual recipient list - get subscriber IDs
+      const { data: subscribers, error: subError } = await supabase
+        .from('email_subscribers')
+        .select('id, email')
+        .in('email', emailRequest.recipientEmails)
+        .eq('status', 'active');
+
+      if (subError) throw subError;
+
+      recipients = subscribers?.map(s => s.email) || [];
+      subscribers?.forEach(s => subscriberMap.set(s.email, s.id));
     } else if (emailRequest.listId) {
       // Get subscribers from email list
       const { data: listSubscribers, error: listError } = await supabase
         .from('email_list_subscribers')
         .select(`
+          subscriber_id,
           email_subscribers (
+            id,
             email,
             status
           )
@@ -58,10 +71,12 @@ const handler = async (req: Request): Promise<Response> => {
 
       if (listError) throw listError;
 
-      recipients = listSubscribers
-        ?.flatMap(ls => ls.email_subscribers || [])
-        ?.filter((sub: any) => sub && sub.status === 'active')
-        ?.map((sub: any) => sub.email) || [];
+      const activeSubscribers = listSubscribers
+        ?.filter((ls: any) => ls.email_subscribers && ls.email_subscribers.status === 'active')
+        ?.map((ls: any) => ls.email_subscribers) || [];
+
+      recipients = activeSubscribers.map((sub: any) => sub.email);
+      activeSubscribers.forEach((sub: any) => subscriberMap.set(sub.email, sub.id));
     }
 
     if (recipients.length === 0) {
@@ -91,22 +106,27 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Queue emails for sending
     const emailQueue = recipients.map(email => ({
-      subscriber_id: null, // Will be populated by trigger
+      subscriber_id: subscriberMap.get(email) || null,
       campaign_id: emailRequest.campaignId || null,
       automation_id: emailRequest.automationId || null,
       subject: emailRequest.subject,
       html_content: emailRequest.htmlContent,
       text_content: emailRequest.textContent || stripHtml(emailRequest.htmlContent),
       scheduled_at: emailRequest.scheduledAt || new Date().toISOString(),
-      recipient_email: email
+      status: 'pending'
     }));
 
     // Insert emails into queue
     const { error: queueError } = await supabase
       .from('email_queue')
-      .insert(emailQueue.map(({ recipient_email, ...rest }) => rest));
+      .insert(emailQueue);
 
-    if (queueError) throw queueError;
+    if (queueError) {
+      console.error('Queue error:', queueError);
+      throw queueError;
+    }
+
+    console.log(`Successfully queued ${emailQueue.length} emails`);
 
     // Update campaign stats if campaignId provided
     if (emailRequest.campaignId) {
@@ -114,7 +134,8 @@ const handler = async (req: Request): Promise<Response> => {
         .from('email_campaigns')
         .update({
           total_recipients: recipients.length,
-          status: emailRequest.scheduledAt ? 'scheduled' : 'sending'
+          status: emailRequest.scheduledAt ? 'scheduled' : 'sending',
+          sent_at: !emailRequest.scheduledAt ? new Date().toISOString() : null
         })
         .eq('id', emailRequest.campaignId);
 

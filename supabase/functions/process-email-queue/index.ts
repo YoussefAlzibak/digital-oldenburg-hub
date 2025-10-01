@@ -239,10 +239,24 @@ async function updateCampaignStats(supabase: any, campaignId: string, statType: 
   
   const column = columnMap[statType];
   
+  // Get current campaign data
+  const { data: campaign, error: fetchError } = await supabase
+    .from('email_campaigns')
+    .select(column)
+    .eq('id', campaignId)
+    .single();
+    
+  if (fetchError) {
+    console.error('Failed to fetch campaign:', fetchError);
+    return;
+  }
+  
+  // Increment the counter
   const { error } = await supabase
     .from('email_campaigns')
     .update({
-      [column]: supabase.raw(`${column} + 1`)
+      [column]: (campaign[column] || 0) + 1,
+      status: statType === 'delivered' ? 'sent' : undefined
     })
     .eq('id', campaignId);
     

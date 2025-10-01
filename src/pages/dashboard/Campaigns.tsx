@@ -240,10 +240,32 @@ export default function Campaigns() {
     if (!confirm(`Möchten Sie die Kampagne "${campaign.name}" jetzt versenden?`)) return;
 
     try {
+      // Fallback: Wenn keine Liste hinterlegt ist, alle aktiven Abonnenten verwenden
+      let recipientEmails: string[] | undefined = undefined;
+      if (!campaign.list_id) {
+        const { data: subs, error: subError } = await supabase
+          .from('email_subscribers')
+          .select('email')
+          .eq('status', 'active');
+
+        if (subError) throw subError;
+
+        recipientEmails = (subs || []).map((s: any) => s.email).filter(Boolean);
+        if (recipientEmails.length === 0) {
+          toast({
+            title: "Fehler",
+            description: "Keine aktiven Empfänger gefunden. Bitte wählen Sie eine Liste oder fügen Sie Abonnenten hinzu.",
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
       const { error } = await supabase.functions.invoke('send-marketing-email', {
         body: {
           campaignId: campaign.id,
-          listId: campaign.list_id,
+          listId: campaign.list_id || undefined,
+          recipientEmails,
           subject: campaign.subject,
           htmlContent: campaign.html_content,
           textContent: campaign.text_content

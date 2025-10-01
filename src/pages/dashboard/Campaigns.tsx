@@ -18,7 +18,9 @@ import {
   TrendingUp,
   BarChart3,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  Server,
+  AlertCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -72,11 +74,15 @@ export default function Campaigns() {
   const [showCampaignBuilder, setShowCampaignBuilder] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<EmailCampaign | null>(null);
   const [activeTab, setActiveTab] = useState<string>('all');
+  const [smtpConfigured, setSmtpConfigured] = useState(false);
+  const [queueCount, setQueueCount] = useState(0);
   
   const { toast } = useToast();
 
   useEffect(() => {
     loadCampaigns();
+    checkSmtpConfig();
+    loadQueueCount();
   }, []);
 
   useEffect(() => {
@@ -98,30 +104,66 @@ export default function Campaigns() {
       setCampaigns(campaignData);
 
       // Calculate stats
-      const totalSent = campaignData.reduce((sum, c) => sum + (c.delivered_count || 0), 0);
-      const totalOpened = campaignData.reduce((sum, c) => sum + (c.opened_count || 0), 0);
-      const totalClicked = campaignData.reduce((sum, c) => sum + (c.clicked_count || 0), 0);
-      
-      setStats({
+      const stats: CampaignStats = {
         totalCampaigns: campaignData.length,
-        activeCampaigns: campaignData.filter(c => c.status === 'sending').length,
+        activeCampaigns: campaignData.filter(c => c.status === 'sending' || c.status === 'scheduled').length,
         scheduledCampaigns: campaignData.filter(c => c.status === 'scheduled').length,
         totalSent: campaignData.reduce((sum, c) => sum + (c.total_recipients || 0), 0),
-        totalDelivered: totalSent,
-        avgOpenRate: totalSent > 0 ? Math.round((totalOpened / totalSent) * 100 * 100) / 100 : 0,
-        avgClickRate: totalSent > 0 ? Math.round((totalClicked / totalSent) * 100 * 100) / 100 : 0
-      });
-
+        totalDelivered: campaignData.reduce((sum, c) => sum + (c.delivered_count || 0), 0),
+        avgOpenRate: calculateAvgRate(campaignData, 'opened_count'),
+        avgClickRate: calculateAvgRate(campaignData, 'clicked_count')
+      };
+      
+      setStats(stats);
     } catch (error: any) {
-      console.error('Error loading campaigns:', error);
+      console.error('Fehler beim Laden der Kampagnen:', error);
       toast({
         title: "Fehler",
-        description: "Kampagnen konnten nicht geladen werden: " + error.message,
+        description: "Kampagnen konnten nicht geladen werden.",
         variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  const checkSmtpConfig = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('smtp_settings')
+        .select('id, host, password')
+        .eq('is_active', true)
+        .single();
+
+      if (!error && data && data.host && data.password) {
+        setSmtpConfigured(true);
+      }
+    } catch (error) {
+      console.error('SMTP check error:', error);
+    }
+  };
+
+  const loadQueueCount = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('email_queue')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      if (!error && count !== null) {
+        setQueueCount(count);
+      }
+    } catch (error) {
+      console.error('Queue count error:', error);
+    }
+  };
+
+  const calculateAvgRate = (campaigns: EmailCampaign[], field: 'opened_count' | 'clicked_count'): number => {
+    const totalDelivered = campaigns.reduce((sum, c) => sum + (c.delivered_count || 0), 0);
+    if (totalDelivered === 0) return 0;
+    
+    const totalEvents = campaigns.reduce((sum, c) => sum + (c[field] || 0), 0);
+    return Math.round((totalEvents / totalDelivered) * 100 * 100) / 100;
   };
 
   const filterCampaigns = () => {
@@ -270,13 +312,27 @@ export default function Campaigns() {
             Erstellen und verwalten Sie E-Mail-Kampagnen für Ihre Zielgruppe
           </p>
         </div>
-        <Button onClick={() => {
-          setEditingCampaign(null);
-          setShowCampaignBuilder(true);
-        }}>
-          <Plus className="h-4 w-4 mr-2" />
-          Neue Kampagne
-        </Button>
+        <div className="flex items-center gap-3">
+          {!smtpConfigured && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-destructive/10 text-destructive rounded-md text-sm">
+              <AlertCircle className="h-4 w-4" />
+              <span>SMTP nicht konfiguriert</span>
+            </div>
+          )}
+          {smtpConfigured && queueCount > 0 && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 text-primary rounded-md text-sm">
+              <Server className="h-4 w-4" />
+              <span>{queueCount} E-Mails in Warteschlange</span>
+            </div>
+          )}
+          <Button onClick={() => {
+            setEditingCampaign(null);
+            setShowCampaignBuilder(true);
+          }}>
+            <Plus className="h-4 w-4 mr-2" />
+            Neue Kampagne
+          </Button>
+        </div>
       </div>
 
       {/* Stats Grid */}

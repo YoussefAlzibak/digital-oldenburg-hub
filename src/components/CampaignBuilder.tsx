@@ -421,26 +421,32 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
         if (error) throw error;
         campaignId = data.id;
 
-        // Send the campaign if not scheduled
-        if (!scheduledAt) {
-          try {
-            const { error: sendError } = await supabase.functions.invoke('send-marketing-email', {
-              body: {
-                campaignId,
-                subject: formData.subject,
-                htmlContent: formData.html_content,
-                textContent: formData.text_content,
-                recipientEmails: recipientMode !== 'list' ? recipientEmails : undefined,
-                listId: recipientMode === 'list' ? formData.list_id : undefined
-              }
-            });
+        // Queue emails for both immediate and scheduled campaigns
+        try {
+          const { error: sendError } = await supabase.functions.invoke('send-marketing-email', {
+            body: {
+              campaignId,
+              subject: formData.subject,
+              htmlContent: formData.html_content,
+              textContent: formData.text_content,
+              recipientEmails: recipientMode !== 'list' ? recipientEmails : undefined,
+              listId: recipientMode === 'list' ? formData.list_id : undefined,
+              scheduledAt: scheduledAt // Pass scheduledAt to queue for later processing
+            }
+          });
 
-            if (sendError) {
-              console.error('Error sending campaign:', sendError);
+          if (sendError) {
+            console.error('Error queueing campaign:', sendError);
+            toast({
+              title: "Warnung",
+              description: "Kampagne wurde gespeichert, aber das Einreihen hatte Probleme.",
+              variant: "default"
+            });
+          } else {
+            if (scheduledAt) {
               toast({
-                title: "Warnung",
-                description: "Kampagne wurde gespeichert, aber der Versand hatte Probleme.",
-                variant: "default"
+                title: "Erfolg",
+                description: `Kampagne wurde für ${format(new Date(scheduledAt), 'PPP um HH:mm', { locale: de })} geplant.`,
               });
             } else {
               toast({
@@ -448,18 +454,13 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
                 description: "Kampagne wurde erstellt und wird versendet!",
               });
             }
-          } catch (sendError) {
-            console.error('Error sending campaign:', sendError);
-            toast({
-              title: "Warnung", 
-              description: "Kampagne wurde gespeichert, aber der Versand hatte Probleme.",
-              variant: "default"
-            });
           }
-        } else {
+        } catch (sendError) {
+          console.error('Error queueing campaign:', sendError);
           toast({
-            title: "Erfolg",
-            description: `Kampagne wurde für ${format(new Date(scheduledAt), 'PPP um HH:mm', { locale: de })} geplant.`,
+            title: "Warnung", 
+            description: "Kampagne wurde gespeichert, aber das Einreihen hatte Probleme.",
+            variant: "default"
           });
         }
       }

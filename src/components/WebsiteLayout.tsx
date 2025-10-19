@@ -21,7 +21,7 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-background pb-16 sm:pb-0">
+    <div className="min-h-screen bg-background pb-16 sm:pb-0 overflow-x-hidden w-full max-w-[100vw]">
       {/* Enhanced Header with Geometric Figures */}
       <header className="header-enhanced fixed top-0 w-full z-50 touch-manipulation">
         <div className="header-geometric-bg">
@@ -32,7 +32,7 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
           <div className="header-shape header-square-1"></div>
         </div>
         
-        <div className="container mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-5 relative z-10">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-5 relative z-10 max-w-7xl w-full">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 animate-fade-left">
               <div className="logo-container group scale-75 sm:scale-90 md:scale-100">
@@ -131,7 +131,7 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
       </header>
 
       {/* Main Content */}
-      <main className="pt-16 sm:pt-20 md:pt-24">
+      <main className="pt-16 sm:pt-20 md:pt-24 w-full overflow-x-hidden">
         {children}
       </main>
 

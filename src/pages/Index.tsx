@@ -117,9 +117,9 @@ const Index = () => {
   return (
     <WebsiteLayout>
       {/* Hero Section with Video and Glass Effect */}
-      <section className="relative min-h-[70vh] sm:min-h-[80vh] md:min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[70vh] sm:min-h-[80vh] md:min-h-screen flex items-center justify-center overflow-hidden w-full">
         {/* Video Background */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 w-full">
           <div className="absolute inset-0 bg-gradient-to-br from-violet-900/90 via-purple-900/90 to-indigo-900/90 z-10"></div>
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2djRoNHYtNGgtNHptMCA4djRoNHYtNGgtNHptLTQgOHY0aDR2LTRoLTR6bS04IDB2NGg0di00aC00em0tOC04djRoNHYtNGgtNHptMC00djRoNHYtNGgtNHptOC04djRoNHYtNGgtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20 z-0"></div>
           
@@ -129,9 +129,9 @@ const Index = () => {
           <div className="absolute -bottom-4 sm:-bottom-8 left-20 sm:left-40 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '4s' }}></div>
         </div>
 
-        <div className="container mx-auto px-4 sm:px-6 relative z-20">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full max-w-7xl">
+          <div className="w-full">
+            <div className="grid lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center w-full">
               {/* Left Content */}
               <div className="space-y-6 sm:space-y-8">
                 <ScrollReveal animation="fade-right" delay={0}>
@@ -141,24 +141,24 @@ const Index = () => {
                   </Badge>
                 </ScrollReveal>
                 
-                <div className="space-y-2 sm:space-y-3">
+                <div className="space-y-2 sm:space-y-3 max-w-full">
                   <ScrollReveal animation="fade-left" delay={150}>
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black text-white leading-tight">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-tight break-words">
                       Digitale
                     </h1>
                   </ScrollReveal>
                   <ScrollReveal animation="fade-right" delay={300}>
-                    <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black bg-gradient-to-r from-cyan-400 via-violet-400 to-orange-400 bg-clip-text text-transparent">
+                    <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black bg-gradient-to-r from-cyan-400 via-violet-400 to-orange-400 bg-clip-text text-transparent break-words">
                       Transformation
                     </span>
                   </ScrollReveal>
                   <ScrollReveal animation="fade-left" delay={450}>
-                    <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black text-white/90">neu definiert</span>
+                    <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white/90 break-words">neu definiert</span>
                   </ScrollReveal>
                 </div>
                 
                 <ScrollReveal animation="fade-right" delay={600}>
-                  <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/80 leading-relaxed max-w-2xl">
+                  <p className="text-base sm:text-lg md:text-xl text-white/80 leading-relaxed max-w-full lg:max-w-2xl break-words">
                     Wir verwandeln Ihre Visionen in leistungsstarke digitale Lösungen. 
                     Von modernen Websites über CRM-Systeme bis hin zu Smart Home Automation.
                   </p>
@@ -218,8 +218,8 @@ const Index = () => {
       </section>
 
       {/* Services Section */}
-      <section className="py-12 sm:py-16 md:py-20 bg-muted/30 relative">
-        <div className="container mx-auto px-4 sm:px-6">
+      <section className="py-12 sm:py-16 md:py-20 bg-muted/30 relative w-full overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
           <div className="text-center mb-12 sm:mb-16">
             <ScrollReveal animation="fade-up">
               <Badge className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-primary/10 text-primary border-primary/20">
@@ -275,8 +275,8 @@ const Index = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-12 sm:py-16 md:py-20 relative">
-        <div className="container mx-auto px-4 sm:px-6">
+      <section className="py-12 sm:py-16 md:py-20 relative w-full overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
           <div className="text-center mb-12 sm:mb-16">
             <ScrollReveal animation="fade-up">
               <Badge className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-primary/10 text-primary border-primary/20">
@@ -312,8 +312,8 @@ const Index = () => {
       </section>
 
       {/* Featured Projects Section */}
-      <section className="py-12 sm:py-16 md:py-20 bg-muted/30">
-        <div className="container mx-auto px-4 sm:px-6">
+      <section className="py-12 sm:py-16 md:py-20 bg-muted/30 w-full overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
           <div className="text-center mb-12 sm:mb-16">
             <ScrollReveal animation="fade-up">
               <Badge className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-primary/10 text-primary border-primary/20">

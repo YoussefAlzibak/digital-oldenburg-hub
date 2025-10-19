@@ -1,20 +1,21 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface AppointmentBooking {
-  appointment_date: string;
-  appointment_time: string;
-  appointment_type: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-  message?: string;
-}
+const appointmentSchema = z.object({
+  appointment_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD required)'),
+  appointment_time: z.string().max(20, 'Invalid time format'),
+  appointment_type: z.string().max(50, 'Invalid appointment type'),
+  name: z.string().min(1).max(100, 'Name too long').optional(),
+  email: z.string().email('Invalid email format').max(255, 'Email too long').optional(),
+  phone: z.string().max(20, 'Phone number too long').optional(),
+  message: z.string().max(2000, 'Message too long').optional(),
+});
 
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -28,7 +29,10 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const bookingData: AppointmentBooking = await req.json();
+    const rawData = await req.json();
+    
+    // Validate input data
+    const bookingData = appointmentSchema.parse(rawData);
     
     console.log('Received appointment booking:', bookingData);
 
@@ -144,13 +148,18 @@ const handler = async (req: Request): Promise<Response> => {
 
   } catch (error: any) {
     console.error('Error in book-appointment function:', error);
+    
+    // Handle validation errors with more specific status code
+    const isValidationError = error.name === 'ZodError';
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Ein Fehler ist beim Buchen des Termins aufgetreten' 
+        error: isValidationError ? 'Invalid input data' : (error.message || 'Ein Fehler ist beim Buchen des Termins aufgetreten'),
+        details: isValidationError ? error.errors : undefined
       }),
       {
-        status: 500,
+        status: isValidationError ? 400 : 500,
         headers: { 
           'Content-Type': 'application/json', 
           ...corsHeaders 

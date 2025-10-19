@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,17 +17,17 @@ interface SMTPSettings {
   from_name: string;
 }
 
-interface MarketingEmailRequest {
-  campaignId?: string;
-  automationId?: string;
-  listId?: string;
-  templateId?: string;
-  subject: string;
-  htmlContent: string;
-  textContent?: string;
-  recipientEmails?: string[];
-  scheduledAt?: string;
-}
+const marketingEmailSchema = z.object({
+  campaignId: z.string().uuid('Invalid campaign ID').optional(),
+  automationId: z.string().uuid('Invalid automation ID').optional(),
+  listId: z.string().uuid('Invalid list ID').optional(),
+  templateId: z.string().uuid('Invalid template ID').optional(),
+  subject: z.string().min(1, 'Subject is required').max(500, 'Subject too long'),
+  htmlContent: z.string().min(1, 'HTML content is required').max(100000, 'Content too large'),
+  textContent: z.string().max(50000, 'Text content too large').optional(),
+  recipientEmails: z.array(z.string().email('Invalid email in recipients list')).max(1000, 'Too many recipients').optional(),
+  scheduledAt: z.string().optional(),
+});
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') {
@@ -34,7 +35,10 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const emailRequest: MarketingEmailRequest = await req.json();
+    const rawData = await req.json();
+    
+    // Validate input data
+    const emailRequest = marketingEmailSchema.parse(rawData);
 
     console.log('Direkter E-Mail-Versand:', {
       campaignId: emailRequest.campaignId,
@@ -188,10 +192,17 @@ const handler = async (req: Request): Promise<Response> => {
 
   } catch (error: any) {
     console.error('Fehler beim E-Mail-Versand:', error);
+    
+    // Handle validation errors with more specific status code
+    const isValidationError = error.name === 'ZodError';
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: isValidationError ? 'Invalid input data' : error.message,
+        details: isValidationError ? error.errors : undefined
+      }),
       {
-        status: 500,
+        status: isValidationError ? 400 : 500,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       }
     );

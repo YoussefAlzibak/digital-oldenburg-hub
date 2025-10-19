@@ -1,22 +1,23 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface ConsultationRequest {
-  name: string;
-  email: string;
-  phone?: string;
-  company?: string;
-  service?: string;
-  message?: string;
-  preferred_date?: string;
-  preferred_time?: string;
-  consultation_type?: string;
-}
+const consultationSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
+  email: z.string().email('Invalid email format').max(255, 'Email too long'),
+  phone: z.string().max(20, 'Phone number too long').optional(),
+  company: z.string().max(100, 'Company name too long').optional(),
+  service: z.string().max(100, 'Service name too long').optional(),
+  message: z.string().max(2000, 'Message too long').optional(),
+  preferred_date: z.string().max(10, 'Invalid date').optional(),
+  preferred_time: z.string().max(8, 'Invalid time').optional(),
+  consultation_type: z.string().max(50, 'Invalid consultation type').optional(),
+});
 
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -30,7 +31,10 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const requestData: ConsultationRequest = await req.json();
+    const rawData = await req.json();
+    
+    // Validate input data
+    const requestData = consultationSchema.parse(rawData);
     
     console.log('Received consultation request:', requestData);
 
@@ -100,13 +104,18 @@ const handler = async (req: Request): Promise<Response> => {
 
   } catch (error: any) {
     console.error('Error in submit-consultation function:', error);
+    
+    // Handle validation errors with more specific status code
+    const isValidationError = error.name === 'ZodError';
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Ein Fehler ist aufgetreten' 
+        error: isValidationError ? 'Invalid input data' : (error.message || 'Ein Fehler ist aufgetreten'),
+        details: isValidationError ? error.errors : undefined
       }),
       {
-        status: 500,
+        status: isValidationError ? 400 : 500,
         headers: { 
           'Content-Type': 'application/json', 
           ...corsHeaders 

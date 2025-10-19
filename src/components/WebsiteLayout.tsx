@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { WebsiteMobileNav } from "@/components/WebsiteMobileNav";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { 
   Globe,
   Monitor,
@@ -76,6 +77,7 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
               <Link to="/auth" className="text-xs font-medium text-foreground/60 hover:text-primary transition-colors">
                 Admin
               </Link>
+              <ThemeToggle />
               <Link to="/contact" className="ml-4">
                 <button className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
                   <Calendar className="h-4 w-4 mr-2 inline" />
@@ -109,6 +111,7 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
                 <Shield className="nav-icon h-3 w-3" />
                 <span>Admin</span>
               </Link>
+              <ThemeToggle />
               <button className="cta-button group">
                 <Link to="/contact">
                   <Calendar className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />

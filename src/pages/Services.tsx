@@ -4,88 +4,75 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { 
-  Code2, 
-  Palette, 
-  Search, 
-  Database, 
-  Smartphone, 
-  Mail, 
-  Calendar,
   Shield,
-  Printer,
   Award,
   Rocket,
   CheckCircle2,
   ArrowRight,
   Zap,
-  Users
+  Users,
+  Calendar
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
+// Import service images
+import serviceWebdev from "@/assets/service-webdev.webp";
+import serviceUiux from "@/assets/service-uiux.webp";
+import serviceSeo from "@/assets/service-seo.webp";
+import serviceCrm from "@/assets/crm-service.webp";
+import serviceEmail from "@/assets/service-email.webp";
+import serviceBooking from "@/assets/service-booking.webp";
+import serviceMobile from "@/assets/service-mobile.webp";
+import serviceBranding from "@/assets/service-branding.webp";
+
 const services = [
   {
-    icon: Code2,
     title: "Web Development",
     description: "Moderne, responsive Websites & Web-Anwendungen, die Ihre Marke perfekt präsentieren.",
     features: ["Custom Website Design", "Progressive Web Apps", "E-Commerce Lösungen", "API Integration"],
-    color: "from-violet-500 to-purple-600",
-    iconColor: "text-violet-500"
+    image: serviceWebdev
   },
   {
-    icon: Palette,
     title: "UI/UX Design",
     description: "Benutzerzentriertes Design, das begeistert und konvertiert.",
     features: ["User Interface Design", "User Experience Optimization", "Prototyping", "Design Systems"],
-    color: "from-cyan-500 to-blue-600",
-    iconColor: "text-cyan-500"
+    image: serviceUiux
   },
   {
-    icon: Search,
     title: "SEO Optimization",
     description: "Maximale Sichtbarkeit in Suchmaschinen für mehr organischen Traffic.",
     features: ["On-Page SEO", "Technical SEO", "Content Strategy", "Analytics & Reporting"],
-    color: "from-orange-500 to-red-600",
-    iconColor: "text-orange-500"
+    image: serviceSeo
   },
   {
-    icon: Database,
     title: "CRM Systems",
     description: "Intelligente Kundenverwaltung für stärkere Kundenbeziehungen.",
     features: ["Customer Management", "Sales Pipeline", "Automation", "Contact History"],
-    color: "from-emerald-500 to-green-600",
-    iconColor: "text-emerald-500"
+    image: serviceCrm
   },
   {
-    icon: Mail,
     title: "Email Marketing",
     description: "Professionelle E-Mail-Kampagnen, die Ihre Zielgruppe erreichen.",
     features: ["Campaign Builder", "Newsletter Management", "Automation", "Analytics"],
-    color: "from-pink-500 to-rose-600",
-    iconColor: "text-pink-500"
+    image: serviceEmail
   },
   {
-    icon: Calendar,
     title: "Appointment Booking",
     description: "Automatisches Terminmanagement für mehr Effizienz.",
     features: ["Online Booking", "Calendar Sync", "Reminders", "Team Management"],
-    color: "from-amber-500 to-yellow-600",
-    iconColor: "text-amber-500"
+    image: serviceBooking
   },
   {
-    icon: Smartphone,
     title: "Mobile Solutions",
     description: "Native und responsive mobile Anwendungen für iOS und Android.",
     features: ["Responsive Design", "Mobile-First Approach", "App Development", "Cross-Platform"],
-    color: "from-indigo-500 to-purple-600",
-    iconColor: "text-indigo-500"
+    image: serviceMobile
   },
   {
-    icon: Printer,
     title: "Branding & Print",
     description: "Professionelles Corporate Design für einen einheitlichen Markenauftritt.",
     features: ["Logo Design", "Business Cards", "Flyers & Brochures", "Brand Identity"],
-    color: "from-teal-500 to-cyan-600",
-    iconColor: "text-teal-500"
+    image: serviceBranding
   }
 ];
 
@@ -209,20 +196,27 @@ export default function Services() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {services.map((service, index) => (
                 <ScrollReveal key={index} animation="fade-up" delay={index * 100}>
-                  <Card className="glass-card p-6 group hover:scale-105 transition-all duration-300">
-                    <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${service.color} p-3 mb-4 group-hover:scale-110 transition-transform`}>
-                      <service.icon className="w-full h-full text-white" />
+                  <Card className="glass-card group hover:scale-105 transition-all duration-300 overflow-hidden">
+                    <div className="relative overflow-hidden h-48">
+                      <img 
+                        src={service.image} 
+                        alt={service.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-foreground">{service.title}</h3>
-                    <p className="text-muted-foreground mb-4">{service.description}</p>
-                    <ul className="space-y-2">
-                      {service.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start text-sm">
-                          <CheckCircle2 className={`h-4 w-4 mr-2 mt-0.5 flex-shrink-0 ${service.iconColor}`} />
-                          <span className="text-muted-foreground">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold mb-3 text-foreground">{service.title}</h3>
+                      <p className="text-muted-foreground mb-4">{service.description}</p>
+                      <ul className="space-y-2">
+                        {service.features.map((feature, idx) => (
+                          <li key={idx} className="flex items-start text-sm">
+                            <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-primary" />
+                            <span className="text-muted-foreground">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </Card>
                 </ScrollReveal>
               ))}

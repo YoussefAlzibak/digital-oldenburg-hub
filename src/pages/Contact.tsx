@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRight, Globe, Mail, Phone, MapPin, Clock, MessageCircle, Send, Calendar, Monitor, Users2, Shield, Palette, Video, User } from "lucide-react";
+import { ScrollReveal } from "@/components/ScrollReveal";
+import { ArrowRight, Mail, Phone, MapPin, Clock, MessageCircle, Send, Video, User, Calendar, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import ConsultationRequestForm from "@/components/ConsultationRequestForm";
@@ -167,103 +168,32 @@ const Contact = () => {
   return (
     <WebsiteLayout>
       {/* Hero Section */}
-      <header className="header-enhanced fixed top-0 w-full z-50">
-        <div className="header-geometric-bg">
-          <div className="header-shape header-hexagon-1"></div>
-          <div className="header-shape header-triangle-1"></div>
-          <div className="header-shape header-diamond-1"></div>
-          <div className="header-shape header-circle-1"></div>
-          <div className="header-shape header-square-1"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 md:px-6 py-4 md:py-5 relative z-10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 md:space-x-4 animate-fade-left">
-              <div className="logo-container group">
-                <div className="logo-geometric">
-                  <div className="logo-primary-shape"></div>
-                  <div className="logo-accent-shape"></div>
-                  <div className="logo-inner-detail"></div>
-                </div>
-              </div>
-              <div className="logo-text">
-                <span className="text-2xl md:text-3xl font-black text-[hsl(var(--brand-secondary))] tracking-tight">Unicum</span>
-                <span className="text-2xl md:text-3xl font-light text-[hsl(var(--brand-primary))] tracking-tight">Tec</span>
-                <div className="text-xs font-medium text-gray-500 uppercase tracking-widest mt-1">Digital Excellence</div>
-              </div>
-            </div>
-            
-            <nav className="hidden md:flex lg:hidden items-center space-x-6">
-              <Link to="/" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-                Home
-              </Link>
-              <Link to="/services" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-                Services
-              </Link>
-              <Link to="/portfolio" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-                Portfolio
-              </Link>
-              <Link to="/about" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-                Über uns
-              </Link>
-              <Link to="/contact" className="text-sm font-medium text-primary">
-                Kontakt
-              </Link>
-              <Button size="sm" className="ml-4" asChild>
-                <Link to="/contact">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Termin
-                </Link>
-              </Button>
-            </nav>
-            
-            <nav className="hidden lg:flex items-center space-x-10 animate-fade-right">
-              <Link to="/services" className="nav-link">
-                <Palette className="nav-icon" />
-                <span>Services</span>
-              </Link>
-              <Link to="/portfolio" className="nav-link">
-                <Monitor className="nav-icon" />
-                <span>Portfolio</span>
-              </Link>
-              <Link to="/about" className="nav-link">
-                <Users2 className="nav-icon" />
-                <span>Über uns</span>
-              </Link>
-              <Link to="/contact" className="nav-link">
-                <MessageCircle className="nav-icon" />
-                <span>Kontakt</span>
-              </Link>
-              <Link to="/auth" className="nav-link text-xs opacity-60 hover:opacity-100">
-                <Shield className="nav-icon h-3 w-3" />
-                <span>Admin</span>
-              </Link>
-              <Button className="cta-button group" asChild>
-                <Link to="/contact">
-                  <Calendar className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
-                  <span>Beratung anfragen</span>
-                  <div className="cta-glow"></div>
-                </Link>
-              </Button>
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <section className="pt-32 pb-20">
-        <div className="container mx-auto px-6">
+      <section className="pt-32 pb-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-background"></div>
+        <div className="container mx-auto px-6 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
-            <Badge className="mb-6 px-4 py-2 text-sm bg-primary/10 text-primary border-primary/20">
-              Kontakt
-            </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Lassen Sie uns
-              <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent"> sprechen</span>
-            </h1>
-            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Haben Sie ein Projekt im Kopf? Wir sind hier, um Ihnen zu helfen. Kontaktieren Sie uns für eine kostenlose Beratung.
-            </p>
+            <ScrollReveal animation="fade-up">
+              <Badge className="mb-6 px-4 py-2 text-sm bg-primary/10 text-primary border-primary/20">
+                Kontakt
+              </Badge>
+            </ScrollReveal>
+            <div className="space-y-3">
+              <ScrollReveal animation="fade-right" delay={100}>
+                <h1 className="text-4xl md:text-6xl font-bold">
+                  Lassen Sie uns
+                </h1>
+              </ScrollReveal>
+              <ScrollReveal animation="fade-left" delay={250}>
+                <span className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                  sprechen
+                </span>
+              </ScrollReveal>
+            </div>
+            <ScrollReveal animation="fade-up" delay={400}>
+              <p className="text-xl text-muted-foreground mb-8 leading-relaxed mt-6">
+                Haben Sie ein Projekt im Kopf? Wir sind hier, um Ihnen zu helfen. Kontaktieren Sie uns für eine kostenlose Beratung.
+              </p>
+            </ScrollReveal>
           </div>
         </div>
       </section>
@@ -273,7 +203,8 @@ const Contact = () => {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             {/* Contact Form */}
-            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+            <ScrollReveal animation="fade-right">
+              <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="text-2xl flex items-center">
                   <MessageCircle className="h-6 w-6 mr-3 text-primary" />
@@ -437,31 +368,35 @@ const Contact = () => {
                 </form>
               </CardContent>
             </Card>
+            </ScrollReveal>
 
             {/* Contact Information */}
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-2xl font-bold mb-6">Kontaktinformationen</h2>
-                <div className="space-y-6">
-                  {contactInfo.map((info, index) => (
-                    <Card key={index} className="bg-card/30 backdrop-blur-sm border-border/50 p-4">
-                      <div className="flex items-start space-x-4">
-                        <div className="text-primary bg-primary/10 p-3 rounded-lg">
-                          {info.icon}
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-lg">{info.title}</h3>
-                          <p className="text-foreground font-medium">{info.content}</p>
-                          <p className="text-muted-foreground text-sm">{info.description}</p>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
+            <ScrollReveal animation="fade-left" delay={150}>
+              <div className="space-y-8">
+                <div>
+                  <h2 className="text-2xl font-bold mb-6">Kontaktinformationen</h2>
+                  <div className="space-y-6">
+                    {contactInfo.map((info, index) => (
+                      <ScrollReveal key={index} animation="fade-left" delay={300 + (index * 100)}>
+                        <Card className="glass-card p-4 group hover:scale-105 transition-all">
+                          <div className="flex items-start space-x-4">
+                            <div className="text-primary bg-primary/10 p-3 rounded-lg group-hover:scale-110 transition-transform">
+                              {info.icon}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-lg">{info.title}</h3>
+                              <p className="text-foreground font-medium">{info.content}</p>
+                              <p className="text-muted-foreground text-sm">{info.description}</p>
+                            </div>
+                          </div>
+                        </Card>
+                      </ScrollReveal>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Quick Actions */}
-              <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+                {/* Quick Actions */}
+                <Card className="glass-card bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold mb-4">Schnelle Kontaktaufnahme</h3>
                   <div className="space-y-3">
@@ -494,7 +429,7 @@ const Contact = () => {
               </Card>
 
               {/* FAQ Teaser */}
-              <Card className="bg-card/30 backdrop-blur-sm border-border/50">
+              <Card className="glass-card">
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold mb-3">Häufige Fragen</h3>
                   <p className="text-muted-foreground mb-4">
@@ -510,6 +445,7 @@ const Contact = () => {
                 </CardContent>
               </Card>
             </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
@@ -517,22 +453,24 @@ const Contact = () => {
       {/* Response Time Promise */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-6">
-          <div className="text-center">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">Unser Versprechen</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">24h</div>
-                <p className="text-muted-foreground">Antwortzeit per E-Mail</p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">100%</div>
-                <p className="text-muted-foreground">Kostenloses Erstgespräch</p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">0€</div>
-                <p className="text-muted-foreground">Für die Beratung</p>
-              </div>
+          <ScrollReveal animation="fade-up">
+            <div className="text-center">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">Unser Versprechen</h2>
             </div>
+          </ScrollReveal>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {[
+              { value: "24h", label: "Antwortzeit per E-Mail" },
+              { value: "100%", label: "Kostenloses Erstgespräch" },
+              { value: "0€", label: "Für die Beratung" }
+            ].map((promise, index) => (
+              <ScrollReveal key={index} animation="scale-in" delay={150 + (index * 100)}>
+                <div className="glass-card p-6 text-center group hover:scale-105 transition-all">
+                  <div className="text-3xl font-bold text-primary mb-2">{promise.value}</div>
+                  <p className="text-muted-foreground">{promise.label}</p>
+                </div>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>

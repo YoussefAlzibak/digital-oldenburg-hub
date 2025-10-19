@@ -8,23 +8,18 @@ import {
   Settings, 
   Printer, 
   ArrowRight, 
-  CheckCircle,
   Shield,
-  Monitor,
   Zap,
   MessageCircle,
-  Code,
   Rocket,
-  Calendar,
   Users2,
-  Palette,
   Sparkles,
   TrendingUp,
-  Award
+  Award,
+  Monitor
 } from "lucide-react";
-import { WebsiteMobileNav } from "@/components/WebsiteMobileNav";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { useTheme } from "@/components/ThemeProvider";
+import { WebsiteLayout } from "@/components/WebsiteLayout";
 
 // Import generated images
 import webdesignService from "@/assets/webdesign-service.webp";
@@ -37,7 +32,6 @@ import portfolioSaas from "@/assets/portfolio-saas.webp";
 import heroImage from "@/assets/hero-image.webp";
 
 const Index = () => {
-  const { resolvedTheme } = useTheme();
   
   const services = [
     {
@@ -121,87 +115,9 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-20 sm:pb-0">
-      {/* Enhanced Header with Geometric Figures */}
-      <header className="header-enhanced fixed top-0 w-full z-50">
-        <div className="header-geometric-bg">
-          <div className="header-shape header-hexagon-1"></div>
-          <div className="header-shape header-triangle-1"></div>
-          <div className="header-shape header-diamond-1"></div>
-          <div className="header-shape header-circle-1"></div>
-          <div className="header-shape header-square-1"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 md:px-6 py-4 md:py-5 relative z-10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 md:space-x-4 animate-fade-left">
-              <div className="logo-container group">
-                <div className="logo-geometric">
-                  <div className="logo-primary-shape"></div>
-                  <div className="logo-accent-shape"></div>
-                  <div className="logo-inner-detail"></div>
-                </div>
-              </div>
-              <div className="logo-text">
-                <span className="text-2xl md:text-3xl font-black text-[hsl(var(--brand-secondary))] tracking-tight">Unicum</span>
-                <span className="text-2xl md:text-3xl font-light text-[hsl(var(--brand-primary))] tracking-tight">Tech</span>
-                <div className="text-xs font-medium text-gray-500 uppercase tracking-widest mt-1">Digital Excellence</div>
-              </div>
-            </div>
-            
-            <nav className="hidden md:flex lg:hidden items-center space-x-6">
-              <Link to="/" className="text-sm font-medium text-primary">Home</Link>
-              <Link to="/services" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">Services</Link>
-              <Link to="/portfolio" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">Portfolio</Link>
-              <Link to="/about" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">Über uns</Link>
-              <Link to="/contact" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">Kontakt</Link>
-              <Button size="sm" className="ml-4" asChild>
-                <Link to="/contact">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Termin
-                </Link>
-              </Button>
-            </nav>
-            
-            <nav className="hidden lg:flex items-center space-x-10 animate-fade-right">
-              <Link to="/" className="nav-link text-primary">
-                <Globe className="nav-icon" />
-                <span>Home</span>
-              </Link>
-              <Link to="/services" className="nav-link">
-                <Palette className="nav-icon" />
-                <span>Services</span>
-              </Link>
-              <Link to="/portfolio" className="nav-link">
-                <Monitor className="nav-icon" />
-                <span>Portfolio</span>
-              </Link>
-              <Link to="/about" className="nav-link">
-                <Users2 className="nav-icon" />
-                <span>Über uns</span>
-              </Link>
-              <Link to="/contact" className="nav-link">
-                <MessageCircle className="nav-icon" />
-                <span>Kontakt</span>
-              </Link>
-              <Link to="/auth" className="nav-link text-xs opacity-60 hover:opacity-100">
-                <Shield className="nav-icon h-3 w-3" />
-                <span>Admin</span>
-              </Link>
-              <Button className="cta-button group" asChild>
-                <Link to="/contact">
-                  <Calendar className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
-                  <span>Beratung anfragen</span>
-                  <div className="cta-glow"></div>
-                </Link>
-              </Button>
-            </nav>
-          </div>
-        </div>
-      </header>
-
+    <WebsiteLayout>
       {/* Hero Section with Video and Glass Effect */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Video Background */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-br from-violet-900/90 via-purple-900/90 to-indigo-900/90 z-10"></div>
@@ -495,9 +411,7 @@ const Index = () => {
           </ScrollReveal>
         </div>
       </section>
-      
-      <WebsiteMobileNav />
-    </div>
+    </WebsiteLayout>
   );
 };
 

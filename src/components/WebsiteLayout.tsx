@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { WebsiteMobileNav } from "@/components/WebsiteMobileNav";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Footer } from "@/components/Footer";
 import { 
   Globe,
   Monitor,
@@ -130,6 +131,9 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
       <main className="pt-24">
         {children}
       </main>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Mobile Navigation */}
       <WebsiteMobileNav />

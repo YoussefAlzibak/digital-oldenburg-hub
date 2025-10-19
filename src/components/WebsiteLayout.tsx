@@ -111,7 +111,9 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
                 <Shield className="nav-icon h-3 w-3" />
                 <span>Admin</span>
               </Link>
-              <ThemeToggle />
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/10">
+                <ThemeToggle />
+              </div>
               <button className="cta-button group">
                 <Link to="/contact">
                   <Calendar className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />

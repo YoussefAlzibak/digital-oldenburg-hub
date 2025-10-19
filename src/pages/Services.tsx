@@ -155,17 +155,21 @@ export default function Services() {
               </Badge>
             </ScrollReveal>
             
-            <ScrollReveal animation="fade-up" delay={100}>
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-                Digitale Lösungen
-                <span className="block mt-2 bg-gradient-to-r from-cyan-400 via-violet-400 to-orange-400 bg-clip-text text-transparent">
+            <div className="space-y-4">
+              <ScrollReveal animation="fade-left" delay={100}>
+                <h1 className="text-5xl md:text-7xl font-bold text-white">
+                  Digitale Lösungen
+                </h1>
+              </ScrollReveal>
+              <ScrollReveal animation="fade-right" delay={250}>
+                <span className="block text-5xl md:text-7xl font-bold bg-gradient-to-r from-cyan-400 via-violet-400 to-orange-400 bg-clip-text text-transparent">
                   für Ihren Erfolg
                 </span>
-              </h1>
-            </ScrollReveal>
+              </ScrollReveal>
+            </div>
             
-            <ScrollReveal animation="fade-up" delay={200}>
-              <p className="text-xl md:text-2xl text-white/80 max-w-3xl mx-auto mb-10">
+            <ScrollReveal animation="fade-left" delay={400}>
+              <p className="text-xl md:text-2xl text-white/80 max-w-3xl mx-auto mb-10 mt-6">
                 Von moderner Web-Entwicklung über SEO bis hin zu intelligenten CRM-Systemen – 
                 alles aus einer Hand für maximalen Erfolg.
               </p>
@@ -189,16 +193,18 @@ export default function Services() {
         {/* Services Grid */}
         <section className="py-20 relative">
           <div className="container px-4">
-            <ScrollReveal animation="fade-up">
-              <div className="text-center mb-16">
+            <div className="text-center mb-16">
+              <ScrollReveal animation="fade-right">
                 <h2 className="text-4xl md:text-5xl font-bold mb-4">
                   Was wir <span className="text-primary">anbieten</span>
                 </h2>
+              </ScrollReveal>
+              <ScrollReveal animation="fade-left" delay={150}>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                   Umfassende digitale Services für Ihr Business
                 </p>
-              </div>
-            </ScrollReveal>
+              </ScrollReveal>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {services.map((service, index) => (
@@ -227,16 +233,18 @@ export default function Services() {
         {/* Process Section */}
         <section className="py-20 bg-muted/30 relative overflow-hidden">
           <div className="container px-4 relative z-10">
-            <ScrollReveal animation="fade-up">
-              <div className="text-center mb-16">
+            <div className="text-center mb-16">
+              <ScrollReveal animation="fade-left">
                 <h2 className="text-4xl md:text-5xl font-bold mb-4">
                   Unser <span className="text-primary">Prozess</span>
                 </h2>
+              </ScrollReveal>
+              <ScrollReveal animation="fade-right" delay={150}>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                   In 4 einfachen Schritten zu Ihrer digitalen Lösung
                 </p>
-              </div>
-            </ScrollReveal>
+              </ScrollReveal>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {process.map((step, index) => (
@@ -264,16 +272,18 @@ export default function Services() {
         {/* Benefits Section */}
         <section className="py-20 relative">
           <div className="container px-4">
-            <ScrollReveal animation="fade-up">
-              <div className="text-center mb-16">
+            <div className="text-center mb-16">
+              <ScrollReveal animation="fade-right">
                 <h2 className="text-4xl md:text-5xl font-bold mb-4">
                   Warum <span className="text-primary">Unicum Tech</span>?
                 </h2>
+              </ScrollReveal>
+              <ScrollReveal animation="fade-left" delay={150}>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                   Ihre Vorteile bei der Zusammenarbeit mit uns
                 </p>
-              </div>
-            </ScrollReveal>
+              </ScrollReveal>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {benefits.map((benefit, index) => (

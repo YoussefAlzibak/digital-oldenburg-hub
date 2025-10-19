@@ -218,24 +218,30 @@ const Index = () => {
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               {/* Left Content */}
               <div className="space-y-8">
-                <ScrollReveal animation="fade-right">
+                <ScrollReveal animation="fade-right" delay={0}>
                   <Badge className="bg-white/10 backdrop-blur-md border-white/20 text-white text-base px-6 py-2">
                     <Sparkles className="h-4 w-4 mr-2 inline" />
                     Ihr Partner für digitale Excellence
                   </Badge>
                 </ScrollReveal>
                 
-                <ScrollReveal animation="fade-right" delay={100}>
-                  <h1 className="text-5xl md:text-7xl font-black text-white leading-tight">
-                    Digitale
-                    <span className="block bg-gradient-to-r from-cyan-400 via-violet-400 to-orange-400 bg-clip-text text-transparent mt-2">
+                <div className="space-y-3">
+                  <ScrollReveal animation="fade-left" delay={150}>
+                    <h1 className="text-5xl md:text-7xl font-black text-white leading-tight">
+                      Digitale
+                    </h1>
+                  </ScrollReveal>
+                  <ScrollReveal animation="fade-right" delay={300}>
+                    <span className="block text-5xl md:text-7xl font-black bg-gradient-to-r from-cyan-400 via-violet-400 to-orange-400 bg-clip-text text-transparent">
                       Transformation
                     </span>
-                    <span className="block text-white/90 mt-2">neu definiert</span>
-                  </h1>
-                </ScrollReveal>
+                  </ScrollReveal>
+                  <ScrollReveal animation="fade-left" delay={450}>
+                    <span className="block text-5xl md:text-7xl font-black text-white/90">neu definiert</span>
+                  </ScrollReveal>
+                </div>
                 
-                <ScrollReveal animation="fade-right" delay={200}>
+                <ScrollReveal animation="fade-right" delay={600}>
                   <p className="text-xl md:text-2xl text-white/80 leading-relaxed max-w-2xl">
                     Wir verwandeln Ihre Visionen in leistungsstarke digitale Lösungen. 
                     Von modernen Websites über CRM-Systeme bis hin zu Smart Home Automation.
@@ -243,19 +249,19 @@ const Index = () => {
                 </ScrollReveal>
                 
                 {/* Stats with Glass Effect */}
-                <ScrollReveal animation="fade-up" delay={300}>
-                  <div className="grid grid-cols-3 gap-4">
-                    {stats.map((stat, index) => (
-                      <div key={index} className="glass-card p-4 text-center">
+                <div className="grid grid-cols-3 gap-4">
+                  {stats.map((stat, index) => (
+                    <ScrollReveal key={index} animation="scale-in" delay={750 + (index * 100)}>
+                      <div className="glass-card p-4 text-center">
                         <stat.icon className="h-8 w-8 text-cyan-400 mx-auto mb-2" />
                         <div className="text-2xl md:text-3xl font-black text-white">{stat.number}</div>
                         <div className="text-sm text-white/70">{stat.label}</div>
                       </div>
-                    ))}
-                  </div>
-                </ScrollReveal>
+                    </ScrollReveal>
+                  ))}
+                </div>
                 
-                <ScrollReveal animation="fade-up" delay={400}>
+                <ScrollReveal animation="fade-left" delay={1100}>
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Button asChild size="lg" className="bg-white text-violet-900 hover:bg-white/90 shadow-xl">
                       <Link to="/contact">
@@ -297,19 +303,23 @@ const Index = () => {
       {/* Services Section */}
       <section className="py-20 bg-muted/30 relative">
         <div className="container mx-auto px-6">
-          <ScrollReveal animation="fade-up">
-            <div className="text-center mb-16">
+          <div className="text-center mb-16">
+            <ScrollReveal animation="fade-up">
               <Badge className="mb-4 px-4 py-2 text-sm bg-primary/10 text-primary border-primary/20">
                 Unsere Services
               </Badge>
+            </ScrollReveal>
+            <ScrollReveal animation="fade-left" delay={100}>
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
                 Was wir für Sie <span className="text-primary">tun können</span>
               </h2>
+            </ScrollReveal>
+            <ScrollReveal animation="fade-right" delay={200}>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Von Webdesign bis Smart Home - wir bieten umfassende digitale Lösungen
               </p>
-            </div>
-          </ScrollReveal>
+            </ScrollReveal>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {services.map((service, index) => (
@@ -350,19 +360,23 @@ const Index = () => {
       {/* Benefits Section */}
       <section className="py-20 relative">
         <div className="container mx-auto px-6">
-          <ScrollReveal animation="fade-up">
-            <div className="text-center mb-16">
+          <div className="text-center mb-16">
+            <ScrollReveal animation="fade-up">
               <Badge className="mb-4 px-4 py-2 text-sm bg-primary/10 text-primary border-primary/20">
                 Ihre Vorteile
               </Badge>
+            </ScrollReveal>
+            <ScrollReveal animation="fade-right" delay={100}>
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
                 Warum <span className="text-primary">Unicum Tech</span>?
               </h2>
+            </ScrollReveal>
+            <ScrollReveal animation="fade-left" delay={200}>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Ihre Vorteile bei der Zusammenarbeit mit uns
               </p>
-            </div>
-          </ScrollReveal>
+            </ScrollReveal>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {benefits.map((benefit, index) => (
@@ -383,19 +397,23 @@ const Index = () => {
       {/* Featured Projects Section */}
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-6">
-          <ScrollReveal animation="fade-up">
-            <div className="text-center mb-16">
+          <div className="text-center mb-16">
+            <ScrollReveal animation="fade-up">
               <Badge className="mb-4 px-4 py-2 text-sm bg-primary/10 text-primary border-primary/20">
                 Unsere Projekte
               </Badge>
+            </ScrollReveal>
+            <ScrollReveal animation="fade-left" delay={100}>
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
                 Erfolgreiche <span className="text-primary">Umsetzungen</span>
               </h2>
+            </ScrollReveal>
+            <ScrollReveal animation="fade-right" delay={200}>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Entdecken Sie eine Auswahl unserer besten Projekte
               </p>
-            </div>
-          </ScrollReveal>
+            </ScrollReveal>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             {projects.map((project, index) => (

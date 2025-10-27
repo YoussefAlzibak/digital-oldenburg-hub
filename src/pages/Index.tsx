@@ -117,7 +117,7 @@ const Index = () => {
   return (
     <WebsiteLayout>
       {/* Hero Section with Video and Glass Effect */}
-      <section className="relative min-h-[70vh] sm:min-h-[80vh] md:min-h-screen flex items-center justify-center overflow-hidden w-full">
+      <section className="relative min-h-[85vh] sm:min-h-[80vh] md:min-h-screen flex items-center justify-center overflow-hidden w-full">
         {/* Video Background */}
         <div className="absolute inset-0 z-0 w-full">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary-dark/90 to-secondary/80 z-10"></div>
@@ -129,68 +129,67 @@ const Index = () => {
           <div className="absolute -bottom-4 sm:-bottom-8 left-20 sm:left-40 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '4s' }}></div>
         </div>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full max-w-7xl">
+        <div className="container mx-auto px-6 sm:px-6 lg:px-8 relative z-20 w-full max-w-7xl">
           <div className="w-full">
-            <div className="grid lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center w-full">
+            <div className="grid lg:grid-cols-2 gap-8 md:gap-8 lg:gap-12 items-center w-full">
               {/* Left Content */}
-              <div className="space-y-6 sm:space-y-8">
+              <div className="space-y-8 sm:space-y-8">
                 <ScrollReveal animation="fade-right" delay={0}>
-                  <Badge className="bg-white/10 backdrop-blur-md border-white/20 text-white text-sm sm:text-base px-4 sm:px-6 py-1.5 sm:py-2">
-                    <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mr-2 inline" />
-                    Ihr Partner für digitale Excellence
+                  <Badge className="bg-white/10 backdrop-blur-md border-white/20 text-white text-base sm:text-base px-5 sm:px-6 py-2 sm:py-2 inline-flex items-center">
+                    <Sparkles className="h-4 w-4 sm:h-4 sm:w-4 mr-2" />
+                    <span className="font-medium">Ihr Partner für digitale Excellence</span>
                   </Badge>
                 </ScrollReveal>
                 
-                <div className="space-y-2 sm:space-y-3 max-w-full">
+                <div className="space-y-3 sm:space-y-3 max-w-full">
                   <ScrollReveal animation="fade-left" delay={150}>
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-tight break-words">
+                    <h1 className="text-4xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-tight break-words">
                       Digitale
                     </h1>
                   </ScrollReveal>
                   <ScrollReveal animation="fade-right" delay={300}>
-                    <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text text-transparent break-words">
+                    <span className="block text-4xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text text-transparent break-words">
                       Transformation
                     </span>
                   </ScrollReveal>
                   <ScrollReveal animation="fade-left" delay={450}>
-                    <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white/90 break-words">neu definiert</span>
+                    <span className="block text-4xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white/90 break-words">neu definiert</span>
                   </ScrollReveal>
                 </div>
                 
                 <ScrollReveal animation="fade-right" delay={600}>
-                  <p className="text-base sm:text-lg md:text-xl text-white/80 leading-relaxed max-w-full lg:max-w-2xl break-words">
+                  <p className="text-lg sm:text-lg md:text-xl text-white/85 leading-relaxed max-w-full lg:max-w-2xl break-words font-light">
                     Wir verwandeln Ihre Visionen in leistungsstarke digitale Lösungen. 
                     Von modernen Websites über CRM-Systeme bis hin zu Smart Home Automation.
                   </p>
                 </ScrollReveal>
                 
                 {/* Stats with Glass Effect */}
-                <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                <div className="grid grid-cols-3 gap-3 sm:gap-4">
                   {stats.map((stat, index) => (
                     <ScrollReveal key={index} animation="scale-in" delay={750 + (index * 100)}>
-                      <div className="glass-card p-3 sm:p-4 text-center">
-                        <stat.icon className="h-6 w-6 sm:h-8 sm:w-8 text-secondary mx-auto mb-1 sm:mb-2" />
-                        <div className="text-xl sm:text-2xl md:text-3xl font-black text-white">{stat.number}</div>
-                        <div className="text-[10px] sm:text-sm text-white/70">{stat.label}</div>
+                      <div className="glass-card p-4 sm:p-4 text-center">
+                        <stat.icon className="h-7 w-7 sm:h-8 sm:w-8 text-secondary mx-auto mb-2 sm:mb-2" />
+                        <div className="text-2xl sm:text-2xl md:text-3xl font-black text-white">{stat.number}</div>
+                        <div className="text-xs sm:text-sm text-white/70 leading-tight mt-1">{stat.label}</div>
                       </div>
                     </ScrollReveal>
                   ))}
                 </div>
                 
                 <ScrollReveal animation="fade-left" delay={1100}>
-                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                    <Button asChild size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 shadow-xl text-sm sm:text-base touch-manipulation">
-                      <Link to="/contact">
-                        <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                        <span className="hidden sm:inline">Kostenloses Beratungsgespräch</span>
-                        <span className="sm:hidden">Beratung</span>
-                        <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-2" />
+                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-4">
+                    <Button asChild size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 shadow-xl text-base sm:text-base touch-manipulation h-14 sm:h-12">
+                      <Link to="/contact" className="flex items-center justify-center">
+                        <MessageCircle className="h-5 w-5 sm:h-5 sm:w-5 mr-2" />
+                        <span className="font-semibold">Kostenloses Beratungsgespräch</span>
+                        <ArrowRight className="h-4 w-4 sm:h-4 sm:w-4 ml-2" />
                       </Link>
                     </Button>
-                    <Button asChild size="lg" variant="outline" className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10 backdrop-blur-md text-sm sm:text-base touch-manipulation">
-                      <Link to="/portfolio">
+                    <Button asChild size="lg" variant="outline" className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10 backdrop-blur-md text-base sm:text-base touch-manipulation h-14 sm:h-12">
+                      <Link to="/portfolio" className="flex items-center justify-center">
                         <Monitor className="h-5 w-5 mr-2" />
-                        Portfolio ansehen
+                        <span className="font-semibold">Portfolio ansehen</span>
                       </Link>
                     </Button>
                   </div>
@@ -218,27 +217,27 @@ const Index = () => {
       </section>
 
       {/* Services Section */}
-      <section className="py-12 sm:py-16 md:py-20 bg-muted/30 relative w-full overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
-          <div className="text-center mb-12 sm:mb-16">
+      <section className="py-16 sm:py-16 md:py-20 bg-muted/30 relative w-full overflow-hidden">
+        <div className="container mx-auto px-6 sm:px-6 lg:px-8 max-w-7xl w-full">
+          <div className="text-center mb-16 sm:mb-16">
             <ScrollReveal animation="fade-up">
-              <Badge className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-primary/10 text-primary border-primary/20">
+              <Badge className="mb-4 sm:mb-4 px-4 sm:px-4 py-2 sm:py-2 text-sm sm:text-sm bg-primary/10 text-primary border-primary/20 font-medium">
                 Unsere Services
               </Badge>
             </ScrollReveal>
             <ScrollReveal animation="fade-left" delay={100}>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-4 px-4">
                 Was wir für Sie <span className="text-primary">tun können</span>
               </h2>
             </ScrollReveal>
             <ScrollReveal animation="fade-right" delay={200}>
-              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-lg sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
                 Von Webdesign bis Smart Home - wir bieten umfassende digitale Lösungen
               </p>
             </ScrollReveal>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-6">
             {services.map((service, index) => (
               <ScrollReveal key={index} animation="fade-up" delay={index * 100}>
                 <Card className="glass-card h-full group hover:scale-105 transition-all duration-300 overflow-hidden touch-manipulation">

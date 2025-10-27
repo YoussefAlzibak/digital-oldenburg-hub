@@ -120,13 +120,13 @@ const Index = () => {
       <section className="relative min-h-[70vh] sm:min-h-[80vh] md:min-h-screen flex items-center justify-center overflow-hidden w-full">
         {/* Video Background */}
         <div className="absolute inset-0 z-0 w-full">
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-900/90 via-purple-900/90 to-indigo-900/90 z-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary-dark/90 to-secondary/80 z-10"></div>
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2djRoNHYtNGgtNHptMCA4djRoNHYtNGgtNHptLTQgOHY0aDR2LTRoLTR6bS04IDB2NGg0di00aC00em0tOC04djRoNHYtNGgtNHptMC00djRoNHYtNGgtNHptOC04djRoNHYtNGgtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20 z-0"></div>
           
           {/* Animated orbs */}
-          <div className="absolute top-10 sm:top-20 left-10 sm:left-20 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-violet-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
-          <div className="absolute top-20 sm:top-40 right-10 sm:right-20 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute -bottom-4 sm:-bottom-8 left-20 sm:left-40 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '4s' }}></div>
+          <div className="absolute top-10 sm:top-20 left-10 sm:left-20 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
+          <div className="absolute top-20 sm:top-40 right-10 sm:right-20 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute -bottom-4 sm:-bottom-8 left-20 sm:left-40 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '4s' }}></div>
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full max-w-7xl">
@@ -148,7 +148,7 @@ const Index = () => {
                     </h1>
                   </ScrollReveal>
                   <ScrollReveal animation="fade-right" delay={300}>
-                    <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black bg-gradient-to-r from-cyan-400 via-violet-400 to-orange-400 bg-clip-text text-transparent break-words">
+                    <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text text-transparent break-words">
                       Transformation
                     </span>
                   </ScrollReveal>
@@ -169,7 +169,7 @@ const Index = () => {
                   {stats.map((stat, index) => (
                     <ScrollReveal key={index} animation="scale-in" delay={750 + (index * 100)}>
                       <div className="glass-card p-3 sm:p-4 text-center">
-                        <stat.icon className="h-6 w-6 sm:h-8 sm:w-8 text-cyan-400 mx-auto mb-1 sm:mb-2" />
+                        <stat.icon className="h-6 w-6 sm:h-8 sm:w-8 text-secondary mx-auto mb-1 sm:mb-2" />
                         <div className="text-xl sm:text-2xl md:text-3xl font-black text-white">{stat.number}</div>
                         <div className="text-[10px] sm:text-sm text-white/70">{stat.label}</div>
                       </div>
@@ -179,7 +179,7 @@ const Index = () => {
                 
                 <ScrollReveal animation="fade-left" delay={1100}>
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                    <Button asChild size="lg" className="w-full sm:w-auto bg-white text-violet-900 hover:bg-white/90 shadow-xl text-sm sm:text-base touch-manipulation">
+                    <Button asChild size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 shadow-xl text-sm sm:text-base touch-manipulation">
                       <Link to="/contact">
                         <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                         <span className="hidden sm:inline">Kostenloses Beratungsgespräch</span>
@@ -208,8 +208,8 @@ const Index = () => {
                     />
                   </div>
                   {/* Floating elements */}
-                  <div className="absolute -top-4 sm:-top-6 -right-4 sm:-right-6 w-16 sm:w-24 h-16 sm:h-24 bg-cyan-500 rounded-2xl blur-2xl opacity-50 animate-float"></div>
-                  <div className="absolute -bottom-4 sm:-bottom-6 -left-4 sm:-left-6 w-16 sm:w-24 h-16 sm:h-24 bg-violet-500 rounded-2xl blur-2xl opacity-50 animate-float" style={{ animationDelay: '1s' }}></div>
+                  <div className="absolute -top-4 sm:-top-6 -right-4 sm:-right-6 w-16 sm:w-24 h-16 sm:h-24 bg-secondary rounded-2xl blur-2xl opacity-50 animate-float"></div>
+                  <div className="absolute -bottom-4 sm:-bottom-6 -left-4 sm:-left-6 w-16 sm:w-24 h-16 sm:h-24 bg-primary rounded-2xl blur-2xl opacity-50 animate-float" style={{ animationDelay: '1s' }}></div>
                 </div>
               </ScrollReveal>
             </div>
@@ -299,7 +299,7 @@ const Index = () => {
             {benefits.map((benefit, index) => (
               <ScrollReveal key={index} animation="scale-in" delay={index * 100}>
                 <Card className="glass-card p-4 sm:p-6 text-center group hover:scale-105 transition-all touch-manipulation">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto rounded-full bg-gradient-to-br from-violet-500 to-purple-600 p-3 sm:p-4 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto rounded-full bg-gradient-to-br from-primary to-primary-dark p-3 sm:p-4 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
                     <benefit.icon className="w-full h-full text-white" />
                   </div>
                   <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1.5 sm:mb-2">{benefit.title}</h3>

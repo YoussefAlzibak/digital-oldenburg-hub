@@ -117,7 +117,7 @@ const Index = () => {
   return (
     <WebsiteLayout>
       {/* Hero Section with Video and Glass Effect */}
-      <section className="relative min-h-[85vh] sm:min-h-[80vh] md:min-h-screen flex items-center justify-center overflow-hidden w-full">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden w-full py-16 sm:py-20 md:py-0">
         {/* Video Background */}
         <div className="absolute inset-0 z-0 w-full">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary-dark/90 to-secondary/80 z-10"></div>
@@ -129,11 +129,11 @@ const Index = () => {
           <div className="absolute -bottom-4 sm:-bottom-8 left-20 sm:left-40 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '4s' }}></div>
         </div>
 
-        <div className="container mx-auto px-6 sm:px-6 lg:px-8 relative z-20 w-full max-w-7xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full max-w-7xl">
           <div className="w-full">
-            <div className="grid lg:grid-cols-2 gap-8 md:gap-8 lg:gap-12 items-center w-full">
+            <div className="grid lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center w-full">
               {/* Left Content */}
-              <div className="space-y-8 sm:space-y-8">
+              <div className="space-y-6 sm:space-y-8">
                 <ScrollReveal animation="fade-right" delay={0}>
                   <Badge className="bg-white/10 backdrop-blur-md border-white/20 text-white text-base sm:text-base px-5 sm:px-6 py-2 sm:py-2 inline-flex items-center">
                     <Sparkles className="h-4 w-4 sm:h-4 sm:w-4 mr-2" />
@@ -141,26 +141,25 @@ const Index = () => {
                   </Badge>
                 </ScrollReveal>
                 
-                <div className="space-y-3 sm:space-y-3 max-w-full">
+                <div className="space-y-2 sm:space-y-3 max-w-full">
                   <ScrollReveal animation="fade-left" delay={150}>
-                    <h1 className="text-4xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-tight break-words">
-                      Digitale
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white leading-[1.1] break-words">
+                      Erstkontakt
                     </h1>
                   </ScrollReveal>
                   <ScrollReveal animation="fade-right" delay={300}>
-                    <span className="block text-4xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text text-transparent break-words">
-                      Transformation
+                    <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text text-transparent leading-[1.1] break-words">
+                      Vertrauen
                     </span>
                   </ScrollReveal>
                   <ScrollReveal animation="fade-left" delay={450}>
-                    <span className="block text-4xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white/90 break-words">neu definiert</span>
+                    <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white/90 leading-[1.1] break-words">Loyalität</span>
                   </ScrollReveal>
                 </div>
                 
                 <ScrollReveal animation="fade-right" delay={600}>
-                  <p className="text-lg sm:text-lg md:text-xl text-white/85 leading-relaxed max-w-full lg:max-w-2xl break-words font-light">
-                    Wir verwandeln Ihre Visionen in leistungsstarke digitale Lösungen. 
-                    Von modernen Websites über CRM-Systeme bis hin zu Smart Home Automation.
+                  <p className="text-base sm:text-lg md:text-xl text-white/90 leading-relaxed max-w-full lg:max-w-2xl break-words">
+                    Der erste Eindruck zählt. Wir schaffen digitale Erlebnisse, die Vertrauen aufbauen und langfristige Kundenbeziehungen fördern – vom ersten Klick bis zur dauerhaften Loyalität.
                   </p>
                 </ScrollReveal>
                 
@@ -178,18 +177,18 @@ const Index = () => {
                 </div>
                 
                 <ScrollReveal animation="fade-left" delay={1100}>
-                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-4">
-                    <Button asChild size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 shadow-xl text-base sm:text-base touch-manipulation h-14 sm:h-12">
-                      <Link to="/contact" className="flex items-center justify-center">
-                        <MessageCircle className="h-5 w-5 sm:h-5 sm:w-5 mr-2" />
-                        <span className="font-semibold">Kostenloses Beratungsgespräch</span>
-                        <ArrowRight className="h-4 w-4 sm:h-4 sm:w-4 ml-2" />
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                    <Button asChild size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 shadow-xl text-base sm:text-lg touch-manipulation h-12 sm:h-14 px-6 sm:px-8">
+                      <Link to="/contact" className="flex items-center justify-center gap-2">
+                        <MessageCircle className="h-5 w-5" />
+                        <span className="font-semibold">Beratungsgespräch</span>
+                        <ArrowRight className="h-4 w-4" />
                       </Link>
                     </Button>
-                    <Button asChild size="lg" variant="outline" className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10 backdrop-blur-md text-base sm:text-base touch-manipulation h-14 sm:h-12">
-                      <Link to="/portfolio" className="flex items-center justify-center">
-                        <Monitor className="h-5 w-5 mr-2" />
-                        <span className="font-semibold">Portfolio ansehen</span>
+                    <Button asChild size="lg" variant="outline" className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10 backdrop-blur-md text-base sm:text-lg touch-manipulation h-12 sm:h-14 px-6 sm:px-8">
+                      <Link to="/portfolio" className="flex items-center justify-center gap-2">
+                        <Monitor className="h-5 w-5" />
+                        <span className="font-semibold">Portfolio</span>
                       </Link>
                     </Button>
                   </div>

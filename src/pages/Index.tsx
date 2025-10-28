@@ -163,20 +163,7 @@ const Index = () => {
                   </p>
                 </ScrollReveal>
                 
-                {/* Stats with Glass Effect */}
-                <div className="grid grid-cols-3 gap-3 sm:gap-4">
-                  {stats.map((stat, index) => (
-                    <ScrollReveal key={index} animation="scale-in" delay={750 + (index * 100)}>
-                      <div className="glass-card p-4 sm:p-4 text-center">
-                        <stat.icon className="h-7 w-7 sm:h-8 sm:w-8 text-secondary mx-auto mb-2 sm:mb-2" />
-                        <div className="text-2xl sm:text-2xl md:text-3xl font-black text-white">{stat.number}</div>
-                        <div className="text-xs sm:text-sm text-white/70 leading-tight mt-1">{stat.label}</div>
-                      </div>
-                    </ScrollReveal>
-                  ))}
-                </div>
-                
-                <ScrollReveal animation="fade-left" delay={1100}>
+                <ScrollReveal animation="fade-left" delay={800}>
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                     <Button asChild size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 shadow-xl text-base sm:text-lg touch-manipulation h-12 sm:h-14 px-6 sm:px-8">
                       <Link to="/contact" className="flex items-center justify-center gap-2">

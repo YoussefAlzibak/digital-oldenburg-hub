@@ -47,7 +47,7 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
                   <span className="text-xl sm:text-xl md:text-2xl lg:text-3xl font-black text-[hsl(var(--brand-secondary))] tracking-tight">Unicum</span>
                   <span className="text-xl sm:text-xl md:text-2xl lg:text-3xl font-light text-[hsl(var(--brand-primary))] tracking-tight">Tech</span>
                 </div>
-                <div className="text-[9px] sm:text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Digital Excellence</div>
+                <div className="text-[9px] sm:text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Melyou</div>
               </div>
             </div>
             

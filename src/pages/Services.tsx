@@ -24,6 +24,7 @@ import serviceEmail from "@/assets/service-email.webp";
 import serviceBooking from "@/assets/service-booking.webp";
 import serviceMobile from "@/assets/service-mobile.webp";
 import serviceBranding from "@/assets/service-branding.webp";
+import heroServices from "@/assets/hero-services.webp";
 
 const services = [
   {
@@ -126,13 +127,16 @@ export default function Services() {
   return (
     <WebsiteLayout>
       <div className="min-h-screen bg-background">
-        {/* Hero Section with Glass Effect */}
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900">
-          {/* Animated Background */}
-          <div className="absolute inset-0">
-            <div className="absolute top-10 sm:top-20 left-10 sm:left-20 w-48 sm:w-72 h-48 sm:h-72 bg-violet-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
-            <div className="absolute top-20 sm:top-40 right-10 sm:right-20 w-48 sm:w-72 h-48 sm:h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '2s' }}></div>
-            <div className="absolute -bottom-4 sm:-bottom-8 left-20 sm:left-40 w-48 sm:w-72 h-48 sm:h-72 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '4s' }}></div>
+        {/* Hero Section */}
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+          {/* Image Background */}
+          <div className="absolute inset-0 z-0">
+            <img 
+              src={heroServices} 
+              alt="Digital Services" 
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary-dark/85 to-secondary/80"></div>
           </div>
 
           <div className="container relative z-10 px-4 sm:px-6 py-12 sm:py-16 md:py-20 text-center">

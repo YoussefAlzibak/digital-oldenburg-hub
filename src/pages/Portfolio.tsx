@@ -9,6 +9,7 @@ import portfolioEcommerce from "@/assets/portfolio-ecommerce.webp";
 import portfolioMobile from "@/assets/portfolio-mobile.webp";
 import portfolioSaas from "@/assets/portfolio-saas.webp";
 import portfolioSmarthome from "@/assets/portfolio-smarthome.webp";
+import heroPortfolio from "@/assets/hero-portfolio.webp";
 import { WebsiteLayout } from "@/components/WebsiteLayout";
 
 const Portfolio = () => {
@@ -75,7 +76,14 @@ const Portfolio = () => {
     <WebsiteLayout>
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-background"></div>
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={heroPortfolio} 
+            alt="Portfolio Projects" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary-dark/85 to-secondary/80"></div>
+        </div>
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
             <ScrollReveal animation="fade-up">

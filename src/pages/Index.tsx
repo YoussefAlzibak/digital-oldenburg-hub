@@ -118,9 +118,9 @@ const Index = () => {
     <WebsiteLayout>
       {/* Hero Section with Video and Glass Effect */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden w-full py-16 sm:py-20 md:py-0">
-        {/* Video Background */}
+        {/* Image Background */}
         <div className="absolute inset-0 z-0 w-full">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary-dark/90 to-secondary/80 z-10"></div>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-10"></div>
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2djRoNHYtNGgtNHptMCA4djRoNHYtNGgtNHptLTQgOHY0aDR2LTRoLTR6bS04IDB2NGg0di00aC00em0tOC04djRoNHYtNGgtNHptMC00djRoNHYtNGgtNHptOC04djRoNHYtNGgtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20 z-0"></div>
           
           {/* Animated orbs */}

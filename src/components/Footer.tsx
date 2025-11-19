@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import NewsletterSignup from "@/components/NewsletterSignup";
 import { 
   Instagram, 
   Facebook, 
@@ -13,11 +12,6 @@ import {
 } from "lucide-react";
 
 export function Footer() {
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Newsletter logic here
-  };
-
   return (
     <footer className="relative mt-20 bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900 overflow-hidden w-full">
       {/* Animated Background */}
@@ -80,20 +74,9 @@ export function Footer() {
               <p className="text-white/70 text-xs sm:text-sm mb-3 sm:mb-4">
                 Bleiben Sie auf dem Laufenden mit unseren neuesten Web-Lösungen!
               </p>
-              <form onSubmit={handleNewsletterSubmit} className="space-y-2">
-                <Input 
-                  type="email" 
-                  placeholder="Ihre E-Mail" 
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-                  required
-                />
-                <Button 
-                  type="submit" 
-                  className="w-full bg-white text-violet-900 hover:bg-white/90"
-                >
-                  Abonnieren
-                </Button>
-              </form>
+              <div className="newsletter-wrapper [&_.card]:bg-white/5 [&_.card]:backdrop-blur-md [&_.card]:border-white/10 [&_.card-header]:hidden [&_input]:bg-white/10 [&_input]:border-white/20 [&_input]:text-white [&_input]:placeholder:text-white/50 [&_input]:text-xs [&_input]:sm:text-sm [&_button]:w-full [&_button]:bg-white [&_button]:text-purple-900 [&_button]:hover:bg-white/90 [&_button]:text-xs [&_button]:sm:text-sm">
+                <NewsletterSignup />
+              </div>
             </div>
           </ScrollReveal>
 

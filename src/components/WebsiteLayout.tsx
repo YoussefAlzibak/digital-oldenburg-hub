@@ -22,16 +22,8 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background pb-24 sm:pb-0 overflow-x-hidden w-full max-w-[100vw]">
-      {/* Enhanced Header with Geometric Figures */}
+      {/* Enhanced Header */}
       <header className="header-enhanced fixed top-0 w-full z-50 touch-manipulation">
-        <div className="header-geometric-bg">
-          <div className="header-shape header-hexagon-1"></div>
-          <div className="header-shape header-triangle-1"></div>
-          <div className="header-shape header-diamond-1"></div>
-          <div className="header-shape header-circle-1"></div>
-          <div className="header-shape header-square-1"></div>
-        </div>
-        
         <div className="container mx-auto px-4 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-4 md:py-5 relative z-10 max-w-7xl w-full">
           <div className="flex items-center justify-between gap-3 sm:gap-4">
             <div className="flex items-center space-x-3 sm:space-x-3 md:space-x-4 animate-fade-left">

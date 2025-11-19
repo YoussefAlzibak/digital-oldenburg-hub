@@ -947,7 +947,7 @@ export type Database = {
     }
     Functions: {
       get_google_calendar_settings: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           auto_sync: boolean
           buffer_minutes: number
@@ -969,14 +969,8 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
-      process_renewal_tasks: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      is_admin: { Args: { user_id: string }; Returns: boolean }
+      process_renewal_tasks: { Args: never; Returns: number }
       save_google_calendar_settings: {
         Args: {
           p_auto_sync: boolean

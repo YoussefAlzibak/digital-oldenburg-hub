@@ -136,7 +136,7 @@ export default function Services() {
               alt="Digital Services" 
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary-dark/85 to-secondary/80"></div>
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
           </div>
 
           <div className="container relative z-10 px-4 sm:px-6 py-12 sm:py-16 md:py-20 text-center">

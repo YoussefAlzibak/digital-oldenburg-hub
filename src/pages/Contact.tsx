@@ -13,6 +13,7 @@ import ConsultationRequestForm from "@/components/ConsultationRequestForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { WebsiteLayout } from "@/components/WebsiteLayout";
+import heroContact from "@/assets/hero-contact.webp";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -168,8 +169,16 @@ const Contact = () => {
   return (
     <WebsiteLayout>
       {/* Hero Section */}
-      <section className="pt-32 pb-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-background"></div>
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={heroContact} 
+            alt="Contact Us" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
+        </div>
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
             <ScrollReveal animation="fade-up">

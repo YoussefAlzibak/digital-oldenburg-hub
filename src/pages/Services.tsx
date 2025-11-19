@@ -127,7 +127,7 @@ export default function Services() {
     <WebsiteLayout>
       <div className="min-h-screen bg-background">
         {/* Hero Section with Glass Effect */}
-        <section className="relative min-h-[50vh] sm:min-h-[60vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900">
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900">
           {/* Animated Background */}
           <div className="absolute inset-0">
             <div className="absolute top-10 sm:top-20 left-10 sm:left-20 w-48 sm:w-72 h-48 sm:h-72 bg-violet-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>

@@ -17,18 +17,29 @@ export default function AdminRoutes() {
   return (
     <DashboardLayout>
       <Routes>
+        {/* Dashboard Overview */}
         <Route path="/" element={<Overview />} />
+        
+        {/* Customer Management */}
         <Route path="/requests" element={<Requests />} />
         <Route path="/appointments" element={<Appointments />} />
+        
+        {/* Calendar & Scheduling */}
         <Route path="/calendar" element={<Calendar />} />
-        <Route path="/analytics" element={<Analytics />} />
+        <Route path="/calendar-settings" element={<CalendarSettings />} />
+        <Route path="/renewals" element={<Renewals />} />
+        
+        {/* Email Marketing */}
         <Route path="/subscribers" element={<Subscribers />} />
-        <Route path="/email-settings" element={<EmailSettings />} />
         <Route path="/email-marketing" element={<EmailMarketing />} />
         <Route path="/campaigns" element={<Campaigns />} />
         <Route path="/automations" element={<Automations />} />
-        <Route path="/renewals" element={<Renewals />} />
-        <Route path="/calendar-settings" element={<CalendarSettings />} />
+        
+        {/* Settings */}
+        <Route path="/email-settings" element={<EmailSettings />} />
+        
+        {/* Analytics */}
+        <Route path="/analytics" element={<Analytics />} />
       </Routes>
     </DashboardLayout>
   );

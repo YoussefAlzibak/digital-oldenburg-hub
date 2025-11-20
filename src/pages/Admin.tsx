@@ -18,20 +18,25 @@ export default function Admin() {
           return;
         }
 
-        // Check if user is admin
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', session.user.id)
-          .single();
+        // SECURITY: Check admin role via user_roles table using RPC function
+        const { data: isAdmin, error } = await supabase
+          .rpc('is_admin', { user_id: session.user.id });
 
-        if (error || !profile?.is_admin) {
+        if (error) {
+          console.error('Error checking admin status:', error);
+          navigate('/auth');
+          return;
+        }
+
+        if (!isAdmin) {
+          console.warn('Unauthorized access attempt to admin panel');
           navigate('/auth');
           return;
         }
 
         setIsAuthenticated(true);
       } catch (error) {
+        console.error('Authentication error:', error);
         navigate('/auth');
       } finally {
         setLoading(false);

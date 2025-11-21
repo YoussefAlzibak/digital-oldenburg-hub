@@ -37,21 +37,6 @@ export default function Reviews() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadReviews();
-
-    const channel = supabase
-      .channel('reviews-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'customer_reviews' }, () => {
-        loadReviews();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
   const loadReviews = async () => {
     try {
       const { data, error } = await supabase
@@ -73,6 +58,21 @@ export default function Reviews() {
     }
   };
 
+  useEffect(() => {
+    loadReviews();
+
+    const channel = supabase
+      .channel('reviews-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'customer_reviews' }, () => {
+        loadReviews();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const toggleApproval = async (id: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
@@ -86,6 +86,7 @@ export default function Reviews() {
         title: "Erfolg",
         description: `Bewertung wurde ${!currentStatus ? 'genehmigt' : 'abgelehnt'}.`
       });
+      loadReviews();
     } catch (error) {
       console.error('Fehler beim Aktualisieren:', error);
       toast({
@@ -109,6 +110,7 @@ export default function Reviews() {
         title: "Erfolg",
         description: `Bewertung wurde ${!currentStatus ? 'hervorgehoben' : 'nicht mehr hervorgehoben'}.`
       });
+      loadReviews();
     } catch (error) {
       console.error('Fehler beim Aktualisieren:', error);
       toast({
@@ -132,6 +134,7 @@ export default function Reviews() {
         title: "Erfolg",
         description: `Bewertung ist jetzt ${!currentStatus ? 'öffentlich' : 'privat'}.`
       });
+      loadReviews();
     } catch (error) {
       console.error('Fehler beim Aktualisieren:', error);
       toast({
@@ -158,6 +161,7 @@ export default function Reviews() {
         description: "Bewertung wurde gelöscht."
       });
       setDeleteId(null);
+      loadReviews();
     } catch (error) {
       console.error('Fehler beim Löschen:', error);
       toast({
@@ -176,7 +180,7 @@ export default function Reviews() {
             key={star}
             className={`h-4 w-4 ${
               star <= rating
-                ? "fill-[hsl(var(--brand-accent))] text-[hsl(var(--brand-accent))]"
+                ? "fill-yellow-400 text-yellow-400"
                 : "text-muted-foreground"
             }`}
           />
@@ -199,7 +203,11 @@ export default function Reviews() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-[400px]">Laden...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="text-muted-foreground">Laden...</div>
+      </div>
+    );
   }
 
   const stats = {
@@ -265,7 +273,7 @@ export default function Reviews() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     {review.company && <span>{review.company}</span>}
-                    <span>•</span>
+                    {review.company && <span>•</span>}
                     <span>{review.service_type}</span>
                     <span>•</span>
                     <span>{new Date(review.review_date).toLocaleDateString('de-DE')}</span>

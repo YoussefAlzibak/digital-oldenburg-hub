@@ -12,6 +12,7 @@ import Campaigns from "@/pages/dashboard/Campaigns";
 import Renewals from "@/pages/dashboard/Renewals";
 import CalendarSettings from "@/pages/dashboard/CalendarSettings";
 import Automations from "@/pages/dashboard/Automations";
+import Reviews from "@/pages/dashboard/Reviews";
 
 export default function AdminRoutes() {
   return (
@@ -37,6 +38,9 @@ export default function AdminRoutes() {
         
         {/* Settings */}
         <Route path="/email-settings" element={<EmailSettings />} />
+        
+        {/* Reviews */}
+        <Route path="/reviews" element={<Reviews />} />
         
         {/* Analytics */}
         <Route path="/analytics" element={<Analytics />} />

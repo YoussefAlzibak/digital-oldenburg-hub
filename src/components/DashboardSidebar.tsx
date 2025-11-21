@@ -12,7 +12,8 @@ import {
   Shield,
   ArrowLeft,
   LogOut,
-  Send
+  Send,
+  Star
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -35,6 +36,7 @@ const mainItems = [
   { title: "Übersicht", url: "/admin", icon: Home, exact: true },
   { title: "Anfragen", url: "/admin/requests", icon: Users },
   { title: "Termine", url: "/admin/appointments", icon: CalendarDays },
+  { title: "Bewertungen", url: "/admin/reviews", icon: Star },
   { title: "Kalender", url: "/admin/calendar", icon: Calendar },
   { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
 ];

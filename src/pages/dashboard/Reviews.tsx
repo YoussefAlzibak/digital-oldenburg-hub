@@ -71,6 +71,7 @@ export default function Reviews() {
     return () => {
       supabase.removeChannel(channel);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggleApproval = async (id: string, currentStatus: boolean) => {

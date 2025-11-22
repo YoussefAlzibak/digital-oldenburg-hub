@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -37,7 +37,7 @@ export default function Reviews() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const loadReviews = async () => {
+  const loadReviews = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('customer_reviews')
@@ -56,7 +56,7 @@ export default function Reviews() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     loadReviews();
@@ -71,8 +71,7 @@ export default function Reviews() {
     return () => {
       supabase.removeChannel(channel);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadReviews]);
 
   const toggleApproval = async (id: string, currentStatus: boolean) => {
     try {

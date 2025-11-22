@@ -39,26 +39,6 @@ const About = () => {
     { number: "24/7", label: "Support verfügbar" }
   ];
 
-  const team = [
-    {
-      name: "Max Mustermann",
-      role: "CEO & Frontend Developer",
-      description: "Spezialist für moderne Web-Technologien und User Experience",
-      image: teamImage
-    },
-    {
-      name: "Anna Schmidt",
-      role: "Backend Developer",
-      description: "Expertin für skalierbare Architekturen und Cloud-Lösungen",
-      image: teamImage
-    },
-    {
-      name: "Tom Weber",
-      role: "UI/UX Designer",
-      description: "Kreativkopf für ansprechende und benutzerfreundliche Designs",
-      image: teamImage
-    }
-  ];
 
   return (
     <WebsiteLayout>
@@ -200,45 +180,6 @@ const About = () => {
                     </div>
                     <h3 className="text-xl font-semibold mb-3">{value.title}</h3>
                     <p className="text-muted-foreground">{value.description}</p>
-                  </CardContent>
-                </Card>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Team Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <ScrollReveal animation="fade-left">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Unser Team</h2>
-            </ScrollReveal>
-            <ScrollReveal animation="fade-right" delay={150}>
-              <p className="text-xl text-muted-foreground">
-                Lernen Sie die Menschen hinter Digital Solutions kennen
-              </p>
-            </ScrollReveal>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {team.map((member, index) => (
-              <ScrollReveal key={index} animation="fade-up" delay={index * 150}>
-                <Card className="glass-card group hover:scale-105 transition-all duration-300 overflow-hidden">
-                  <div className="relative">
-                    <img 
-                      src={member.image} 
-                      alt={member.name}
-                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  </div>
-                  
-                  <CardContent className="p-6">
-                    <h3 className="text-xl font-semibold mb-1">{member.name}</h3>
-                    <p className="text-primary font-medium mb-3">{member.role}</p>
-                    <p className="text-muted-foreground text-sm">{member.description}</p>
                   </CardContent>
                 </Card>
               </ScrollReveal>

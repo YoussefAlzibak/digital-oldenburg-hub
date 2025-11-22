@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { ArrowRight, Heart, Lightbulb, Shield, Users, Target } from "lucide-react";
 import { Link } from "react-router-dom";
-import teamImage from "@/assets/team-image.webp";
 import heroAbout from "@/assets/hero-about.webp";
 import { WebsiteLayout } from "@/components/WebsiteLayout";
 
@@ -118,7 +117,7 @@ const About = () => {
               <div className="relative">
                 <div className="glass-card p-2 rounded-3xl">
                   <img 
-                    src={teamImage} 
+                    src={heroAbout} 
                     alt="Unser Team"
                     className="rounded-2xl w-full h-96 object-cover"
                   />

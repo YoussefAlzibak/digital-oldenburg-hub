@@ -69,9 +69,7 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
               }`}>
                 Kontakt
               </Link>
-              <Link to="/auth" className="text-xs font-medium text-foreground/60 hover:text-primary transition-colors">
-                Admin
-              </Link>
+              {/* Admin Link intentionally hidden; access only via direct URL */}
               <ThemeToggle />
               <Link to="/contact" className="ml-4">
                 <button className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
@@ -102,10 +100,7 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
                 <MessageCircle className="nav-icon h-4 w-4" />
                 <span className="hidden xl:inline">Kontakt</span>
               </Link>
-              <Link to="/auth" className="nav-link text-xs opacity-60 hover:opacity-100 touch-manipulation">
-                <Shield className="nav-icon h-3 w-3" />
-                <span className="hidden xl:inline">Admin</span>
-              </Link>
+              {/* Admin Link intentionally hidden; access only via direct URL */}
               <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-primary/5 border border-primary/10">
                 <ThemeToggle />
               </div>

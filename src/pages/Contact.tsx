@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { ArrowRight, Mail, Phone, MapPin, Clock, MessageCircle, Send, Video, User, Calendar, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import ConsultationRequestForm from "@/components/ConsultationRequestForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -77,7 +77,7 @@ const Contact = () => {
     "Über 50.000€"
   ];
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 

@@ -35,19 +35,19 @@ const Contact = () => {
     {
       icon: <Mail className="h-6 w-6" />,
       title: "E-Mail",
-      content: "hello@digitalsolutions.de",
+      content: "info@unicum-tech.com",
       description: "Wir antworten innerhalb von 24 Stunden"
     },
     {
       icon: <Phone className="h-6 w-6" />,
       title: "Telefon",
-      content: "+49 (0) 123 456 789",
+      content: "+49 1706666809",
       description: "Mo-Fr: 9:00 - 18:00 Uhr"
     },
     {
       icon: <MapPin className="h-6 w-6" />,
       title: "Adresse",
-      content: "Musterstraße 123, 12345 München",
+      content: "Hirschberger Straße 30, 26135 Oldenburg",
       description: "Besuchen Sie uns gerne vor Ort"
     },
     {
@@ -416,13 +416,13 @@ const Contact = () => {
                       </Link>
                     </Button>
                     <Button variant="outline" size="lg" className="w-full justify-start" asChild>
-                      <a href="tel:+491234567890">
+                      <a href="tel:+491706666809">
                         <Phone className="h-5 w-5 mr-3" />
                         Sofort anrufen
                       </a>
                     </Button>
                     <Button variant="outline" size="lg" className="w-full justify-start" asChild>
-                      <a href="mailto:hello@digitalsolutions.de">
+                      <a href="mailto:info@unicum-tech.com">
                         <Mail className="h-5 w-5 mr-3" />
                         E-Mail schreiben
                       </a>

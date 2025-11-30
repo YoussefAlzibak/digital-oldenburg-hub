@@ -23,6 +23,9 @@ export default {
 				heading: ['Space Grotesk', 'Inter', 'sans-serif'],
 			},
 			colors: {
+				'brand-primary': 'hsl(var(--brand-primary))',
+				'brand-secondary': 'hsl(var(--brand-secondary))',
+				'brand-accent': 'hsl(var(--brand-accent))',
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

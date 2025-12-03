@@ -45,34 +45,34 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
             
             <nav className="hidden md:flex lg:hidden items-center space-x-4 md:space-x-6">
               <Link to="/" className={`text-xs md:text-sm font-medium transition-colors touch-manipulation ${
-                isActive('/') ? 'text-primary' : 'text-foreground/80 hover:text-primary active:text-primary'
+                isActive('/') ? 'text-secondary font-semibold' : 'text-foreground hover:text-secondary active:text-secondary'
               }`}>
                 Home
               </Link>
               <Link to="/services" className={`text-xs md:text-sm font-medium transition-colors touch-manipulation ${
-                isActive('/services') ? 'text-primary' : 'text-foreground/80 hover:text-primary active:text-primary'
+                isActive('/services') ? 'text-secondary font-semibold' : 'text-foreground hover:text-secondary active:text-secondary'
               }`}>
                 Services
               </Link>
               <Link to="/portfolio" className={`text-xs md:text-sm font-medium transition-colors touch-manipulation ${
-                isActive('/portfolio') ? 'text-primary' : 'text-foreground/80 hover:text-primary active:text-primary'
+                isActive('/portfolio') ? 'text-secondary font-semibold' : 'text-foreground hover:text-secondary active:text-secondary'
               }`}>
                 Portfolio
               </Link>
               <Link to="/about" className={`text-xs md:text-sm font-medium transition-colors touch-manipulation ${
-                isActive('/about') ? 'text-primary' : 'text-foreground/80 hover:text-primary active:text-primary'
+                isActive('/about') ? 'text-secondary font-semibold' : 'text-foreground hover:text-secondary active:text-secondary'
               }`}>
                 Über uns
               </Link>
               <Link to="/contact" className={`text-xs md:text-sm font-medium transition-colors touch-manipulation ${
-                isActive('/contact') ? 'text-primary' : 'text-foreground/80 hover:text-primary active:text-primary'
+                isActive('/contact') ? 'text-secondary font-semibold' : 'text-foreground hover:text-secondary active:text-secondary'
               }`}>
                 Kontakt
               </Link>
               {/* Admin Link intentionally hidden; access only via direct URL */}
               <ThemeToggle />
               <Link to="/contact" className="ml-4">
-                <button className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                <button className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-secondary/90 transition-colors">
                   <Calendar className="h-4 w-4 mr-2 inline" />
                   Termin
                 </button>
@@ -80,28 +80,28 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
             </nav>
             
             <nav className="hidden lg:flex items-center space-x-6 xl:space-x-10 animate-fade-right">
-              <Link to="/" className={`nav-link text-sm touch-manipulation ${isActive('/') ? 'text-primary' : ''}`}>
+              <Link to="/" className={`nav-link text-sm touch-manipulation ${isActive('/') ? 'text-secondary' : ''}`}>
                 <Globe className="nav-icon h-4 w-4" />
                 <span className="hidden xl:inline">Home</span>
               </Link>
-              <Link to="/services" className={`nav-link text-sm touch-manipulation ${isActive('/services') ? 'text-primary' : ''}`}>
+              <Link to="/services" className={`nav-link text-sm touch-manipulation ${isActive('/services') ? 'text-secondary' : ''}`}>
                 <Palette className="nav-icon h-4 w-4" />
                 <span className="hidden xl:inline">Services</span>
               </Link>
-              <Link to="/portfolio" className={`nav-link text-sm touch-manipulation ${isActive('/portfolio') ? 'text-primary' : ''}`}>
+              <Link to="/portfolio" className={`nav-link text-sm touch-manipulation ${isActive('/portfolio') ? 'text-secondary' : ''}`}>
                 <Monitor className="nav-icon h-4 w-4" />
                 <span className="hidden xl:inline">Portfolio</span>
               </Link>
-              <Link to="/about" className={`nav-link text-sm touch-manipulation ${isActive('/about') ? 'text-primary' : ''}`}>
+              <Link to="/about" className={`nav-link text-sm touch-manipulation ${isActive('/about') ? 'text-secondary' : ''}`}>
                 <Users2 className="nav-icon h-4 w-4" />
                 <span className="hidden xl:inline">Über uns</span>
               </Link>
-              <Link to="/contact" className={`nav-link text-sm touch-manipulation ${isActive('/contact') ? 'text-primary' : ''}`}>
+              <Link to="/contact" className={`nav-link text-sm touch-manipulation ${isActive('/contact') ? 'text-secondary' : ''}`}>
                 <MessageCircle className="nav-icon h-4 w-4" />
                 <span className="hidden xl:inline">Kontakt</span>
               </Link>
               {/* Admin Link intentionally hidden; access only via direct URL */}
-              <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-primary/5 border border-primary/10">
+              <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-secondary/10 border border-secondary/20">
                 <ThemeToggle />
               </div>
               <button className="cta-button group text-sm touch-manipulation">

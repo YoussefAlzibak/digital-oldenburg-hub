@@ -302,10 +302,10 @@ export default function Services() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-12 sm:py-16 md:py-20 relative overflow-hidden bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900">
+        <section className="py-12 sm:py-16 md:py-20 relative overflow-hidden bg-gradient-to-br from-[hsl(var(--primary))] via-[hsl(230,100%,25%)] to-[hsl(var(--primary))]">
           <div className="absolute inset-0">
-            <div className="absolute top-10 sm:top-20 left-10 sm:left-20 w-64 sm:w-96 h-64 sm:h-96 bg-violet-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
-            <div className="absolute bottom-10 sm:bottom-20 right-10 sm:right-20 w-64 sm:w-96 h-64 sm:h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '3s' }}></div>
+            <div className="absolute top-10 sm:top-20 left-10 sm:left-20 w-64 sm:w-96 h-64 sm:h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
+            <div className="absolute bottom-10 sm:bottom-20 right-10 sm:right-20 w-64 sm:w-96 h-64 sm:h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '3s' }}></div>
           </div>
 
           <div className="container px-4 sm:px-6 relative z-10 text-center">
@@ -319,7 +319,7 @@ export default function Services() {
                 Vereinbaren Sie jetzt ein kostenloses Beratungsgespräch!
               </p>
               <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center px-4">
-                <Button asChild size="lg" className="w-full sm:w-auto bg-white text-violet-900 hover:bg-white/90 shadow-xl text-sm sm:text-base touch-manipulation">
+                <Button asChild size="lg" className="w-full sm:w-auto bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-xl text-sm sm:text-base touch-manipulation">
                   <Link to="/book-appointment">
                     <span className="hidden sm:inline">Termin vereinbaren</span>
                     <span className="sm:hidden">Termin</span>

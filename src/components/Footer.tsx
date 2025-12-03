@@ -13,11 +13,11 @@ import {
 
 export function Footer() {
   return (
-    <footer className="relative mt-20 bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900 overflow-hidden w-full">
+    <footer className="relative mt-20 bg-gradient-to-br from-[hsl(var(--primary))] via-[hsl(230,100%,25%)] to-[hsl(var(--primary))] overflow-hidden w-full">
       {/* Animated Background */}
       <div className="absolute inset-0 w-full">
-        <div className="absolute top-20 left-20 w-64 sm:w-96 h-64 sm:h-96 bg-violet-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
-        <div className="absolute bottom-20 right-20 w-64 sm:w-96 h-64 sm:h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '3s' }}></div>
+        <div className="absolute top-20 left-20 w-64 sm:w-96 h-64 sm:h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
+        <div className="absolute bottom-20 right-20 w-64 sm:w-96 h-64 sm:h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '3s' }}></div>
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 relative z-10 max-w-7xl w-full">
@@ -74,7 +74,7 @@ export function Footer() {
               <p className="text-white/70 text-xs sm:text-sm mb-3 sm:mb-4">
                 Bleiben Sie auf dem Laufenden mit unseren neuesten Web-Lösungen!
               </p>
-              <div className="newsletter-wrapper [&_.card]:bg-white/5 [&_.card]:backdrop-blur-md [&_.card]:border-white/10 [&_.card-header]:hidden [&_input]:bg-white/10 [&_input]:border-white/20 [&_input]:text-white [&_input]:placeholder:text-white/50 [&_input]:text-xs [&_input]:sm:text-sm [&_button]:w-full [&_button]:bg-white [&_button]:text-purple-900 [&_button]:hover:bg-white/90 [&_button]:text-xs [&_button]:sm:text-sm">
+              <div className="newsletter-wrapper [&_.card]:bg-white/5 [&_.card]:backdrop-blur-md [&_.card]:border-white/10 [&_.card-header]:hidden [&_input]:bg-white/10 [&_input]:border-white/20 [&_input]:text-white [&_input]:placeholder:text-white/50 [&_input]:text-xs [&_input]:sm:text-sm [&_button]:w-full [&_button]:bg-secondary [&_button]:text-secondary-foreground [&_button]:hover:bg-secondary/90 [&_button]:text-xs [&_button]:sm:text-sm">
                 <NewsletterSignup />
               </div>
             </div>

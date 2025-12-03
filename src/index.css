@@ -8,59 +8,66 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 24 45% 15%;
+    /* New Unicum color palette - Light mode */
+    /* #F5F1DC - Light beige background */
+    --background: 47 59% 91%;
+    --foreground: 231 100% 20%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 24 45% 15%;
+    /* #FFF8DE - Very light cream */
+    --card: 48 100% 93%;
+    --card-foreground: 231 100% 20%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 24 45% 15%;
+    --popover: 48 100% 93%;
+    --popover-foreground: 231 100% 20%;
 
-    /* Warm earthy coral palette for light mode */
-    --primary: 12 88% 60%; /* Coral/Salmon */
-    --primary-foreground: 0 0% 100%;
-    --primary-dark: 12 85% 50%;
-    --primary-light: 12 90% 75%;
+    /* #0046FF - Bright blue as primary */
+    --primary: 223 100% 50%;
+    --primary-foreground: 48 100% 93%;
+    --primary-dark: 231 100% 36%;
+    --primary-light: 227 100% 77%;
 
-    --secondary: 42 95% 55%; /* Amber/Gold */
-    --secondary-foreground: 24 45% 15%;
-    --secondary-dark: 42 100% 45%;
+    /* #FF8040 - Orange as secondary */
+    --secondary: 20 100% 63%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-dark: 20 100% 50%;
 
-    --accent: 178 65% 48%; /* Teal */
-    --accent-foreground: 0 0% 100%;
-    --accent-dark: 178 70% 38%;
+    /* #8CA9FF - Medium blue as accent */
+    --accent: 227 100% 77%;
+    --accent-foreground: 231 100% 20%;
+    --accent-dark: 231 100% 36%;
 
-    --muted: 24 20% 96%;
-    --muted-foreground: 24 30% 45%;
+    /* #FFF2C6 - Light cream for muted */
+    --muted: 45 100% 90%;
+    --muted-foreground: 231 80% 35%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 24 20% 88%;
-    --input: 24 20% 88%;
-    --ring: 12 88% 60%;
+    /* #AAC4F5 - Light blue for borders */
+    --border: 219 79% 81%;
+    --input: 219 79% 81%;
+    --ring: 223 100% 50%;
 
     --radius: 0.75rem;
     
     /* Glass morphism effects */
-    --glass-bg: 24 30% 95% / 0.8;
-    --glass-border: 12 50% 50% / 0.15;
+    --glass-bg: 48 100% 93% / 0.8;
+    --glass-border: 223 100% 50% / 0.15;
     --glass-blur: 16px;
     
-    /* Warm earthy color system */
-    --brand-primary: 12 88% 60%; /* Coral */
-    --brand-secondary: 42 95% 55%; /* Amber */
-    --brand-accent: 178 65% 48%; /* Teal */
+    /* Unicum color system */
+    --brand-primary: 223 100% 50%; /* #0046FF Bright Blue */
+    --brand-secondary: 20 100% 63%; /* #FF8040 Orange */
+    --brand-accent: 227 100% 77%; /* #8CA9FF Medium Blue */
     --brand-success: 140 60% 50%;
     --brand-warning: 35 90% 60%;
     --brand-error: 0 70% 55%;
-    --brand-neutral: 24 25% 30%;
+    --brand-neutral: 231 100% 36%; /* #001BB7 Dark Blue */
     
     /* Light theme specific colors */
-    --light-bg: 24 30% 98%;
-    --light-surface: 24 20% 95%;
-    --light-border: 24 20% 88%;
+    --light-bg: 47 59% 91%; /* #F5F1DC */
+    --light-surface: 48 100% 93%; /* #FFF8DE */
+    --light-border: 219 79% 81%; /* #AAC4F5 */
     
     /* Enhanced backgrounds */
     --bg-primary: hsl(var(--brand-primary));
@@ -91,63 +98,62 @@ All colors MUST be HSL.
     --transition-smooth: all 0.3s ease;
     --transition-slow: all 0.5s ease;
 
-    --sidebar-background: 24 20% 98%;
-
-    --sidebar-foreground: 24 25% 30%;
-
-    --sidebar-primary: 12 88% 60%;
-
+    --sidebar-background: 48 100% 93%;
+    --sidebar-foreground: 231 100% 20%;
+    --sidebar-primary: 223 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-
-    --sidebar-accent: 24 20% 95%;
-
-    --sidebar-accent-foreground: 12 88% 60%;
-
-    --sidebar-border: 24 20% 88%;
-
-    --sidebar-ring: 12 88% 60%;
+    --sidebar-accent: 45 100% 90%;
+    --sidebar-accent-foreground: 223 100% 50%;
+    --sidebar-border: 219 79% 81%;
+    --sidebar-ring: 223 100% 50%;
   }
 
   .dark {
-    --background: 220 28% 8%;
-    --foreground: 180 15% 95%;
+    /* Dark mode using Unicum palette */
+    /* #001BB7 - Dark blue as base */
+    --background: 231 100% 8%;
+    --foreground: 48 100% 93%;
 
-    --card: 220 28% 10%;
-    --card-foreground: 180 15% 95%;
+    --card: 231 100% 12%;
+    --card-foreground: 48 100% 93%;
 
-    --popover: 220 28% 10%;
-    --popover-foreground: 180 15% 95%;
+    --popover: 231 100% 12%;
+    --popover-foreground: 48 100% 93%;
 
-    /* Cool sophisticated emerald/sapphire palette for dark mode */
-    --primary: 158 64% 52%; /* Emerald/Jade */
-    --primary-foreground: 220 28% 8%;
+    /* #0046FF - Bright blue as primary */
+    --primary: 223 100% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 225 73% 57%; /* Sapphire/Royal Blue */
+    /* #FF8040 - Orange as secondary */
+    --secondary: 20 100% 63%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 20% 15%;
-    --muted-foreground: 220 15% 65%;
+    /* #AAC4F5 - Light blue for muted */
+    --muted: 231 80% 18%;
+    --muted-foreground: 219 79% 81%;
 
-    --accent: 345 82% 65%; /* Rose Gold/Pink */
-    --accent-foreground: 0 0% 100%;
+    /* #8CA9FF - Medium blue as accent */
+    --accent: 227 100% 77%;
+    --accent-foreground: 231 100% 8%;
 
-    --destructive: 0 62.8% 50.6%;
+    --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 28% 18%;
-    --input: 220 28% 18%;
-    --ring: 158 64% 52%;
+    --border: 231 80% 25%;
+    --input: 231 80% 25%;
+    --ring: 223 100% 50%;
     
-    --glass-bg: 220 28% 12% / 0.8;
-    --glass-border: 158 50% 50% / 0.2;
-    --sidebar-background: 220 28% 10%;
-    --sidebar-foreground: 180 15% 95%;
-    --sidebar-primary: 158 64% 52%;
-    --sidebar-primary-foreground: 220 28% 8%;
-    --sidebar-accent: 220 28% 15%;
-    --sidebar-accent-foreground: 158 64% 52%;
-    --sidebar-border: 220 28% 18%;
-    --sidebar-ring: 158 64% 52%;
+    --glass-bg: 231 100% 12% / 0.8;
+    --glass-border: 223 100% 50% / 0.2;
+    
+    --sidebar-background: 231 100% 10%;
+    --sidebar-foreground: 48 100% 93%;
+    --sidebar-primary: 223 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 231 80% 18%;
+    --sidebar-accent-foreground: 223 100% 50%;
+    --sidebar-border: 231 80% 25%;
+    --sidebar-ring: 223 100% 50%;
   }
 }
 

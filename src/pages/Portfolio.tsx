@@ -238,10 +238,10 @@ const Portfolio = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 relative overflow-hidden bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900">
+      <section className="py-20 relative overflow-hidden bg-gradient-to-br from-[hsl(var(--primary))] via-[hsl(230,100%,25%)] to-[hsl(var(--primary))]">
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-96 h-96 bg-violet-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '3s' }}></div>
+          <div className="absolute top-20 left-20 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '3s' }}></div>
         </div>
         
         <div className="container mx-auto px-6 relative z-10 text-center">
@@ -253,7 +253,7 @@ const Portfolio = () => {
               Lassen Sie uns gemeinsam an Ihrem nächsten Projekt arbeiten. Wir bringen Ihre Ideen zum Leben.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild className="bg-white text-violet-900 hover:bg-white/90 shadow-xl">
+              <Button size="lg" asChild className="bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-xl">
                 <Link to="/contact">
                   Projekt starten
                   <ArrowRight className="ml-2 h-5 w-5" />

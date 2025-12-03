@@ -174,7 +174,7 @@ const About = () => {
               <ScrollReveal key={index} animation="fade-up" delay={index * 100}>
                 <Card className="glass-card group hover:scale-105 transition-all duration-300 text-center p-8">
                   <CardContent className="p-0">
-                    <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-violet-500 to-purple-600 p-4 mb-4 group-hover:scale-110 transition-transform text-white flex items-center justify-center">
+                    <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-primary to-secondary p-4 mb-4 group-hover:scale-110 transition-transform text-white flex items-center justify-center">
                       {value.icon}
                     </div>
                     <h3 className="text-xl font-semibold mb-3">{value.title}</h3>
@@ -188,10 +188,10 @@ const About = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 relative overflow-hidden bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900">
+      <section className="py-20 relative overflow-hidden bg-gradient-to-br from-[hsl(var(--primary))] via-[hsl(230,100%,25%)] to-[hsl(var(--primary))]">
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-96 h-96 bg-violet-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '3s' }}></div>
+          <div className="absolute top-20 left-20 w-96 h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '3s' }}></div>
         </div>
         
         <div className="container mx-auto px-6 relative z-10 text-center">
@@ -204,7 +204,7 @@ const About = () => {
               Werden Sie Teil unserer Erfolgsgeschichte. Lassen Sie uns gemeinsam Ihr nächstes digitales Projekt verwirklichen.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild className="bg-white text-violet-900 hover:bg-white/90 shadow-xl">
+              <Button size="lg" asChild className="bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-xl">
                 <Link to="/contact">
                   Kostenlose Beratung
                   <ArrowRight className="ml-2 h-5 w-5" />

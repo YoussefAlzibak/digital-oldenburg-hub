@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Mail, 
   Server, 
@@ -19,7 +20,8 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  Info
+  Info,
+  Zap
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -38,6 +40,68 @@ interface SMTPSettingsData {
 
 type ConnectionStatus = 'untested' | 'testing' | 'success' | 'failed';
 
+interface ProviderPreset {
+  name: string;
+  host: string;
+  port: number;
+  secure: boolean;
+  helpText: string;
+  helpUrl?: string;
+}
+
+const PROVIDER_PRESETS: Record<string, ProviderPreset> = {
+  gmail: {
+    name: 'Gmail / Google Workspace',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: true,
+    helpText: 'Verwenden Sie ein App-Passwort, nicht Ihr normales Passwort.',
+    helpUrl: 'https://myaccount.google.com/apppasswords'
+  },
+  outlook: {
+    name: 'Outlook / Microsoft 365',
+    host: 'smtp.office365.com',
+    port: 587,
+    secure: true,
+    helpText: 'Verwenden Sie Ihre vollständige E-Mail-Adresse als Benutzername.',
+  },
+  ionos: {
+    name: 'IONOS (1&1)',
+    host: 'smtp.ionos.de',
+    port: 587,
+    secure: true,
+    helpText: 'Verwenden Sie Ihre IONOS E-Mail-Zugangsdaten.',
+  },
+  strato: {
+    name: 'Strato',
+    host: 'smtp.strato.de',
+    port: 465,
+    secure: true,
+    helpText: 'Port 465 mit SSL wird empfohlen.',
+  },
+  hosteurope: {
+    name: 'Host Europe',
+    host: 'smtp.hosteurope.de',
+    port: 587,
+    secure: true,
+    helpText: 'Verwenden Sie Ihre Postfach-Zugangsdaten.',
+  },
+  allinkl: {
+    name: 'All-Inkl',
+    host: 'smtp.all-inkl.com',
+    port: 587,
+    secure: true,
+    helpText: 'Verwenden Sie Ihre KAS-Postfach-Zugangsdaten.',
+  },
+  custom: {
+    name: 'Benutzerdefiniert',
+    host: '',
+    port: 587,
+    secure: true,
+    helpText: 'Geben Sie die SMTP-Daten Ihres Providers manuell ein.',
+  }
+};
+
 export default function SMTPSettings() {
   const [settings, setSettings] = useState<SMTPSettingsData>({
     host: '',
@@ -54,11 +118,24 @@ export default function SMTPSettings() {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('untested');
   const [showPassword, setShowPassword] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<string>('custom');
   const { toast } = useToast();
 
   useEffect(() => {
     loadSettings();
   }, []);
+
+  useEffect(() => {
+    // Auto-detect provider based on host
+    if (settings.host) {
+      const detected = Object.entries(PROVIDER_PRESETS).find(
+        ([key, preset]) => key !== 'custom' && settings.host.includes(preset.host.split('.')[1])
+      );
+      if (detected) {
+        setSelectedProvider(detected[0]);
+      }
+    }
+  }, [settings.host]);
 
   const loadSettings = async () => {
     try {
@@ -83,6 +160,20 @@ export default function SMTPSettings() {
       console.error('Fehler:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleProviderChange = (provider: string) => {
+    setSelectedProvider(provider);
+    const preset = PROVIDER_PRESETS[provider];
+    if (preset && provider !== 'custom') {
+      setSettings(prev => ({
+        ...prev,
+        host: preset.host,
+        port: preset.port,
+        secure: preset.secure
+      }));
+      setConnectionStatus('untested');
     }
   };
 
@@ -112,7 +203,6 @@ export default function SMTPSettings() {
 
     setSaving(true);
     try {
-      // Deactivate old settings first
       await supabase
         .from('smtp_settings')
         .update({ is_active: false })
@@ -207,19 +297,9 @@ export default function SMTPSettings() {
     }
   };
 
-  const getPortPreset = (port: number) => {
-    switch (port) {
-      case 25: return { secure: false, label: 'SMTP (unverschlüsselt)' };
-      case 465: return { secure: true, label: 'SMTPS (SSL/TLS)' };
-      case 587: return { secure: true, label: 'Submission (STARTTLS)' };
-      case 2525: return { secure: true, label: 'Alternative' };
-      default: return { secure: settings.secure, label: 'Benutzerdefiniert' };
-    }
-  };
-
   if (loading) {
     return (
-      <Card className="max-w-3xl">
+      <Card>
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </CardContent>
@@ -228,38 +308,12 @@ export default function SMTPSettings() {
   }
 
   const isValid = validateSettings().length === 0;
+  const currentPreset = PROVIDER_PRESETS[selectedProvider];
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      {/* Status Card */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Mail className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">E-Mail-Server Status</CardTitle>
-                <CardDescription>Aktueller Verbindungsstatus</CardDescription>
-              </div>
-            </div>
-            {getStatusBadge()}
-          </div>
-        </CardHeader>
-        {lastError && connectionStatus === 'failed' && (
-          <CardContent className="pt-0">
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{lastError}</AlertDescription>
-            </Alert>
-          </CardContent>
-        )}
-      </Card>
-
-      {/* Main Settings Card */}
-      <Card>
-        <CardHeader>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10">
               <Server className="h-5 w-5 text-primary" />
@@ -267,230 +321,235 @@ export default function SMTPSettings() {
             <div>
               <CardTitle>SMTP-Konfiguration</CardTitle>
               <CardDescription>
-                Konfigurieren Sie Ihren E-Mail-Server für den Versand von Benachrichtigungen
+                E-Mail-Server für den Versand konfigurieren
               </CardDescription>
             </div>
           </div>
-        </CardHeader>
-        
-        <CardContent className="space-y-6">
-          {/* Server Configuration */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Server className="h-4 w-4 text-muted-foreground" />
-              <h3 className="text-sm font-medium">Server-Einstellungen</h3>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="md:col-span-3">
-                <Label htmlFor="host">SMTP Host *</Label>
-                <Input
-                  id="host"
-                  placeholder="smtp.example.com"
-                  value={settings.host}
-                  onChange={(e) => {
-                    setSettings({ ...settings, host: e.target.value });
-                    setConnectionStatus('untested');
-                  }}
-                />
-              </div>
-              <div>
-                <Label htmlFor="port">Port *</Label>
-                <Input
-                  id="port"
-                  type="number"
-                  value={settings.port}
-                  onChange={(e) => {
-                    const port = parseInt(e.target.value) || 587;
-                    const preset = getPortPreset(port);
-                    setSettings({ 
-                      ...settings, 
-                      port,
-                      secure: preset.secure
-                    });
-                    setConnectionStatus('untested');
-                  }}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {getPortPreset(settings.port).label}
-                </p>
-              </div>
-            </div>
+          {getStatusBadge()}
+        </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-6">
+        {lastError && connectionStatus === 'failed' && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{lastError}</AlertDescription>
+          </Alert>
+        )}
 
-            <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
-              <div className="flex items-center gap-3">
-                <Shield className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <Label htmlFor="secure" className="cursor-pointer">SSL/TLS Verschlüsselung</Label>
-                  <p className="text-xs text-muted-foreground">
-                    {settings.port === 465 ? 'Implizites SSL (empfohlen für Port 465)' : 'STARTTLS wird verwendet'}
-                  </p>
-                </div>
-              </div>
-              <Switch
-                id="secure"
-                checked={settings.secure}
-                onCheckedChange={(checked) => {
-                  setSettings({ ...settings, secure: checked });
+        {/* Provider Selection */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Zap className="h-4 w-4 text-muted-foreground" />
+            <Label>E-Mail-Provider</Label>
+          </div>
+          <Select value={selectedProvider} onValueChange={handleProviderChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Provider auswählen" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(PROVIDER_PRESETS).map(([key, preset]) => (
+                <SelectItem key={key} value={key}>{preset.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {currentPreset && currentPreset.helpText && (
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                {currentPreset.helpText}
+                {currentPreset.helpUrl && (
+                  <a 
+                    href={currentPreset.helpUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="ml-1 text-primary underline"
+                  >
+                    Mehr erfahren →
+                  </a>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
+
+        <Separator />
+
+        {/* Server Configuration */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Server className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-medium">Server-Einstellungen</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="md:col-span-3">
+              <Label htmlFor="host">SMTP Host *</Label>
+              <Input
+                id="host"
+                placeholder="smtp.example.com"
+                value={settings.host}
+                onChange={(e) => {
+                  setSettings({ ...settings, host: e.target.value });
+                  setConnectionStatus('untested');
+                  setSelectedProvider('custom');
+                }}
+              />
+            </div>
+            <div>
+              <Label htmlFor="port">Port *</Label>
+              <Input
+                id="port"
+                type="number"
+                value={settings.port}
+                onChange={(e) => {
+                  const port = parseInt(e.target.value) || 587;
+                  setSettings({ 
+                    ...settings, 
+                    port,
+                    secure: port === 465 || port === 587
+                  });
                   setConnectionStatus('untested');
                 }}
               />
             </div>
           </div>
 
-          <Separator />
-
-          {/* Authentication */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+            <div className="flex items-center gap-3">
               <Shield className="h-4 w-4 text-muted-foreground" />
-              <h3 className="text-sm font-medium">Authentifizierung</h3>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="username">Benutzername / E-Mail *</Label>
-                <Input
-                  id="username"
-                  placeholder="user@example.com"
-                  value={settings.username}
-                  onChange={(e) => {
-                    setSettings({ ...settings, username: e.target.value });
-                    setConnectionStatus('untested');
-                  }}
-                />
-              </div>
-              <div>
-                <Label htmlFor="password">Passwort *</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    value={settings.password}
-                    onChange={(e) => {
-                      setSettings({ ...settings, password: e.target.value });
-                      setConnectionStatus('untested');
-                    }}
-                    className="pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <Alert>
-              <Info className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Gmail/Google:</strong> Verwenden Sie ein App-Passwort statt Ihres normalen Passworts. 
-                Erstellen Sie eines unter <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="text-primary underline">Google Account → App-Passwörter</a>
-              </AlertDescription>
-            </Alert>
-          </div>
-
-          <Separator />
-
-          {/* Sender Information */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              <h3 className="text-sm font-medium">Absender-Informationen</h3>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="from_email">Absender E-Mail *</Label>
-                <Input
-                  id="from_email"
-                  type="email"
-                  placeholder="noreply@example.com"
-                  value={settings.from_email}
-                  onChange={(e) => setSettings({ ...settings, from_email: e.target.value })}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Muss meist mit dem Benutzernamen übereinstimmen
+                <Label htmlFor="secure" className="cursor-pointer">SSL/TLS Verschlüsselung</Label>
+                <p className="text-xs text-muted-foreground">
+                  {settings.port === 465 ? 'Implizites SSL' : 'STARTTLS'}
                 </p>
               </div>
-              <div>
-                <Label htmlFor="from_name">Absender Name</Label>
+            </div>
+            <Switch
+              id="secure"
+              checked={settings.secure}
+              onCheckedChange={(checked) => {
+                setSettings({ ...settings, secure: checked });
+                setConnectionStatus('untested');
+              }}
+            />
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Authentication */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Shield className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-medium">Authentifizierung</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="username">Benutzername / E-Mail *</Label>
+              <Input
+                id="username"
+                placeholder="user@example.com"
+                value={settings.username}
+                onChange={(e) => {
+                  setSettings({ ...settings, username: e.target.value });
+                  setConnectionStatus('untested');
+                }}
+              />
+            </div>
+            <div>
+              <Label htmlFor="password">Passwort *</Label>
+              <div className="relative">
                 <Input
-                  id="from_name"
-                  placeholder="Unicum Tech"
-                  value={settings.from_name}
-                  onChange={(e) => setSettings({ ...settings, from_name: e.target.value })}
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={settings.password}
+                  onChange={(e) => {
+                    setSettings({ ...settings, password: e.target.value });
+                    setConnectionStatus('untested');
+                  }}
+                  className="pr-10"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
             </div>
           </div>
+        </div>
 
-          <Separator />
+        <Separator />
 
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <Button
-              onClick={testConnection}
-              disabled={connectionStatus === 'testing' || !isValid}
-              variant="outline"
-              className="flex-1 sm:flex-none"
-            >
-              {connectionStatus === 'testing' ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <TestTube className="h-4 w-4 mr-2" />
-              )}
-              Verbindung testen
-            </Button>
-            
-            <Button
-              onClick={saveSettings}
-              disabled={saving || !isValid}
-              className="flex-1 sm:flex-none bg-primary hover:bg-primary/90"
-            >
-              {saving ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4 mr-2" />
-              )}
-              Einstellungen speichern
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Help Card */}
-      <Card>
-        <CardHeader className="pb-3">
+        {/* Sender Information */}
+        <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <Info className="h-4 w-4 text-muted-foreground" />
-            <CardTitle className="text-sm font-medium">Hilfe & Tipps</CardTitle>
+            <Mail className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-medium">Absender-Informationen</h3>
           </div>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-3">
-          <div>
-            <p className="font-medium text-foreground mb-1">Häufige SMTP-Server:</p>
-            <ul className="list-disc list-inside space-y-1 ml-2">
-              <li><strong>Gmail:</strong> smtp.gmail.com, Port 587</li>
-              <li><strong>Outlook/Office 365:</strong> smtp.office365.com, Port 587</li>
-              <li><strong>IONOS:</strong> smtp.ionos.de, Port 587</li>
-              <li><strong>Strato:</strong> smtp.strato.de, Port 465</li>
-            </ul>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="from_email">Absender E-Mail *</Label>
+              <Input
+                id="from_email"
+                type="email"
+                placeholder="noreply@example.com"
+                value={settings.from_email}
+                onChange={(e) => setSettings({ ...settings, from_email: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Sollte mit dem Benutzernamen übereinstimmen
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="from_name">Absender Name</Label>
+              <Input
+                id="from_name"
+                placeholder="Unicum Tech"
+                value={settings.from_name}
+                onChange={(e) => setSettings({ ...settings, from_name: e.target.value })}
+              />
+            </div>
           </div>
-          <div>
-            <p className="font-medium text-foreground mb-1">Port-Übersicht:</p>
-            <ul className="list-disc list-inside space-y-1 ml-2">
-              <li><strong>Port 587:</strong> STARTTLS (empfohlen)</li>
-              <li><strong>Port 465:</strong> Implizites SSL/TLS</li>
-              <li><strong>Port 25:</strong> Unverschlüsselt (nicht empfohlen)</li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+
+        <Separator />
+
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button
+            onClick={testConnection}
+            disabled={connectionStatus === 'testing' || !isValid}
+            variant="outline"
+          >
+            {connectionStatus === 'testing' ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <TestTube className="h-4 w-4 mr-2" />
+            )}
+            Verbindung testen
+          </Button>
+          
+          <Button
+            onClick={saveSettings}
+            disabled={saving || !isValid}
+            className="bg-primary hover:bg-primary/90"
+          >
+            {saving ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4 mr-2" />
+            )}
+            Speichern
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

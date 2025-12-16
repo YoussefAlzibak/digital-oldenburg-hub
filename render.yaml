@@ -2,7 +2,7 @@ services:
   - type: web
     name: unicum-tech
     env: static
-    buildCommand: npm run build
+    buildCommand: bun run build
     staticPublishPath: ./build
     routes:
       - type: rewrite

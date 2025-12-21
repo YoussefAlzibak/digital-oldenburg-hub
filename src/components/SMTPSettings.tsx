@@ -55,7 +55,7 @@ const PROVIDER_PRESETS: Record<string, ProviderPreset> = {
     host: 'smtp.gmail.com',
     port: 587,
     secure: true,
-    helpText: 'Verwenden Sie ein App-Passwort, nicht Ihr normales Passwort.',
+    helpText: 'Verwenden Sie ein App-Passwort (16 Zeichen ohne Leerzeichen), nicht Ihr normales Passwort.',
     helpUrl: 'https://myaccount.google.com/apppasswords'
   },
   outlook: {
@@ -93,6 +93,13 @@ const PROVIDER_PRESETS: Record<string, ProviderPreset> = {
     secure: true,
     helpText: 'Verwenden Sie Ihre KAS-Postfach-Zugangsdaten.',
   },
+  udag: {
+    name: 'UDAG / united-domains',
+    host: 'smtps.udag.de',
+    port: 465,
+    secure: true,
+    helpText: 'Verwenden Sie Ihre E-Mail-Adresse als Benutzername und das Postfach-Passwort.',
+  },
   custom: {
     name: 'Benutzerdefiniert',
     host: '',
@@ -119,6 +126,8 @@ export default function SMTPSettings() {
   const [showPassword, setShowPassword] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
   const [selectedProvider, setSelectedProvider] = useState<string>('custom');
+  const [sendingTestEmail, setSendingTestEmail] = useState(false);
+  const [testEmailAddress, setTestEmailAddress] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -281,6 +290,80 @@ export default function SMTPSettings() {
         description: error.message || "Verbindung konnte nicht getestet werden.",
         variant: "destructive"
       });
+    }
+  };
+
+  const sendTestEmail = async () => {
+    if (!testEmailAddress || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(testEmailAddress)) {
+      toast({
+        title: "Ungültige E-Mail",
+        description: "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // First save current settings if needed
+    if (connectionStatus !== 'success') {
+      toast({
+        title: "Verbindung nicht getestet",
+        description: "Bitte testen Sie zuerst die SMTP-Verbindung.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSendingTestEmail(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-smtp-email', {
+        body: {
+          emailData: {
+            to: testEmailAddress,
+            subject: '✅ SMTP Test erfolgreich - ' + new Date().toLocaleString('de-DE'),
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center;">
+                  <h1 style="margin: 0;">✅ SMTP Test erfolgreich!</h1>
+                </div>
+                <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px;">
+                  <p>Diese E-Mail bestätigt, dass Ihre SMTP-Konfiguration korrekt funktioniert.</p>
+                  <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3>📧 SMTP-Server Details</h3>
+                    <ul style="list-style: none; padding: 0;">
+                      <li><strong>Host:</strong> ${settings.host}</li>
+                      <li><strong>Port:</strong> ${settings.port}</li>
+                      <li><strong>Verschlüsselung:</strong> ${settings.secure ? 'SSL/TLS' : 'Keine'}</li>
+                      <li><strong>Absender:</strong> ${settings.from_name} &lt;${settings.from_email}&gt;</li>
+                    </ul>
+                  </div>
+                  <p style="color: #666; font-size: 14px;">Gesendet am: ${new Date().toLocaleString('de-DE')}</p>
+                </div>
+              </div>
+            `
+          },
+          smtpSettings: settings
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast({
+          title: "Test-E-Mail gesendet",
+          description: `E-Mail wurde erfolgreich an ${testEmailAddress} gesendet.`,
+        });
+      } else {
+        throw new Error(data?.error || 'E-Mail konnte nicht gesendet werden');
+      }
+    } catch (error: any) {
+      console.error('Fehler beim Senden der Test-E-Mail:', error);
+      toast({
+        title: "Fehler beim Senden",
+        description: error.message || "Test-E-Mail konnte nicht gesendet werden.",
+        variant: "destructive"
+      });
+    } finally {
+      setSendingTestEmail(false);
     }
   };
 
@@ -521,6 +604,42 @@ export default function SMTPSettings() {
 
         <Separator />
 
+        {/* Test Email Section */}
+        {connectionStatus === 'success' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-medium">Test-E-Mail senden</h3>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Input
+                type="email"
+                placeholder="test@example.com"
+                value={testEmailAddress}
+                onChange={(e) => setTestEmailAddress(e.target.value)}
+                className="flex-1"
+              />
+              <Button
+                onClick={sendTestEmail}
+                disabled={sendingTestEmail || !testEmailAddress}
+                variant="outline"
+              >
+                {sendingTestEmail ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Mail className="h-4 w-4 mr-2" />
+                )}
+                Test senden
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Senden Sie eine Test-E-Mail, um die Zustellung zu prüfen.
+            </p>
+          </div>
+        )}
+
+        <Separator />
+
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
@@ -549,6 +668,15 @@ export default function SMTPSettings() {
             Speichern
           </Button>
         </div>
+
+        {/* Info Box */}
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Hinweis:</strong> Alle E-Mails (Kontaktformular, Newsletter, Termine, Marketing) werden über diese SMTP-Einstellungen versendet. 
+            Stellen Sie sicher, dass die Verbindung funktioniert, bevor Sie Einstellungen speichern.
+          </AlertDescription>
+        </Alert>
       </CardContent>
     </Card>
   );

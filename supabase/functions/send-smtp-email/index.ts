@@ -120,39 +120,55 @@ async function sendSMTPEmail(smtp: SMTPSettings, to: string, message: string): P
   try {
     console.log(`Connecting to SMTP server ${smtp.host}:${smtp.port}`);
 
-    const useImplicitTLS = smtp.port === 465 || smtp.secure === true;
+    // IMPORTANT: Port 465 = Implicit TLS (connect with TLS directly)
+    // Port 587 = STARTTLS (connect plain, then upgrade)
+    // Port 25 = Plain (no encryption)
+    const useImplicitTLS = smtp.port === 465;
+    
     let connLocal: Deno.Conn;
 
     if (useImplicitTLS) {
+      console.log('Using implicit TLS (port 465)');
       connLocal = await (Deno as any).connectTls({ hostname: smtp.host, port: smtp.port });
     } else {
+      console.log('Using plain connection (will upgrade with STARTTLS if available)');
       connLocal = await Deno.connect({ hostname: smtp.host, port: smtp.port });
     }
 
     conn = connLocal;
 
     // Read greeting
-    await readResponse(conn);
+    const greeting = await readResponse(conn);
+    console.log('Server greeting:', greeting);
+    if (!greeting.startsWith('220')) {
+      throw new Error(`Unexpected greeting: ${greeting}`);
+    }
 
     // EHLO with sender domain
     const heloDomain = smtp.from_email && smtp.from_email.includes('@') ? smtp.from_email.split('@')[1] : 'localhost';
     await sendCommand(conn, `EHLO ${heloDomain}\r\n`);
     let ehloResponse = await readResponse(conn);
+    console.log('EHLO response received');
 
-    // Upgrade with STARTTLS when on 587 or server advertises it and we didn't use implicit TLS
+    // Upgrade with STARTTLS when on port 587 or server advertises it (and we didn't use implicit TLS)
     if (!useImplicitTLS && (smtp.port === 587 || ehloResponse.includes('STARTTLS'))) {
+      console.log('Initiating STARTTLS upgrade...');
       await sendCommand(conn, 'STARTTLS\r\n');
       const tlsResponse = await readResponse(conn);
       if (!tlsResponse.startsWith('220')) {
         throw new Error(`STARTTLS failed: ${tlsResponse}`);
       }
+      console.log('Upgrading connection to TLS...');
       const tlsConn = await Deno.startTls(conn, { hostname: smtp.host });
       conn = tlsConn;
+      console.log('TLS upgrade successful, sending EHLO again');
       await sendCommand(conn, `EHLO ${heloDomain}\r\n`);
       ehloResponse = await readResponse(conn);
+      console.log('Post-STARTTLS EHLO successful');
     }
 
     // Authenticate
+    console.log('Starting authentication...');
     await sendCommand(conn, 'AUTH LOGIN\r\n');
     await readResponse(conn);
     
@@ -165,19 +181,34 @@ async function sendSMTPEmail(smtp: SMTPSettings, to: string, message: string): P
     if (!authResponse.startsWith('235')) {
       throw new Error(`Authentication failed: ${authResponse}`);
     }
+    console.log('Authentication successful');
 
     // Send email
+    console.log('Sending email envelope...');
     await sendCommand(conn, `MAIL FROM:<${smtp.from_email}>\r\n`);
-    await readResponse(conn);
+    const mailFromResp = await readResponse(conn);
+    if (!mailFromResp.startsWith('250')) {
+      throw new Error(`MAIL FROM rejected: ${mailFromResp}`);
+    }
 
     await sendCommand(conn, `RCPT TO:<${to}>\r\n`);
-    await readResponse(conn);
+    const rcptToResp = await readResponse(conn);
+    if (!rcptToResp.startsWith('250') && !rcptToResp.startsWith('251')) {
+      throw new Error(`RCPT TO rejected: ${rcptToResp}`);
+    }
 
     await sendCommand(conn, 'DATA\r\n');
-    await readResponse(conn);
+    const dataResp = await readResponse(conn);
+    if (!dataResp.startsWith('354')) {
+      throw new Error(`DATA rejected: ${dataResp}`);
+    }
 
     await sendCommand(conn, message + '\r\n.\r\n');
-    await readResponse(conn);
+    const sendResp = await readResponse(conn);
+    if (!sendResp.startsWith('250')) {
+      throw new Error(`Message rejected: ${sendResp}`);
+    }
+    console.log('Email sent successfully');
 
     // Quit
     await sendCommand(conn, 'QUIT\r\n');
@@ -213,8 +244,7 @@ function createEmailMessage(
     `Message-ID: ${messageId}`,
     `MIME-Version: 1.0`,
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
-    `X-Mailer: Digital Masters Marketing Platform`,
-    `List-Unsubscribe: <https://kgwanyretbrxwtwduljg.supabase.co/unsubscribe>`,
+    `X-Mailer: Unicum Tech Marketing Platform`,
     ``,
     `--${boundary}`,
     `Content-Type: text/plain; charset=utf-8`,

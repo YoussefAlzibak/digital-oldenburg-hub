@@ -30,7 +30,7 @@ const handler = async (req: Request): Promise<Response> => {
     const fromEmail = body.from_email || body.username;
     const testRecipient = body.test_recipient || body.from_email || body.username;
     const heloDomain = body.helo_domain || (typeof fromEmail === 'string' && fromEmail.includes('@') ? fromEmail.split('@')[1] : 'localhost');
-    console.log('Testing SMTP connection for host:', settings.host, 'as', fromEmail, 'to', testRecipient);
+    console.log('Testing SMTP connection for host:', settings.host, 'port:', settings.port, 'as', fromEmail);
 
     const result = await testSMTPConnection(settings, { fromEmail, testRecipient, heloDomain });
 
@@ -57,7 +57,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
   } catch (error: any) {
-    console.error('SMTP connection test failed:', error);
+    console.error('SMTP connection test error:', error);
     return new Response(
       JSON.stringify({ 
         success: false, 
@@ -81,8 +81,10 @@ async function testSMTPConnection(
   const heloDomain = opts?.heloDomain || (fromEmail.includes('@') ? fromEmail.split('@')[1] : 'localhost');
   
   try {
-    // Decide connection mode
-    const useImplicitTLS = settings.port === 465 || settings.secure === true;
+    // IMPORTANT: Port 465 = Implicit TLS (connect with TLS directly)
+    // Port 587 = STARTTLS (connect plain, then upgrade to TLS)
+    // Port 25 = Plain (no encryption)
+    const useImplicitTLS = settings.port === 465;
 
     console.log(`Connecting to ${settings.host}:${settings.port} (${useImplicitTLS ? 'implicit TLS' : 'plain/STARTTLS'})`);
     let connLocal: Deno.Conn;
@@ -105,24 +107,28 @@ async function testSMTPConnection(
     // EHLO with domain
     await sendCommand(conn, `EHLO ${heloDomain}\r\n`);
     let ehloResponse = await readResponse(conn);
-    console.log('EHLO response:', ehloResponse);
+    console.log('EHLO response received');
 
     // If on port 587 or server offers STARTTLS and we didn't connect with implicit TLS, upgrade
     if (!useImplicitTLS && (settings.port === 587 || ehloResponse.includes('STARTTLS'))) {
+      console.log('Initiating STARTTLS...');
       await sendCommand(conn, 'STARTTLS\r\n');
       const tlsResponse = await readResponse(conn);
       console.log('STARTTLS response:', tlsResponse);
       if (!tlsResponse.startsWith('220')) {
         throw new Error(`STARTTLS failed: ${tlsResponse}`);
       }
+      console.log('Upgrading to TLS...');
       const tlsConn = await Deno.startTls(conn, { hostname: settings.host });
       conn = tlsConn;
+      console.log('TLS upgrade successful');
       await sendCommand(conn, `EHLO ${heloDomain}\r\n`);
       ehloResponse = await readResponse(conn);
-      console.log('Post-TLS EHLO:', ehloResponse);
+      console.log('Post-TLS EHLO successful');
     }
 
     // Authenticate
+    console.log('Authenticating...');
     await sendCommand(conn, 'AUTH LOGIN\r\n');
     await readResponse(conn);
 
@@ -166,17 +172,7 @@ async function testSMTPConnection(
     return { success: true };
     
   } catch (error: any) {
-    console.error('SMTP test error:', error);
-
-    // Auto-fallback: try implicit TLS on port 465 if not already
-    if (settings.port !== 465) {
-      try {
-        console.log('Retrying with implicit TLS on port 465...');
-        const retry = await testSMTPConnection({ ...settings, port: 465, secure: true }, { fromEmail, testRecipient, heloDomain });
-        if (retry.success) return retry;
-      } catch (_) {}
-    }
-
+    console.error('SMTP test error:', error.message);
     return { 
       success: false, 
       error: error.message || 'Connection test failed' 

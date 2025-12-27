@@ -813,14 +813,14 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
                       <div>
                         <Label>Quelle</Label>
                         <Select 
-                          value={segmentFilters.source}
-                          onValueChange={(value) => setSegmentFilters({...segmentFilters, source: value})}
+                          value={segmentFilters.source || "all"}
+                          onValueChange={(value) => setSegmentFilters({...segmentFilters, source: value === "all" ? "" : value})}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Quelle auswählen..." />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">Alle Quellen</SelectItem>
+                            <SelectItem value="all">Alle Quellen</SelectItem>
                             <SelectItem value="website_newsletter">Website Newsletter</SelectItem>
                             <SelectItem value="contact_form">Kontaktformular</SelectItem>
                             <SelectItem value="manual">Manuell hinzugefügt</SelectItem>

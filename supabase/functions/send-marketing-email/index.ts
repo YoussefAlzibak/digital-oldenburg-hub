@@ -319,7 +319,7 @@ function createEmailMessage(
     `Message-ID: ${messageId}`,
     `MIME-Version: 1.0`,
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
-    `X-Mailer: Digital Masters Marketing Platform`,
+    `X-Mailer: Unicum Tech Marketing Platform`,
     ``,
     `--${boundary}`,
     `Content-Type: text/plain; charset=utf-8`,

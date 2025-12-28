@@ -59,7 +59,7 @@ const handler = async (req: Request): Promise<Response> => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anfrage erhalten - Unicum Tec</title>
+    <title>Anfrage erhalten - Unicum Tech</title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -82,7 +82,7 @@ const handler = async (req: Request): Promise<Response> => {
         <div class="content">
             <p>Liebe/r ${contactRequest.name},</p>
             
-            <p>vielen Dank für Ihre Anfrage bei Unicum Tec. Wir haben Ihre Nachricht erhalten und werden uns innerhalb der nächsten <strong>24 Stunden</strong> bei Ihnen melden.</p>
+            <p>vielen Dank für Ihre Anfrage bei Unicum Tech. Wir haben Ihre Nachricht erhalten und werden uns innerhalb der nächsten <strong>24 Stunden</strong> bei Ihnen melden.</p>
             
             <div class="request-details">
                 <h3>📋 Ihre Anfrage im Überblick</h3>
@@ -133,7 +133,7 @@ const handler = async (req: Request): Promise<Response> => {
             </ul>
             
             <div class="highlight-box">
-                <h4>🎯 Warum Unicum Tec?</h4>
+                <h4>🎯 Warum Unicum Tech?</h4>
                 <ul>
                     <li>✅ Über 150 erfolgreiche Projekte</li>
                     <li>✅ 98% Kundenzufriedenheit</li>
@@ -145,14 +145,14 @@ const handler = async (req: Request): Promise<Response> => {
             <p><strong>Dringende Fragen?</strong><br>
             Kontaktieren Sie uns gerne direkt:</p>
             <ul>
-                <li>📧 E-Mail: info@unicumtec.de</li>
+                <li>📧 E-Mail: info@unicumtech.de</li>
                 <li>📱 Telefon: +49 (0) 441 XXX XXX</li>
                 <li>🕒 Geschäftszeiten: Mo-Fr 9:00 - 18:00 Uhr</li>
             </ul>
         </div>
         
         <div class="footer">
-            <p><strong>Unicum Tec</strong><br>
+            <p><strong>Unicum Tech</strong><br>
             Ihre Full-Service Digitalagentur in Oldenburg<br>
             Webdesign • CRM-Systeme • IT-Services • Print Design</p>
             
@@ -167,7 +167,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send confirmation email via SMTP
     const emailData = {
       to: contactRequest.email,
-      subject: `✅ Ihre Anfrage bei Unicum Tec - ${serviceLabel}`,
+      subject: `✅ Ihre Anfrage bei Unicum Tech - ${serviceLabel}`,
       html: emailHTML
     };
 

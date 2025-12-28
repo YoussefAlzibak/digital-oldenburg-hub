@@ -279,8 +279,8 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
       .replace(/\{\{last_name\}\}/g, sampleSubscriber.last_name || '')
       .replace(/\{\{email\}\}/g, sampleSubscriber.email || '')
       .replace(/\{\{company\}\}/g, sampleSubscriber.company || '')
-      .replace(/\{\{company_name\}\}/g, 'Digital Masters')
-      .replace(/\{\{website_url\}\}/g, 'https://digital-masters.de')
+      .replace(/\{\{company_name\}\}/g, 'Unicum Tech')
+      .replace(/\{\{website_url\}\}/g, 'https://unicumtech.de')
       .replace(/\{\{current_date\}\}/g, format(new Date(), 'PPP', { locale: de }))
       .replace(/\{\{current_month\}\}/g, format(new Date(), 'MMMM', { locale: de }))
       .replace(/\{\{current_year\}\}/g, format(new Date(), 'yyyy'));
@@ -310,7 +310,71 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
     return [];
   };
 
-  const handleSave = async () => {
+  const handleSaveDraft = async () => {
+    // Validierung nur für Name
+    if (!formData.name?.trim()) {
+      toast({
+        title: "Fehler",
+        description: "Bitte geben Sie einen Kampagnennamen ein.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      const campaignData = {
+        name: formData.name,
+        subject: formData.subject || 'Kein Betreff',
+        html_content: formData.html_content || '<p>Kein Inhalt</p>',
+        text_content: formData.text_content || '',
+        template_id: formData.template_id || null,
+        list_id: recipientMode === 'list' ? formData.list_id : null,
+        scheduled_at: null,
+        status: 'draft'
+      };
+
+      if (campaign) {
+        const { error } = await supabase
+          .from('email_campaigns')
+          .update(campaignData)
+          .eq('id', campaign.id);
+
+        if (error) throw error;
+        
+        toast({
+          title: "Gespeichert",
+          description: "Kampagne wurde als Entwurf gespeichert.",
+        });
+      } else {
+        const { error } = await supabase
+          .from('email_campaigns')
+          .insert([campaignData]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Erstellt",
+          description: "Kampagne wurde als Entwurf erstellt.",
+        });
+      }
+
+      onSave();
+      onClose();
+    } catch (error: any) {
+      console.error('Error saving draft:', error);
+      toast({
+        title: "Fehler",
+        description: error.message || "Kampagne konnte nicht gespeichert werden.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSave = async (sendImmediately: boolean = false) => {
     // Validierung
     if (!formData.name?.trim()) {
       toast({
@@ -382,7 +446,7 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
         scheduledAt = scheduledDateTime.toISOString();
       }
 
-      // Prepare campaign data without template_type
+      // Prepare campaign data
       const campaignData = {
         name: formData.name,
         subject: formData.subject,
@@ -391,7 +455,7 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
         template_id: formData.template_id || null,
         list_id: recipientMode === 'list' ? formData.list_id : null,
         scheduled_at: scheduledAt,
-        status: campaign ? campaign.status : (scheduledAt ? 'scheduled' : 'draft')
+        status: sendImmediately ? 'sending' : (scheduledAt ? 'scheduled' : 'draft')
       };
 
       let campaignId;
@@ -421,7 +485,16 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
         if (error) throw error;
         campaignId = data.id;
 
-        // Queue emails for both immediate and scheduled campaigns
+        toast({
+          title: "Erfolg",
+          description: scheduledAt 
+            ? `Kampagne wurde für ${format(new Date(scheduledAt), 'PPP um HH:mm', { locale: de })} geplant.`
+            : "Kampagne wurde erstellt.",
+        });
+      }
+
+      // Only send immediately if requested
+      if (sendImmediately && campaignId) {
         try {
           const { error: sendError } = await supabase.functions.invoke('send-marketing-email', {
             body: {
@@ -430,36 +503,28 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
               htmlContent: formData.html_content,
               textContent: formData.text_content,
               recipientEmails: recipientMode !== 'list' ? recipientEmails : undefined,
-              listId: recipientMode === 'list' ? formData.list_id : undefined,
-              scheduledAt: scheduledAt // Pass scheduledAt to queue for later processing
+              listId: recipientMode === 'list' ? formData.list_id : undefined
             }
           });
 
           if (sendError) {
-            console.error('Error queueing campaign:', sendError);
+            console.error('Error sending campaign:', sendError);
             toast({
               title: "Warnung",
-              description: "Kampagne wurde gespeichert, aber das Einreihen hatte Probleme.",
+              description: "Kampagne wurde gespeichert, aber der Versand hatte Probleme.",
               variant: "default"
             });
           } else {
-            if (scheduledAt) {
-              toast({
-                title: "Erfolg",
-                description: `Kampagne wurde für ${format(new Date(scheduledAt), 'PPP um HH:mm', { locale: de })} geplant.`,
-              });
-            } else {
-              toast({
-                title: "Erfolg",
-                description: "Kampagne wurde erstellt und wird versendet!",
-              });
-            }
+            toast({
+              title: "Erfolg",
+              description: "Kampagne wird jetzt versendet!",
+            });
           }
         } catch (sendError) {
-          console.error('Error queueing campaign:', sendError);
+          console.error('Error sending campaign:', sendError);
           toast({
             title: "Warnung", 
-            description: "Kampagne wurde gespeichert, aber das Einreihen hatte Probleme.",
+            description: "Kampagne wurde gespeichert, aber der Versand hatte Probleme.",
             variant: "default"
           });
         }
@@ -1142,13 +1207,36 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
         </Tabs>
 
         {/* Actions */}
-        <div className="flex justify-end gap-2 pt-4 border-t">
-          <Button variant="outline" onClick={onClose}>
+        <div className="flex justify-between items-center pt-4 border-t">
+          <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
             Abbrechen
           </Button>
-          <Button onClick={handleSave} disabled={isSubmitting}>
-            {isSubmitting ? 'Speichere...' : (campaign ? 'Aktualisieren' : 'Erstellen')}
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={handleSaveDraft} 
+              disabled={isSubmitting}
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Als Entwurf speichern
+            </Button>
+            <Button 
+              variant="secondary"
+              onClick={() => handleSave(false)} 
+              disabled={isSubmitting}
+            >
+              <CalendarIcon className="h-4 w-4 mr-2" />
+              {isScheduled ? 'Planen' : 'Speichern'}
+            </Button>
+            <Button 
+              onClick={() => handleSave(true)} 
+              disabled={isSubmitting}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Send className="h-4 w-4 mr-2" />
+              Jetzt senden
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

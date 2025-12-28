@@ -74,7 +74,7 @@ const handler = async (req: Request): Promise<Response> => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminbestätigung - Unicum Tec</title>
+    <title>Terminbestätigung - Unicum Tech</title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -97,7 +97,7 @@ const handler = async (req: Request): Promise<Response> => {
         <div class="content">
             <p>Liebe/r ${customer.name},</p>
             
-            <p>vielen Dank für Ihre Terminanfrage bei Unicum Tec. Wir haben Ihren Terminwunsch erhalten und werden ihn in Kürze prüfen und bestätigen.</p>
+            <p>vielen Dank für Ihre Terminanfrage bei Unicum Tech. Wir haben Ihren Terminwunsch erhalten und werden ihn in Kürze prüfen und bestätigen.</p>
             
             <div class="appointment-details">
                 <h3>📅 Ihre Termindetails</h3>
@@ -147,14 +147,14 @@ const handler = async (req: Request): Promise<Response> => {
             <p><strong>Haben Sie noch Fragen?</strong><br>
             Kontaktieren Sie uns gerne unter:</p>
             <ul>
-                <li>📧 E-Mail: info@unicumtec.de</li>
+                <li>📧 E-Mail: info@unicumtech.de</li>
                 <li>📱 Telefon: +49 (0) 441 XXX XXX</li>
                 <li>🕒 Geschäftszeiten: Mo-Fr 9:00 - 18:00 Uhr</li>
             </ul>
         </div>
         
         <div class="footer">
-            <p><strong>Unicum Tec</strong><br>
+            <p><strong>Unicum Tech</strong><br>
             Ihre Full-Service Digitalagentur in Oldenburg<br>
             Webdesign • CRM-Systeme • IT-Services • Print Design</p>
             

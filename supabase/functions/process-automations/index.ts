@@ -212,7 +212,7 @@ function personalizeContent(content: string, data: any): string {
   // Replace common placeholders
   personalizedContent = personalizedContent.replace(/\{\{first_name\}\}/g, data.first_name || 'Liebe/r Interessent/in');
   personalizedContent = personalizedContent.replace(/\{\{last_name\}\}/g, data.last_name || '');
-  personalizedContent = personalizedContent.replace(/\{\{company_name\}\}/g, data.company_name || 'Digital Masters');
+  personalizedContent = personalizedContent.replace(/\{\{company_name\}\}/g, data.company_name || 'Unicum Tech');
   personalizedContent = personalizedContent.replace(/\{\{email\}\}/g, data.email || '');
   personalizedContent = personalizedContent.replace(/\{\{company\}\}/g, data.company || '');
   personalizedContent = personalizedContent.replace(/\{\{phone\}\}/g, data.phone || '');

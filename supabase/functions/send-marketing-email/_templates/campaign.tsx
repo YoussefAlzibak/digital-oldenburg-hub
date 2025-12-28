@@ -38,14 +38,14 @@ export const CampaignEmail = ({
   lastName = '',
   email = '',
   company = '',
-  companyName = 'Digital Masters',
+  companyName = 'Unicum Tech',
   subject = 'Kampagne',
   htmlContent = '',
   textContent = '',
   unsubscribeUrl = '#',
   campaignId = '',
   trackingPixelUrl = '',
-  websiteUrl = 'https://digital-masters.de',
+  websiteUrl = 'https://unicumtech.de',
   ...customVariables
 }: CampaignEmailProps) => {
   // Process content with variables

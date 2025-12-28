@@ -28,12 +28,12 @@ interface NewsletterEmailProps {
 export const NewsletterEmail = ({
   firstName = 'Kunde',
   lastName = '',
-  companyName = 'Digital Masters',
+  companyName = 'Unicum Tech',
   subject = 'Newsletter',
   content = '',
   unsubscribeUrl = '#',
   companyLogo = '',
-  websiteUrl = 'https://digital-masters.de',
+  websiteUrl = 'https://unicumtech.de',
 }: NewsletterEmailProps) => (
   <Html>
     <Head />

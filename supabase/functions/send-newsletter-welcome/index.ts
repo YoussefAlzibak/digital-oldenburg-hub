@@ -37,7 +37,7 @@ const handler = async (req: Request): Promise<Response> => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Willkommen beim Unicum Tec Newsletter!</title>
+    <title>Willkommen beim Unicum Tech Newsletter!</title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -55,7 +55,7 @@ const handler = async (req: Request): Promise<Response> => {
     <div class="container">
         <div class="header">
             <h1>🎉 Herzlich Willkommen!</h1>
-            <p>Schön, dass Sie Teil der Unicum Tec Community sind!</p>
+            <p>Schön, dass Sie Teil der Unicum Tech Community sind!</p>
         </div>
         
         <div class="content">
@@ -115,7 +115,7 @@ const handler = async (req: Request): Promise<Response> => {
                     auf alle unsere Services!
                 </p>
                 <p style="text-align: center; margin-top: 20px;">
-                    <a href="https://unicumtec.de/#contact" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                    <a href="https://unicumtech.de/contact" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
                         🎯 Kostenlose Beratung anfragen
                     </a>
                 </p>
@@ -125,7 +125,7 @@ const handler = async (req: Request): Promise<Response> => {
                 <h4>📞 Haben Sie Fragen?</h4>
                 <p>Unser Team steht Ihnen gerne zur Verfügung:</p>
                 <ul style="margin: 10px 0;">
-                    <li>📧 E-Mail: info@unicumtec.de</li>
+                    <li>📧 E-Mail: info@unicumtech.de</li>
                     <li>📱 Telefon: +49 (0) 441 XXX XXX</li>
                     <li>🕒 Geschäftszeiten: Mo-Fr 9:00 - 18:00 Uhr</li>
                 </ul>
@@ -133,12 +133,12 @@ const handler = async (req: Request): Promise<Response> => {
             
             <p style="text-align: center; margin-top: 30px;">
                 Freuen Sie sich auf spannende Inhalte!<br>
-                <strong>Ihr Unicum Tec Team</strong>
+                <strong>Ihr Unicum Tech Team</strong>
             </p>
         </div>
         
         <div class="footer">
-            <p><strong>Unicum Tec</strong><br>
+            <p><strong>Unicum Tech</strong><br>
             Ihre Full-Service Digitalagentur in Oldenburg<br>
             Webdesign • CRM-Systeme • IT-Services • Print Design</p>
             
@@ -153,7 +153,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send welcome email via SMTP
     const emailData = {
       to: email,
-      subject: `🎉 Willkommen bei Unicum Tec, ${displayName}!`,
+      subject: `🎉 Willkommen bei Unicum Tech, ${displayName}!`,
       html: emailHTML
     };
 

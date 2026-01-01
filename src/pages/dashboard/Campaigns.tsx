@@ -259,6 +259,7 @@ export default function Campaigns() {
     const list = emailLists.find(l => l.id === listId);
     return list?.name || 'Unbekannte Liste';
   };
+
   const handleSendCampaign = async (campaign: EmailCampaign) => {
     if (!smtpConfigured) {
       toast({

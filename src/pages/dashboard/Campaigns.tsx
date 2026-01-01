@@ -76,6 +76,8 @@ export default function Campaigns() {
   const [activeTab, setActiveTab] = useState<string>('all');
   const [smtpConfigured, setSmtpConfigured] = useState(false);
   const [queueCount, setQueueCount] = useState(0);
+  const [sendingCampaignId, setSendingCampaignId] = useState<string | null>(null);
+  const [emailLists, setEmailLists] = useState<{ id: string; name: string }[]>([]);
   
   const { toast } = useToast();
 
@@ -83,6 +85,7 @@ export default function Campaigns() {
     loadCampaigns();
     checkSmtpConfig();
     loadQueueCount();
+    loadEmailLists();
   }, []);
 
   useEffect(() => {
@@ -236,8 +239,26 @@ export default function Campaigns() {
     }
   };
 
-  const [sendingCampaignId, setSendingCampaignId] = useState<string | null>(null);
+  const loadEmailLists = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('email_lists')
+        .select('id, name')
+        .eq('is_active', true);
 
+      if (!error && data) {
+        setEmailLists(data);
+      }
+    } catch (error) {
+      console.error('Error loading email lists:', error);
+    }
+  };
+
+  const getListName = (listId: string | undefined) => {
+    if (!listId) return 'Alle Abonnenten';
+    const list = emailLists.find(l => l.id === listId);
+    return list?.name || 'Unbekannte Liste';
+  };
   const handleSendCampaign = async (campaign: EmailCampaign) => {
     if (!smtpConfigured) {
       toast({
@@ -472,11 +493,16 @@ export default function Campaigns() {
                             <h3 className="text-lg font-semibold">{campaign.name}</h3>
                             {getStatusBadge(campaign.status)}
                           </div>
-                          
-                          <p className="text-sm text-muted-foreground mb-4">
-                            <Mail className="inline h-3 w-3 mr-1" />
-                            {campaign.subject}
-                          </p>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+                            <span className="flex items-center gap-1">
+                              <Mail className="h-3 w-3" />
+                              {campaign.subject}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              {getListName(campaign.list_id)}
+                            </span>
+                          </div>
 
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                             <div>
@@ -546,30 +572,45 @@ export default function Campaigns() {
                               )}
                             </Button>
                           )}
-                          
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditCampaign(campaign)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDuplicateCampaign(campaign)}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                          
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDeleteCampaign(campaign)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+
+                          {campaign.status === 'sending' && (
+                            <Badge className="bg-warning/10 text-warning animate-pulse">
+                              <Send className="h-3 w-3 mr-1" />
+                              Wird versendet...
+                            </Badge>
+                          )}
+
+                          {campaign.status !== 'sending' && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditCampaign(campaign)}
+                                title="Bearbeiten"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDuplicateCampaign(campaign)}
+                                title="Duplizieren"
+                              >
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                              
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                onClick={() => handleDeleteCampaign(campaign)}
+                                title="Löschen"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </div>
                     </CardContent>

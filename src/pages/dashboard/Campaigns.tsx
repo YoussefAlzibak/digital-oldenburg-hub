@@ -236,12 +236,27 @@ export default function Campaigns() {
     }
   };
 
+  const [sendingCampaignId, setSendingCampaignId] = useState<string | null>(null);
+
   const handleSendCampaign = async (campaign: EmailCampaign) => {
+    if (!smtpConfigured) {
+      toast({
+        title: "SMTP nicht konfiguriert",
+        description: "Bitte konfigurieren Sie zuerst die SMTP-Einstellungen unter E-Mail Einstellungen.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!confirm(`Möchten Sie die Kampagne "${campaign.name}" jetzt versenden?`)) return;
+
+    setSendingCampaignId(campaign.id);
 
     try {
       // Fallback: Wenn keine Liste hinterlegt ist, alle aktiven Abonnenten verwenden
       let recipientEmails: string[] | undefined = undefined;
+      let recipientCount = 0;
+
       if (!campaign.list_id) {
         const { data: subs, error: subError } = await supabase
           .from('email_subscribers')
@@ -251,17 +266,32 @@ export default function Campaigns() {
         if (subError) throw subError;
 
         recipientEmails = (subs || []).map((s: any) => s.email).filter(Boolean);
-        if (recipientEmails.length === 0) {
+        recipientCount = recipientEmails.length;
+
+        if (recipientCount === 0) {
           toast({
-            title: "Fehler",
-            description: "Keine aktiven Empfänger gefunden. Bitte wählen Sie eine Liste oder fügen Sie Abonnenten hinzu.",
+            title: "Keine Empfänger",
+            description: "Keine aktiven Abonnenten gefunden. Bitte fügen Sie zuerst Abonnenten hinzu.",
             variant: "destructive"
           });
+          setSendingCampaignId(null);
           return;
         }
+      } else {
+        // Count list subscribers
+        const { count } = await supabase
+          .from('email_list_subscribers')
+          .select('*', { count: 'exact', head: true })
+          .eq('list_id', campaign.list_id);
+        recipientCount = count || 0;
       }
 
-      const { error } = await supabase.functions.invoke('send-marketing-email', {
+      toast({
+        title: "Kampagne wird gesendet",
+        description: `Sende an ${recipientCount} Empfänger...`,
+      });
+
+      const { data, error } = await supabase.functions.invoke('send-marketing-email', {
         body: {
           campaignId: campaign.id,
           listId: campaign.list_id || undefined,
@@ -272,20 +302,30 @@ export default function Campaigns() {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge Function Error:', error);
+        throw new Error(error.message || 'Fehler beim Versenden der Kampagne');
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
       toast({
-        title: "Erfolg",
-        description: "Kampagne wird versendet...",
+        title: "Kampagne versendet",
+        description: data?.message || `${data?.successCount || recipientCount} E-Mails erfolgreich versendet.`,
       });
 
       loadCampaigns();
     } catch (error: any) {
+      console.error('Campaign send error:', error);
       toast({
-        title: "Fehler",
-        description: error.message,
+        title: "Versand fehlgeschlagen",
+        description: error.message || 'Ein unbekannter Fehler ist aufgetreten.',
         variant: "destructive"
       });
+    } finally {
+      setSendingCampaignId(null);
     }
   };
 
@@ -491,9 +531,19 @@ export default function Campaigns() {
                               size="sm"
                               variant="default"
                               onClick={() => handleSendCampaign(campaign)}
+                              disabled={sendingCampaignId === campaign.id || !smtpConfigured}
                             >
-                              <Send className="h-4 w-4 mr-1" />
-                              Senden
+                              {sendingCampaignId === campaign.id ? (
+                                <>
+                                  <span className="animate-spin mr-1">⏳</span>
+                                  Sendet...
+                                </>
+                              ) : (
+                                <>
+                                  <Send className="h-4 w-4 mr-1" />
+                                  Senden
+                                </>
+                              )}
                             </Button>
                           )}
                           

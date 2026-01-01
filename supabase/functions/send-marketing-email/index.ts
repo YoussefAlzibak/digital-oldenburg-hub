@@ -136,25 +136,22 @@ const handler = async (req: Request): Promise<Response> => {
     // Send emails directly via SMTP
     let successCount = 0;
     let failedCount = 0;
+    const errors: string[] = [];
 
     for (const email of recipients) {
       try {
         await sendSMTPEmail(
           smtp,
           email,
-          createEmailMessage(
-            smtp.from_email,
-            smtp.from_name,
-            email,
-            emailRequest.subject,
-            emailRequest.htmlContent,
-            emailRequest.textContent || stripHtml(emailRequest.htmlContent)
-          )
+          emailRequest.subject,
+          emailRequest.htmlContent,
+          emailRequest.textContent || stripHtml(emailRequest.htmlContent)
         );
         console.log(`E-Mail erfolgreich gesendet an ${email}`);
         successCount++;
-      } catch (error) {
-        console.error(`Fehler beim Senden an ${email}:`, error);
+      } catch (error: any) {
+        console.error(`Fehler beim Senden an ${email}:`, error.message || error);
+        errors.push(`${email}: ${error.message || 'Unbekannter Fehler'}`);
         failedCount++;
       }
     }
@@ -166,7 +163,7 @@ const handler = async (req: Request): Promise<Response> => {
         .update({
           delivered_count: successCount,
           bounced_count: failedCount,
-          status: 'sent'
+          status: successCount > 0 ? 'sent' : 'failed'
         })
         .eq('id', emailRequest.campaignId);
     }
@@ -175,11 +172,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(
       JSON.stringify({ 
-        success: true, 
+        success: successCount > 0, 
         message: `${successCount} E-Mails erfolgreich versendet${failedCount > 0 ? `, ${failedCount} fehlgeschlagen` : ''}`,
         successCount,
         failedCount,
-        totalRecipients: recipients.length
+        totalRecipients: recipients.length,
+        errors: errors.length > 0 ? errors : undefined
       }),
       {
         status: 200,
@@ -220,80 +218,147 @@ function stripHtml(html: string): string {
     .trim();
 }
 
-async function sendSMTPEmail(smtp: SMTPSettings, to: string, message: string): Promise<void> {
+async function sendSMTPEmail(
+  smtp: SMTPSettings, 
+  to: string, 
+  subject: string,
+  htmlContent: string,
+  textContent: string
+): Promise<void> {
   let conn: Deno.Conn | null = null;
   
   try {
     console.log(`Verbinde mit SMTP-Server ${smtp.host}:${smtp.port}`);
 
-    const useImplicitTLS = smtp.port === 465 || smtp.secure === true;
-    let connLocal: Deno.Conn;
-
+    // Determine connection type based on port
+    const useImplicitTLS = smtp.port === 465;
+    
     if (useImplicitTLS) {
-      connLocal = await (Deno as any).connectTls({ hostname: smtp.host, port: smtp.port });
+      // Port 465: Direct TLS connection
+      conn = await Deno.connectTls({ hostname: smtp.host, port: smtp.port });
     } else {
-      connLocal = await Deno.connect({ hostname: smtp.host, port: smtp.port });
+      // Port 587 or 25: Plain connection first, then STARTTLS
+      conn = await Deno.connect({ hostname: smtp.host, port: smtp.port });
     }
-
-    conn = connLocal;
 
     // Read greeting
-    await readResponse(conn);
+    const greeting = await readResponse(conn);
+    console.log('Server greeting:', greeting.substring(0, 50));
+    
+    if (!greeting.startsWith('220')) {
+      throw new Error(`Unerwartete Server-Antwort: ${greeting}`);
+    }
 
     // EHLO with sender domain
-    const heloDomain = smtp.from_email && smtp.from_email.includes('@') ? smtp.from_email.split('@')[1] : 'localhost';
+    const heloDomain = smtp.from_email?.includes('@') ? smtp.from_email.split('@')[1] : 'localhost';
     await sendCommand(conn, `EHLO ${heloDomain}\r\n`);
     let ehloResponse = await readResponse(conn);
+    console.log('EHLO response received');
 
-    // Upgrade with STARTTLS when on 587 or server advertises it and we didn't use implicit TLS
-    if (!useImplicitTLS && (smtp.port === 587 || ehloResponse.includes('STARTTLS'))) {
+    // Upgrade with STARTTLS for port 587
+    if (!useImplicitTLS && smtp.port === 587) {
+      console.log('Initiating STARTTLS...');
       await sendCommand(conn, 'STARTTLS\r\n');
-      const tlsResponse = await readResponse(conn);
-      if (!tlsResponse.startsWith('220')) {
-        throw new Error(`STARTTLS fehlgeschlagen: ${tlsResponse}`);
+      const starttlsResponse = await readResponse(conn);
+      
+      if (!starttlsResponse.startsWith('220')) {
+        throw new Error(`STARTTLS fehlgeschlagen: ${starttlsResponse}`);
       }
-      const tlsConn = await Deno.startTls(conn, { hostname: smtp.host });
-      conn = tlsConn;
+      
+      console.log('STARTTLS accepted, upgrading connection...');
+      
+      // Upgrade to TLS
+      conn = await Deno.startTls(conn, { hostname: smtp.host });
+      console.log('TLS connection established');
+      
+      // Send EHLO again after TLS upgrade
       await sendCommand(conn, `EHLO ${heloDomain}\r\n`);
       ehloResponse = await readResponse(conn);
+      console.log('Post-TLS EHLO response received');
     }
 
-    // Authenticate
+    // Authenticate using AUTH LOGIN
+    console.log('Starting authentication...');
     await sendCommand(conn, 'AUTH LOGIN\r\n');
-    await readResponse(conn);
-    
-    await sendCommand(conn, `${btoa(smtp.username)}\r\n`);
-    await readResponse(conn);
-    
-    await sendCommand(conn, `${btoa(smtp.password)}\r\n`);
     const authResponse = await readResponse(conn);
     
-    if (!authResponse.startsWith('235')) {
-      throw new Error(`Authentifizierung fehlgeschlagen: ${authResponse}`);
+    if (!authResponse.startsWith('334')) {
+      throw new Error(`AUTH LOGIN nicht unterstützt: ${authResponse}`);
+    }
+    
+    // Send username (base64 encoded)
+    await sendCommand(conn, `${btoa(smtp.username)}\r\n`);
+    const userResponse = await readResponse(conn);
+    
+    if (!userResponse.startsWith('334')) {
+      throw new Error(`Benutzername abgelehnt: ${userResponse}`);
+    }
+    
+    // Send password (base64 encoded)
+    await sendCommand(conn, `${btoa(smtp.password)}\r\n`);
+    const passResponse = await readResponse(conn);
+    
+    if (!passResponse.startsWith('235')) {
+      throw new Error(`Authentifizierung fehlgeschlagen: ${passResponse}`);
+    }
+    
+    console.log('Authentication successful');
+
+    // Send MAIL FROM
+    await sendCommand(conn, `MAIL FROM:<${smtp.from_email}>\r\n`);
+    const mailFromResponse = await readResponse(conn);
+    
+    if (!mailFromResponse.startsWith('250')) {
+      throw new Error(`MAIL FROM abgelehnt: ${mailFromResponse}`);
     }
 
-    // Send email
-    await sendCommand(conn, `MAIL FROM:<${smtp.from_email}>\r\n`);
-    await readResponse(conn);
-
+    // Send RCPT TO
     await sendCommand(conn, `RCPT TO:<${to}>\r\n`);
-    await readResponse(conn);
+    const rcptToResponse = await readResponse(conn);
+    
+    if (!rcptToResponse.startsWith('250')) {
+      throw new Error(`RCPT TO abgelehnt: ${rcptToResponse}`);
+    }
 
+    // Send DATA
     await sendCommand(conn, 'DATA\r\n');
-    await readResponse(conn);
+    const dataResponse = await readResponse(conn);
+    
+    if (!dataResponse.startsWith('354')) {
+      throw new Error(`DATA abgelehnt: ${dataResponse}`);
+    }
 
+    // Create and send email message
+    const message = createEmailMessage(
+      smtp.from_email,
+      smtp.from_name,
+      to,
+      subject,
+      htmlContent,
+      textContent
+    );
+    
     await sendCommand(conn, message + '\r\n.\r\n');
-    await readResponse(conn);
+    const sendResponse = await readResponse(conn);
+    
+    if (!sendResponse.startsWith('250')) {
+      throw new Error(`E-Mail abgelehnt: ${sendResponse}`);
+    }
+
+    console.log('Email sent successfully');
 
     // Quit
     await sendCommand(conn, 'QUIT\r\n');
     
+  } catch (error) {
+    console.error('SMTP Error:', error);
+    throw error;
   } finally {
     if (conn) {
       try {
         conn.close();
       } catch (e) {
-        console.error('Fehler beim Schließen der Verbindung:', e);
+        // Ignore close errors
       }
     }
   }
@@ -307,14 +372,17 @@ function createEmailMessage(
   htmlContent: string,
   textContent: string
 ): string {
-  const boundary = `----=_Part_${Date.now()}`;
+  const boundary = `----=_Part_${Date.now()}_${Math.random().toString(36).substring(7)}`;
   const date = new Date().toUTCString();
   const messageId = `<${Date.now()}.${Math.random().toString(36).substring(7)}@${fromEmail.split('@')[1]}>`;
+
+  // Encode subject for UTF-8
+  const encodedSubject = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`;
 
   return [
     `From: "${fromName}" <${fromEmail}>`,
     `To: ${to}`,
-    `Subject: ${subject}`,
+    `Subject: ${encodedSubject}`,
     `Date: ${date}`,
     `Message-ID: ${messageId}`,
     `MIME-Version: 1.0`,
@@ -323,13 +391,13 @@ function createEmailMessage(
     ``,
     `--${boundary}`,
     `Content-Type: text/plain; charset=utf-8`,
-    `Content-Transfer-Encoding: 7bit`,
+    `Content-Transfer-Encoding: quoted-printable`,
     ``,
     textContent,
     ``,
     `--${boundary}`,
     `Content-Type: text/html; charset=utf-8`,
-    `Content-Transfer-Encoding: 7bit`,
+    `Content-Transfer-Encoding: quoted-printable`,
     ``,
     htmlContent,
     ``,
@@ -339,11 +407,31 @@ function createEmailMessage(
 
 async function readResponse(conn: Deno.Conn): Promise<string> {
   const buffer = new Uint8Array(4096);
-  const bytesRead = await conn.read(buffer);
-  if (!bytesRead) throw new Error('Verbindung geschlossen');
+  let fullResponse = '';
   
-  const response = new TextDecoder().decode(buffer.subarray(0, bytesRead));
-  return response.trim();
+  // Read until we get a complete response (line not starting with digit followed by dash)
+  while (true) {
+    const bytesRead = await conn.read(buffer);
+    if (!bytesRead) throw new Error('Verbindung geschlossen');
+    
+    const chunk = new TextDecoder().decode(buffer.subarray(0, bytesRead));
+    fullResponse += chunk;
+    
+    // Check if this is the last line of a multi-line response
+    const lines = fullResponse.split('\r\n');
+    const lastNonEmptyLine = lines.filter(l => l.length > 0).pop();
+    
+    if (lastNonEmptyLine && /^\d{3} /.test(lastNonEmptyLine)) {
+      break;
+    }
+    
+    // Also break if we have a simple single-line response
+    if (lastNonEmptyLine && /^\d{3}/.test(lastNonEmptyLine) && !/-/.test(lastNonEmptyLine.substring(0, 4))) {
+      break;
+    }
+  }
+  
+  return fullResponse.trim();
 }
 
 async function sendCommand(conn: Deno.Conn, command: string): Promise<void> {

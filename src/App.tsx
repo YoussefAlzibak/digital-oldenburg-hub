@@ -15,9 +15,13 @@ import Imprint from "./pages/Imprint";
 import Privacy from "./pages/Privacy";
 import CookieConsent from "./components/CookieConsent";
 
+console.log("App.tsx loaded successfully");
+
 const queryClient = new QueryClient();
 
 function App() {
+  console.log("App component rendering");
+  
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="dark" storageKey="unicum-tech-theme">

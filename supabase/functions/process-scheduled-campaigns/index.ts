@@ -60,7 +60,7 @@ const handler = async (req: Request): Promise<Response> => {
         // Get queued emails for this campaign
         const { data: queuedEmails, error: queueError } = await supabase
           .from('email_queue')
-          .select('id')
+          .select('id, subscriber_id')
           .eq('campaign_id', campaign.id)
           .eq('status', 'pending');
 
@@ -69,62 +69,127 @@ const handler = async (req: Request): Promise<Response> => {
           throw queueError;
         }
 
-        // If emails are already queued, update their scheduled time to now
+        // If emails are already queued, process them directly
         if (queuedEmails && queuedEmails.length > 0) {
-          console.log(`Updating ${queuedEmails.length} queued emails to send now`);
+          console.log(`Found ${queuedEmails.length} queued emails for campaign ${campaign.id}`);
           
-          const { error: updateError } = await supabase
-            .from('email_queue')
-            .update({ scheduled_at: new Date().toISOString() })
-            .eq('campaign_id', campaign.id)
-            .eq('status', 'pending');
-
-          if (updateError) {
-            console.error(`Error updating queue for campaign ${campaign.id}:`, updateError);
-            throw updateError;
-          }
-
-          // Trigger immediate processing
-          const { error: processError } = await supabase.functions.invoke('process-email-queue', {
-            body: { immediate: true, batchSize: 100 }
+          // Invoke send-marketing-email function to send the campaign
+          const { data: sendResult, error: sendError } = await supabase.functions.invoke('send-marketing-email', {
+            body: {
+              campaignId: campaign.id,
+              listId: campaign.list_id,
+              subject: campaign.subject,
+              htmlContent: campaign.html_content,
+              textContent: campaign.text_content
+            }
           });
 
-          if (processError) {
-            console.error(`Error invoking queue processor:`, processError);
+          if (sendError) {
+            console.error(`Error sending campaign ${campaign.id}:`, sendError);
+            
+            await supabase
+              .from('email_campaigns')
+              .update({ 
+                status: 'failed',
+                sent_at: new Date().toISOString()
+              })
+              .eq('id', campaign.id);
+            
+            errorCount++;
+          } else {
+            console.log(`Campaign ${campaign.id} sent successfully:`, sendResult);
+            
+            // Mark queued emails as sent
+            await supabase
+              .from('email_queue')
+              .update({ 
+                status: 'sent',
+                sent_at: new Date().toISOString()
+              })
+              .eq('campaign_id', campaign.id)
+              .eq('status', 'pending');
+            
+            processedCount++;
           }
         } else {
-          // No emails queued - this shouldn't happen for properly created campaigns
-          console.warn(`Campaign ${campaign.id} has no queued emails - marking as failed`);
+          // No emails queued - try to send directly using list_id
+          console.log(`No queued emails found for campaign ${campaign.id}, sending directly...`);
           
-          await supabase
-            .from('email_campaigns')
-            .update({ 
-              status: 'failed',
-              sent_at: new Date().toISOString()
-            })
-            .eq('id', campaign.id);
-          
-          continue; // Skip to next campaign
-        }
+          if (campaign.list_id) {
+            const { data: sendResult, error: sendError } = await supabase.functions.invoke('send-marketing-email', {
+              body: {
+                campaignId: campaign.id,
+                listId: campaign.list_id,
+                subject: campaign.subject,
+                htmlContent: campaign.html_content,
+                textContent: campaign.text_content
+              }
+            });
 
-        const sendError = null; // No error if we got here
+            if (sendError) {
+              console.error(`Error sending campaign ${campaign.id}:`, sendError);
+              
+              await supabase
+                .from('email_campaigns')
+                .update({ 
+                  status: 'failed',
+                  sent_at: new Date().toISOString()
+                })
+                .eq('id', campaign.id);
+              
+              errorCount++;
+            } else {
+              console.log(`Campaign ${campaign.id} sent successfully:`, sendResult);
+              processedCount++;
+            }
+          } else {
+            // No list_id and no queued emails - send to all active subscribers
+            const { data: allSubs } = await supabase
+              .from('email_subscribers')
+              .select('email')
+              .eq('status', 'active');
 
-        if (sendError) {
-          console.error(`Error sending campaign ${campaign.id}:`, sendError);
-          
-          // Update campaign status to failed
-          await supabase
-            .from('email_campaigns')
-            .update({ 
-              status: 'failed',
-              sent_at: new Date().toISOString()
-            })
-            .eq('id', campaign.id);
-          
-          errorCount++;
-        } else {
-          console.log(`Successfully queued campaign ${campaign.id} for sending`);
-          processedCount++;
+            if (allSubs && allSubs.length > 0) {
+              const { data: sendResult, error: sendError } = await supabase.functions.invoke('send-marketing-email', {
+                body: {
+                  campaignId: campaign.id,
+                  recipientEmails: allSubs.map(s => s.email),
+                  subject: campaign.subject,
+                  htmlContent: campaign.html_content,
+                  textContent: campaign.text_content
+                }
+              });
+
+              if (sendError) {
+                console.error(`Error sending campaign ${campaign.id}:`, sendError);
+                
+                await supabase
+                  .from('email_campaigns')
+                  .update({ 
+                    status: 'failed',
+                    sent_at: new Date().toISOString()
+                  })
+                  .eq('id', campaign.id);
+                
+                errorCount++;
+              } else {
+                console.log(`Campaign ${campaign.id} sent successfully:`, sendResult);
+                processedCount++;
+              }
+            } else {
+              console.warn(`Campaign ${campaign.id} has no recipients - marking as failed`);
+              
+              await supabase
+                .from('email_campaigns')
+                .update({ 
+                  status: 'failed',
+                  sent_at: new Date().toISOString()
+                })
+                .eq('id', campaign.id);
+              
+              errorCount++;
+            }
+          }
         }
       } catch (error: any) {
         console.error(`Error processing campaign ${campaign.id}:`, error);

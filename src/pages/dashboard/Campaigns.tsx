@@ -214,6 +214,27 @@ export default function Campaigns() {
     if (!confirm(`Möchten Sie die Kampagne "${campaign.name}" wirklich löschen?`)) return;
 
     try {
+      // First delete related queue entries
+      const { error: queueError } = await supabase
+        .from('email_queue')
+        .delete()
+        .eq('campaign_id', campaign.id);
+
+      if (queueError) {
+        console.error('Error deleting queue entries:', queueError);
+      }
+
+      // Then delete related email events
+      const { error: eventsError } = await supabase
+        .from('email_events')
+        .delete()
+        .eq('campaign_id', campaign.id);
+
+      if (eventsError) {
+        console.error('Error deleting email events:', eventsError);
+      }
+
+      // Finally delete the campaign
       const { error } = await supabase
         .from('email_campaigns')
         .delete()

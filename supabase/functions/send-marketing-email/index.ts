@@ -364,6 +364,114 @@ async function sendSMTPEmail(
   }
 }
 
+// Professional Email Template Wrapper with Unicum Tech Branding
+function wrapInBrandedTemplate(htmlContent: string): string {
+  // Check if content already has a complete HTML structure
+  if (htmlContent.includes('<!DOCTYPE html>') || htmlContent.includes('<html')) {
+    // Already has full HTML structure, add inline styles to existing structure
+    return htmlContent;
+  }
+
+  // Wrap simple content in branded template with inline CSS
+  return `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Unicum Tech</title>
+  <!--[if mso]>
+  <style type="text/css">
+    body, table, td {font-family: Arial, sans-serif !important;}
+  </style>
+  <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f7; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f7;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <!-- Email Container -->
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;">
+          
+          <!-- Header with Logo -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #1e3a5f 100%); padding: 30px 40px; text-align: center;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <!-- Logo Text -->
+                    <h1 style="margin: 0; font-size: 32px; font-weight: 800; color: #ffffff; letter-spacing: 1px;">
+                      <span style="color: #4ecdc4;">Unicum</span><span style="color: #ffffff;">Tech</span>
+                    </h1>
+                    <p style="margin: 8px 0 0 0; font-size: 12px; color: #8ec5fc; text-transform: uppercase; letter-spacing: 2px;">Digital Solutions by Melyou</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Main Content -->
+          <tr>
+            <td style="padding: 40px;">
+              ${htmlContent}
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #1e3a5f; padding: 30px 40px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <p style="margin: 0 0 15px 0; font-size: 16px; font-weight: 700; color: #ffffff;">
+                      <span style="color: #4ecdc4;">Unicum</span><span style="color: #ffffff;">Tech</span>
+                    </p>
+                    <p style="margin: 0 0 10px 0; font-size: 13px; color: #8ec5fc;">
+                      Ihre Digitalagentur für maßgeschneiderte Lösungen
+                    </p>
+                    <p style="margin: 0 0 20px 0; font-size: 12px; color: #6b8eb8;">
+                      Web-Entwicklung • Mobile Apps • Branding • IT-Lösungen
+                    </p>
+                    <table role="presentation" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding: 0 10px;">
+                          <a href="https://unicumtech.de" style="color: #4ecdc4; font-size: 13px; text-decoration: none;">Website</a>
+                        </td>
+                        <td style="color: #6b8eb8;">|</td>
+                        <td style="padding: 0 10px;">
+                          <a href="https://unicumtech.de/kontakt" style="color: #4ecdc4; font-size: 13px; text-decoration: none;">Kontakt</a>
+                        </td>
+                        <td style="color: #6b8eb8;">|</td>
+                        <td style="padding: 0 10px;">
+                          <a href="https://unicumtech.de/impressum" style="color: #4ecdc4; font-size: 13px; text-decoration: none;">Impressum</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Legal Footer -->
+          <tr>
+            <td style="background-color: #0f2439; padding: 20px 40px; text-align: center;">
+              <p style="margin: 0; font-size: 11px; color: #6b8eb8; line-height: 1.6;">
+                © ${new Date().getFullYear()} Unicum Tech by Melyou. Alle Rechte vorbehalten.<br>
+                <a href="#" style="color: #4ecdc4; text-decoration: none;">Abmelden</a> | 
+                <a href="https://unicumtech.de/datenschutz" style="color: #4ecdc4; text-decoration: none;">Datenschutz</a>
+              </p>
+            </td>
+          </tr>
+          
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
 function createEmailMessage(
   fromEmail: string,
   fromName: string,
@@ -378,6 +486,9 @@ function createEmailMessage(
 
   // Encode subject for UTF-8
   const encodedSubject = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`;
+
+  // Wrap HTML content in branded template
+  const brandedHtml = wrapInBrandedTemplate(htmlContent);
 
   return [
     `From: "${fromName}" <${fromEmail}>`,
@@ -399,7 +510,7 @@ function createEmailMessage(
     `Content-Type: text/html; charset=utf-8`,
     `Content-Transfer-Encoding: quoted-printable`,
     ``,
-    htmlContent,
+    brandedHtml,
     ``,
     `--${boundary}--`,
   ].join('\r\n');

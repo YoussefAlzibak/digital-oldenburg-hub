@@ -11,6 +11,7 @@ import {
   Calendar,
   Shield
 } from "lucide-react";
+import logoImage from "@/assets/logo.png";
 
 interface WebsiteLayoutProps {
   children: React.ReactNode;
@@ -26,14 +27,12 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
       <header className="header-enhanced fixed top-0 w-full z-50 touch-manipulation">
         <div className="container mx-auto px-4 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-4 md:py-5 relative z-10 max-w-7xl w-full">
           <div className="flex items-center justify-between gap-3 sm:gap-4">
-            <div className="flex items-center space-x-3 sm:space-x-3 md:space-x-4 animate-fade-left">
-              <div className="logo-container group scale-90 sm:scale-90 md:scale-100">
-                <div className="logo-geometric">
-                  <div className="logo-primary-shape"></div>
-                  <div className="logo-accent-shape"></div>
-                  <div className="logo-inner-detail"></div>
-                </div>
-              </div>
+            <Link to="/" className="flex items-center space-x-3 sm:space-x-3 md:space-x-4 animate-fade-left">
+              <img 
+                src={logoImage} 
+                alt="Unicum Tech Logo" 
+                className="h-12 sm:h-14 md:h-16 w-auto object-contain"
+              />
               <div className="logo-text">
                 <div className="flex items-baseline">
                   <span className="text-xl sm:text-xl md:text-2xl lg:text-3xl font-black text-[hsl(var(--brand-secondary))] tracking-tight">Unicum</span>
@@ -41,7 +40,7 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
                 </div>
                 <div className="text-[9px] sm:text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Melyou</div>
               </div>
-            </div>
+            </Link>
             
             <nav className="hidden md:flex lg:hidden items-center space-x-4 md:space-x-6">
               <Link to="/" className={`text-xs md:text-sm font-medium transition-colors touch-manipulation ${

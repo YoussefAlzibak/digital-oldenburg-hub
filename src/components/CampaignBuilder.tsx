@@ -493,6 +493,62 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
         });
       }
 
+      // Queue emails for scheduled campaigns
+      if (scheduledAt && campaignId && !sendImmediately) {
+        try {
+          // Get subscribers for this campaign
+          let subscriberIds: string[] = [];
+          
+          if (recipientMode === 'list' && formData.list_id) {
+            const { data: listSubs } = await supabase
+              .from('email_list_subscribers')
+              .select('subscriber_id')
+              .eq('list_id', formData.list_id);
+            subscriberIds = listSubs?.map(s => s.subscriber_id) || [];
+          } else if (recipientMode === 'custom' && selectedSubscribers.length > 0) {
+            subscriberIds = selectedSubscribers;
+          } else {
+            // All active subscribers
+            const { data: allSubs } = await supabase
+              .from('email_subscribers')
+              .select('id')
+              .eq('status', 'active');
+            subscriberIds = allSubs?.map(s => s.id) || [];
+          }
+
+          if (subscriberIds.length > 0) {
+            // Insert emails into queue
+            const queueEntries = subscriberIds.map(subId => ({
+              subscriber_id: subId,
+              campaign_id: campaignId,
+              subject: formData.subject,
+              html_content: formData.html_content,
+              text_content: formData.text_content || '',
+              scheduled_at: scheduledAt,
+              status: 'pending'
+            }));
+
+            const { error: queueError } = await supabase
+              .from('email_queue')
+              .insert(queueEntries);
+
+            if (queueError) {
+              console.error('Error queuing emails:', queueError);
+            } else {
+              // Update total_recipients count
+              await supabase
+                .from('email_campaigns')
+                .update({ total_recipients: subscriberIds.length })
+                .eq('id', campaignId);
+
+              console.log(`${subscriberIds.length} E-Mails in Warteschlange eingetragen`);
+            }
+          }
+        } catch (queueError) {
+          console.error('Error queuing scheduled emails:', queueError);
+        }
+      }
+
       // Only send immediately if requested
       if (sendImmediately && campaignId) {
         try {

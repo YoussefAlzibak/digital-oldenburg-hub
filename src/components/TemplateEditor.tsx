@@ -46,14 +46,13 @@ interface TemplateEditorProps {
 const defaultTemplates = {
   newsletter: {
     name: "Unicum Tech Newsletter",
-    subject: "Unicum Tech Newsletter - {{current_month}} {{current_year}}",
+    subject: "{{company_name}} Newsletter - {{current_month}} {{current_year}}",
     html_content: `<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Unicum Tech Newsletter</title>
+  <title>{{company_name}} Newsletter</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f4f4f7; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f7;">
@@ -77,7 +76,7 @@ const defaultTemplates = {
               <h2 style="margin: 0 0 20px 0; color: #1e3a5f; font-size: 24px;">Hallo {{first_name}},</h2>
               
               <p style="margin: 0 0 20px 0; color: #4a5568; font-size: 16px; line-height: 1.7;">
-                Willkommen zu unserem aktuellen Newsletter! Hier finden Sie die neuesten Updates und Entwicklungen aus der Welt der digitalen Lösungen.
+                Willkommen zu unserem aktuellen Newsletter! Hier finden Sie die neuesten Updates und Entwicklungen aus der Welt der digitalen Lösungen bei {{company_name}}.
               </p>
               
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 8px; margin: 25px 0;">
@@ -92,16 +91,16 @@ const defaultTemplates = {
               </table>
               
               <p style="text-align: center; margin: 30px 0;">
-                <a href="https://unicumtech.de/services" style="display: inline-block; background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Mehr erfahren →</a>
+                <a href="{{website_url}}/services" style="display: inline-block; background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Mehr erfahren →</a>
               </p>
               
               <p style="margin: 25px 0 0 0; color: #4a5568; font-size: 16px; line-height: 1.7;">
-                Vielen Dank für Ihr Vertrauen in Unicum Tech!
+                Vielen Dank für Ihr Vertrauen in {{company_name}}!
               </p>
               
               <p style="margin: 20px 0 0 0; color: #1e3a5f; font-size: 16px;">
                 Mit freundlichen Grüßen,<br>
-                <strong>Das Unicum Tech Team</strong>
+                <strong>Das {{company_name}} Team</strong>
               </p>
             </td>
           </tr>
@@ -114,9 +113,12 @@ const defaultTemplates = {
               </p>
               <p style="margin: 0 0 15px 0; font-size: 13px; color: #8ec5fc;">Digital Solutions by Melyou</p>
               <p style="margin: 0; font-size: 12px; color: #6b8eb8;">
-                <a href="https://unicumtech.de" style="color: #4ecdc4; text-decoration: none;">Website</a> | 
-                <a href="https://unicumtech.de/kontakt" style="color: #4ecdc4; text-decoration: none;">Kontakt</a> | 
+                <a href="{{website_url}}" style="color: #4ecdc4; text-decoration: none;">Website</a> | 
+                <a href="{{website_url}}/kontakt" style="color: #4ecdc4; text-decoration: none;">Kontakt</a> | 
                 <a href="#" style="color: #4ecdc4; text-decoration: none;">Abmelden</a>
+              </p>
+              <p style="margin: 15px 0 0 0; font-size: 11px; color: #6b8eb8;">
+                © {{current_year}} {{company_name}}. Alle Rechte vorbehalten.
               </p>
             </td>
           </tr>
@@ -134,29 +136,28 @@ Willkommen zu unserem Newsletter für {{current_month}} {{current_year}}!
 WAS GIBT ES NEUES?
 Entdecken Sie unsere neuesten Services und innovativen Lösungen für Ihr Unternehmen.
 
-Mehr erfahren: https://unicumtech.de/services
+Mehr erfahren: {{website_url}}/services
 
-Vielen Dank für Ihr Vertrauen in Unicum Tech!
+Vielen Dank für Ihr Vertrauen in {{company_name}}!
 
 Mit freundlichen Grüßen,
-Das Unicum Tech Team
+Das {{company_name}} Team
 
 ---
-Unicum Tech by Melyou
-Website: https://unicumtech.de
+{{company_name}} by Melyou
+Website: {{website_url}}
 Abmelden: [Link]
 `
   },
   appointment_confirmation: {
-    name: "Unicum Tech Terminbestätigung",
-    subject: "Ihr Termin bei Unicum Tech - {{appointment_date}} um {{appointment_time}}",
+    name: "{{company_name}} Terminbestätigung",
+    subject: "Ihr Termin bei {{company_name}} - {{appointment_date}} um {{appointment_time}}",
     html_content: `<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Terminbestätigung - Unicum Tech</title>
+  <title>Terminbestätigung - {{company_name}}</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f4f4f7; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f7;">
@@ -187,7 +188,7 @@ Abmelden: [Link]
               <h2 style="margin: 0 0 20px 0; color: #1e3a5f; font-size: 22px;">Hallo {{first_name}},</h2>
               
               <p style="margin: 0 0 25px 0; color: #4a5568; font-size: 16px; line-height: 1.7;">
-                Ihr Beratungstermin bei Unicum Tech wurde erfolgreich bestätigt. Wir freuen uns auf das Gespräch mit Ihnen!
+                Ihr Beratungstermin bei {{company_name}} wurde erfolgreich bestätigt. Wir freuen uns auf das Gespräch mit Ihnen!
               </p>
               
               <!-- Appointment Details Box -->
@@ -231,7 +232,7 @@ Abmelden: [Link]
               
               <p style="margin: 20px 0 0 0; color: #1e3a5f; font-size: 16px;">
                 Mit freundlichen Grüßen,<br>
-                <strong>Das Unicum Tech Team</strong>
+                <strong>Das {{company_name}} Team</strong>
               </p>
             </td>
           </tr>
@@ -244,8 +245,11 @@ Abmelden: [Link]
               </p>
               <p style="margin: 0 0 15px 0; font-size: 13px; color: #8ec5fc;">Ihre Digitalagentur für maßgeschneiderte Lösungen</p>
               <p style="margin: 0; font-size: 12px; color: #6b8eb8;">
-                <a href="https://unicumtech.de" style="color: #4ecdc4; text-decoration: none;">Website</a> | 
-                <a href="https://unicumtech.de/kontakt" style="color: #4ecdc4; text-decoration: none;">Kontakt</a>
+                <a href="{{website_url}}" style="color: #4ecdc4; text-decoration: none;">Website</a> | 
+                <a href="{{website_url}}/kontakt" style="color: #4ecdc4; text-decoration: none;">Kontakt</a>
+              </p>
+              <p style="margin: 15px 0 0 0; font-size: 11px; color: #6b8eb8;">
+                © {{current_year}} {{company_name}}. Alle Rechte vorbehalten.
               </p>
             </td>
           </tr>
@@ -258,7 +262,7 @@ Abmelden: [Link]
 </html>`,
     text_content: `Hallo {{first_name}},
 
-Ihr Beratungstermin bei Unicum Tech wurde erfolgreich bestätigt!
+Ihr Beratungstermin bei {{company_name}} wurde erfolgreich bestätigt!
 
 TERMINDETAILS:
 --------------
@@ -272,23 +276,22 @@ Meeting-Link: {{meeting_link}}
 Wir freuen uns auf das Gespräch mit Ihnen!
 
 Mit freundlichen Grüßen,
-Das Unicum Tech Team
+Das {{company_name}} Team
 
 ---
-Unicum Tech by Melyou
-Website: https://unicumtech.de
+{{company_name}} by Melyou
+Website: {{website_url}}
 `
   },
   follow_up: {
-    name: "Unicum Tech Follow-Up",
-    subject: "Danke für Ihre Anfrage, {{first_name}} - Unicum Tech",
+    name: "{{company_name}} Follow-Up",
+    subject: "Danke für Ihre Anfrage, {{first_name}} - {{company_name}}",
     html_content: `<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Anfrage erhalten - Unicum Tech</title>
+  <title>Anfrage erhalten - {{company_name}}</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f4f4f7; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f7;">
@@ -346,12 +349,12 @@ Website: https://unicumtech.de
               </table>
               
               <p style="text-align: center; margin: 30px 0;">
-                <a href="https://unicumtech.de/services" style="display: inline-block; background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Unsere Services entdecken →</a>
+                <a href="{{website_url}}/services" style="display: inline-block; background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Unsere Services entdecken →</a>
               </p>
               
               <p style="margin: 20px 0 0 0; color: #1e3a5f; font-size: 16px;">
                 Mit freundlichen Grüßen,<br>
-                <strong>Das Unicum Tech Team</strong>
+                <strong>Das {{company_name}} Team</strong>
               </p>
             </td>
           </tr>
@@ -367,8 +370,11 @@ Website: https://unicumtech.de
                 Web-Entwicklung • Mobile Apps • Branding • IT-Lösungen
               </p>
               <p style="margin: 0; font-size: 12px; color: #6b8eb8;">
-                <a href="https://unicumtech.de" style="color: #4ecdc4; text-decoration: none;">Website</a> | 
-                <a href="https://unicumtech.de/kontakt" style="color: #4ecdc4; text-decoration: none;">Kontakt</a>
+                <a href="{{website_url}}" style="color: #4ecdc4; text-decoration: none;">Website</a> | 
+                <a href="{{website_url}}/kontakt" style="color: #4ecdc4; text-decoration: none;">Kontakt</a>
+              </p>
+              <p style="margin: 15px 0 0 0; font-size: 11px; color: #6b8eb8;">
+                © {{current_year}} {{company_name}}. Alle Rechte vorbehalten.
               </p>
             </td>
           </tr>
@@ -394,15 +400,15 @@ Wir haben Ihre Nachricht erhalten und werden uns schnellstmöglich bei Ihnen mel
 
 Wir melden uns innerhalb von 24 Stunden bei Ihnen!
 
-Unsere Services: https://unicumtech.de/services
+Unsere Services: {{website_url}}/services
 
 Mit freundlichen Grüßen,
-Das Unicum Tech Team
+Das {{company_name}} Team
 
 ---
-Unicum Tech by Melyou
+{{company_name}} by Melyou
 Web-Entwicklung • Mobile Apps • Branding • IT-Lösungen
-Website: https://unicumtech.de
+Website: {{website_url}}
 `
   }
 };

@@ -138,14 +138,34 @@ const handler = async (req: Request): Promise<Response> => {
     let failedCount = 0;
     const errors: string[] = [];
 
+    // Get subscriber data for personalization
+    const { data: subscriberData } = await supabase
+      .from('email_subscribers')
+      .select('email, first_name, last_name, company')
+      .in('email', recipients);
+
+    const subscriberMap = new Map(
+      (subscriberData || []).map(s => [s.email, s])
+    );
+
     for (const email of recipients) {
       try {
+        const subscriber = subscriberMap.get(email);
+        
+        // Replace variables in subject and content
+        const personalizedSubject = replaceTemplateVariables(emailRequest.subject, subscriber);
+        const personalizedHtml = replaceTemplateVariables(emailRequest.htmlContent, subscriber);
+        const personalizedText = replaceTemplateVariables(
+          emailRequest.textContent || stripHtml(emailRequest.htmlContent), 
+          subscriber
+        );
+        
         await sendSMTPEmail(
           smtp,
           email,
-          emailRequest.subject,
-          emailRequest.htmlContent,
-          emailRequest.textContent || stripHtml(emailRequest.htmlContent)
+          personalizedSubject,
+          personalizedHtml,
+          personalizedText
         );
         console.log(`E-Mail erfolgreich gesendet an ${email}`);
         successCount++;
@@ -362,6 +382,40 @@ async function sendSMTPEmail(
       }
     }
   }
+}
+
+// Replace template variables with actual values
+function replaceTemplateVariables(content: string, subscriber?: { email: string; first_name?: string; last_name?: string; company?: string }): string {
+  const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+  const now = new Date();
+  const currentDate = `${now.getDate()}. ${months[now.getMonth()]} ${now.getFullYear()}`;
+  
+  let result = content
+    // Static company variables
+    .replace(/\{\{company_name\}\}/gi, 'Unicum Tech')
+    .replace(/\{\{website_url\}\}/gi, 'https://unicumtech.de')
+    // Date variables
+    .replace(/\{\{current_date\}\}/gi, currentDate)
+    .replace(/\{\{current_month\}\}/gi, months[now.getMonth()])
+    .replace(/\{\{current_year\}\}/gi, now.getFullYear().toString());
+  
+  // Subscriber-specific variables
+  if (subscriber) {
+    result = result
+      .replace(/\{\{first_name\}\}/gi, subscriber.first_name || 'Kunde')
+      .replace(/\{\{last_name\}\}/gi, subscriber.last_name || '')
+      .replace(/\{\{email\}\}/gi, subscriber.email || '')
+      .replace(/\{\{company\}\}/gi, subscriber.company || '');
+  } else {
+    // Fallback for missing subscriber data
+    result = result
+      .replace(/\{\{first_name\}\}/gi, 'Kunde')
+      .replace(/\{\{last_name\}\}/gi, '')
+      .replace(/\{\{email\}\}/gi, '')
+      .replace(/\{\{company\}\}/gi, '');
+  }
+  
+  return result;
 }
 
 // Professional Email Template Wrapper with Unicum Tech Branding

@@ -511,7 +511,7 @@ function wrapInBrandedTemplate(htmlContent: string): string {
           <tr>
             <td style="background-color: #0f2439; padding: 20px 40px; text-align: center;">
               <p style="margin: 0; font-size: 11px; color: #6b8eb8; line-height: 1.6;">
-                © ${new Date().getFullYear()} Unicum Tech by Melyou. Alle Rechte vorbehalten.<br>
+                © {{current_year}} Unicum Tech by Melyou. Alle Rechte vorbehalten.<br>
                 <a href="#" style="color: #4ecdc4; text-decoration: none;">Abmelden</a> | 
                 <a href="https://unicumtech.de/datenschutz" style="color: #4ecdc4; text-decoration: none;">Datenschutz</a>
               </p>

@@ -573,18 +573,18 @@ export default function Appointments() {
   const getStatusBadge = (status: string) => {
     const variants: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
       pending: "outline",
+      scheduled: "outline",
       confirmed: "default",
       completed: "secondary",
-      cancelled: "destructive",
-      scheduled: "outline"
+      cancelled: "destructive"
     };
 
     const labels: { [key: string]: string } = {
       pending: "Ausstehend",
+      scheduled: "Gebucht",
       confirmed: "Bestätigt",
       completed: "Abgeschlossen",
-      cancelled: "Abgebrochen",
-      scheduled: "Geplant"
+      cancelled: "Abgebrochen"
     };
 
     return (
@@ -652,10 +652,11 @@ export default function Appointments() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {['pending', 'confirmed', 'completed', 'cancelled'].map((status) => {
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {['scheduled', 'pending', 'confirmed', 'completed', 'cancelled'].map((status) => {
           const count = appointments.filter(a => a.status === status).length;
           const labels: { [key: string]: string } = {
+            scheduled: 'Gebucht',
             pending: 'Ausstehend',
             confirmed: 'Bestätigt',
             completed: 'Abgeschlossen',
@@ -749,7 +750,7 @@ export default function Appointments() {
 
                   <div className="flex flex-wrap gap-2">
                     {/* Status Actions */}
-                    {appointment.status === 'pending' && (
+                    {(appointment.status === 'pending' || appointment.status === 'scheduled') && (
                       <>
                         <Button
                           size="sm"
@@ -757,6 +758,14 @@ export default function Appointments() {
                         >
                           <CheckCircle className="h-4 w-4 mr-2" />
                           Bestätigen
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openReminderDialog(appointment)}
+                        >
+                          <Bell className="h-4 w-4 mr-2" />
+                          Erinnerung senden
                         </Button>
                         <Button
                           size="sm"

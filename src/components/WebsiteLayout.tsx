@@ -70,7 +70,7 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
               </Link>
               {/* Admin Link intentionally hidden; access only via direct URL */}
               <ThemeToggle />
-              <Link to="/contact" className="ml-4">
+              <Link to="/book-appointment" className="ml-4">
                 <button className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-secondary/90 transition-colors">
                   <Calendar className="h-4 w-4 mr-2 inline" />
                   Termin
@@ -104,10 +104,10 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
                 <ThemeToggle />
               </div>
               <button className="cta-button group text-sm touch-manipulation">
-                <Link to="/contact" className="flex items-center">
+                <Link to="/book-appointment" className="flex items-center">
                   <Calendar className="h-3.5 w-3.5 lg:h-4 lg:w-4 mr-1.5 lg:mr-2 group-hover:rotate-12 transition-transform" />
-                  <span className="hidden xl:inline">Beratung anfragen</span>
-                  <span className="xl:hidden">Beratung</span>
+                  <span className="hidden xl:inline">Termin buchen</span>
+                  <span className="xl:hidden">Termin</span>
                   <div className="cta-glow"></div>
                 </Link>
               </button>

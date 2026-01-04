@@ -41,9 +41,9 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: existingAppointments } = await supabase
       .from('appointments')
       .select('id')
-      .eq('appointment_date', bookingData.appointment_date)
-      .eq('appointment_time', bookingData.appointment_time)
-      .in('status', ['confirmed', 'pending']);
+      .eq('scheduled_date', bookingData.appointment_date)
+      .eq('scheduled_time', bookingData.appointment_time)
+      .in('status', ['confirmed', 'pending', 'scheduled']);
 
     if (existingAppointments && existingAppointments.length > 0) {
       return new Response(

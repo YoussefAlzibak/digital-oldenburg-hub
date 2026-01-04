@@ -90,44 +90,36 @@ export default function AppointmentBooking() {
     setIsBooking(true);
 
     try {
-      // Create appointment
-      const { data: appointment, error: appointmentError } = await supabase
-        .from('appointments')
-        .insert([{
-          scheduled_date: selectedDate,
-          scheduled_time: selectedTime,
-          meeting_type: appointmentType,
-          status: 'pending'
-        }])
-        .select()
-        .single();
-
-      if (appointmentError) throw appointmentError;
-
-      // Create contact request with appointment reference
-      const { error: contactError } = await supabase
-        .from('contact_requests')
-        .insert([{
+      // Use edge function to book appointment (bypasses RLS)
+      const { data, error } = await supabase.functions.invoke('book-appointment', {
+        body: {
+          appointment_date: selectedDate,
+          appointment_time: selectedTime,
+          appointment_type: appointmentType,
           name: customerData.name,
           email: customerData.email,
-          phone: customerData.phone,
-          company: customerData.company,
-          service_type: 'consultation',
-          message: customerData.message,
-          preferred_date: selectedDate,
-          preferred_time: selectedTime
-        }]);
-
-      if (contactError) throw contactError;
-
-      // Send confirmation email via edge function
-      await supabase.functions.invoke('send-appointment-confirmation', {
-        body: {
-          appointment,
-          customer: customerData,
-          appointmentType
+          phone: customerData.phone || undefined,
+          company: customerData.company || undefined,
+          message: customerData.message || undefined
         }
       });
+
+      if (error) throw error;
+      if (!data.success) throw new Error(data.error || 'Buchung fehlgeschlagen');
+
+      // Send confirmation email via edge function
+      try {
+        await supabase.functions.invoke('send-appointment-confirmation', {
+          body: {
+            appointment: data.appointment,
+            customer: customerData,
+            appointmentType
+          }
+        });
+      } catch (emailError) {
+        console.error('Confirmation email error:', emailError);
+        // Don't fail the booking if email fails
+      }
 
       toast({
         title: "Termin erfolgreich gebucht!",

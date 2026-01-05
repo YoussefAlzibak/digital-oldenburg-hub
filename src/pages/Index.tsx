@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { WebsiteLayout } from "@/components/WebsiteLayout";
+import { CustomerReviews } from "@/components/CustomerReviews";
+import NewsletterSignup from "@/components/NewsletterSignup";
 
 // Import generated images
 import webdesignService from "@/assets/webdesign-service.webp";
@@ -359,6 +361,31 @@ const Index = () => {
                 </Link>
               </Button>
             </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* Customer Reviews Section */}
+      <CustomerReviews />
+
+      {/* Newsletter Section */}
+      <section className="py-16 sm:py-20 bg-muted/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+          <ScrollReveal animation="fade-up">
+            <div className="text-center mb-8">
+              <Badge className="mb-4 px-4 py-2 text-sm bg-primary/10 text-primary border-primary/20">
+                Newsletter
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+                Bleiben Sie <span className="text-primary">informiert</span>
+              </h2>
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                Erhalten Sie exklusive Updates, Tipps und Neuigkeiten direkt in Ihr Postfach
+              </p>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal animation="scale-in" delay={200}>
+            <NewsletterSignup />
           </ScrollReveal>
         </div>
       </section>

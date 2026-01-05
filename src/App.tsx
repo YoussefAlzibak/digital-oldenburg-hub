@@ -15,7 +15,7 @@ import Imprint from "./pages/Imprint";
 import Privacy from "./pages/Privacy";
 import CookieConsent from "./components/CookieConsent";
 
-const queryClient = new QueryClient(); // v2
+const queryClient = new QueryClient();
 
 function App() {
   return (

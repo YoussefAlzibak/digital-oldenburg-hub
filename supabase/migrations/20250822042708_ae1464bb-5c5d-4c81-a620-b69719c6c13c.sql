@@ -61,7 +61,7 @@ INSERT INTO email_templates (name, subject, html_content, text_content, template
                 <a href="#">Facebook</a>
                 <a href="#">Twitter</a>
             </div>
-            <p>Unicum Tech | Ihr Partner für digitale Transformation</p>
+            <p>Digital Masters | Ihr Partner für digitale Transformation</p>
             <p><a href="#" style="color: #667eea;">Abmelden</a> | <a href="#" style="color: #667eea;">Newsletter-Einstellungen</a></p>
         </div>
     </div>
@@ -80,7 +80,7 @@ ERFOLGSGESCHICHTEN
 Lesen Sie unsere neuesten Case Studies und Referenzen.
 
 Mit freundlichen Grüßen
-Unicum Tech Team
+Digital Masters Team
 
 Abmelden: [Link]',
   'marketing',
@@ -127,7 +127,7 @@ Abmelden: [Link]',
         <div class="content">
             <div class="welcome-message">
                 <h2>Hallo {{first_name}}!</h2>
-                <p>Herzlich willkommen bei Unicum Tech! Wir freuen uns sehr, Sie in unserem Team begrüßen zu dürfen. Sie haben den ersten Schritt zu einer erfolgreichen digitalen Transformation gemacht.</p>
+                <p>Herzlich willkommen bei Digital Masters! Wir freuen uns sehr, Sie in unserem Team begrüßen zu dürfen. Sie haben den ersten Schritt zu einer erfolgreichen digitalen Transformation gemacht.</p>
             </div>
             
             <div class="features">
@@ -156,7 +156,7 @@ Abmelden: [Link]',
         </div>
         
         <div class="footer">
-            <p><strong>Unicum Tech</strong></p>
+            <p><strong>Digital Masters</strong></p>
             <p>Ihr Partner für digitale Innovation</p>
             <p style="margin-top: 15px; font-size: 12px;">
                 <a href="#" style="color: #3b82f6;">Kontakt</a> | 
@@ -167,7 +167,7 @@ Abmelden: [Link]',
     </div>
 </body>
 </html>',
-  'Herzlich willkommen bei Unicum Tech!
+  'Herzlich willkommen bei Digital Masters!
 
 Hallo {{first_name}}!
 
@@ -181,7 +181,7 @@ IHRE VORTEILE:
 Jetzt loslegen: [Link]
 
 Mit freundlichen Grüßen
-Unicum Tech Team',
+Digital Masters Team',
   'transactional',
   true
 ),
@@ -282,7 +282,7 @@ Unicum Tech Team',
         </div>
         
         <div class="footer">
-            <p><strong>Unicum Tech</strong></p>
+            <p><strong>Digital Masters</strong></p>
             <p>Ihr Partner für digitale Excellence</p>
             <p style="margin-top: 15px; font-size: 12px;">
                 <a href="#" style="color: #f59e0b;">Angebot ansehen</a> | 
@@ -311,7 +311,7 @@ Jetzt 50% sparen: [Link]
 
 ⏰ Nur noch wenige Stunden verfügbar!
 
-Unicum Tech Team',
+Digital Masters Team',
   'marketing',
   true
 );

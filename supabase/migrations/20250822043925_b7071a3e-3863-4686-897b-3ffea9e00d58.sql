@@ -47,29 +47,29 @@ BEGIN
         </div>
         <div class="content">
             <p>Liebe/r {{first_name}},</p>
-            <p>herzlich willkommen bei Unicum Tech! Wir freuen uns sehr, Sie in unserem Newsletter begrüßen zu dürfen.</p>
+            <p>herzlich willkommen bei Digital Masters! Wir freuen uns sehr, Sie in unserem Newsletter begrüßen zu dürfen.</p>
             <p>In den kommenden Tagen erhalten Sie wertvolle Tipps und Insights zur digitalen Transformation Ihres Unternehmens.</p>
             <p style="margin: 30px 0;">
                 <a href="#" class="btn">Jetzt entdecken</a>
             </p>
         </div>
         <div class="footer">
-            <p><strong>Unicum Tech Team</strong></p>
+            <p><strong>Digital Masters Team</strong></p>
             <p><a href="#" style="color: #3b82f6;">Abmelden</a></p>
         </div>
     </div>
 </body>
 </html>',
-        'Willkommen bei Unicum Tech!
+        'Willkommen bei Digital Masters!
 
 Liebe/r {{first_name}},
 
-herzlich willkommen bei Unicum Tech! Wir freuen uns sehr, Sie in unserem Newsletter begrüßen zu dürfen.
+herzlich willkommen bei Digital Masters! Wir freuen uns sehr, Sie in unserem Newsletter begrüßen zu dürfen.
 
 In den kommenden Tagen erhalten Sie wertvolle Tipps und Insights zur digitalen Transformation.
 
 Mit freundlichen Grüßen
-Unicum Tech Team',
+Digital Masters Team',
         0,
         true
     ),
@@ -130,7 +130,7 @@ hier sind Ihre ersten 3 Schritte:
 
 Benötigen Sie Unterstützung? Buchen Sie ein kostenloses Beratungsgespräch!
 
-Unicum Tech Team',
+Digital Masters Team',
         1440, -- 24 Stunden später
         true
     ),
@@ -192,7 +192,7 @@ Gültig für:
 
 Jetzt sparen: [Link]
 
-Unicum Tech Team',
+Digital Masters Team',
         4320, -- 72 Stunden später (3 Tage)
         true
     );
@@ -260,7 +260,7 @@ BEGIN
             <p>Falls Sie Fragen haben oder den Termin verschieben müssen, melden Sie sich gerne bei uns.</p>
             
             <p>Mit freundlichen Grüßen<br>
-            Ihr Unicum Tech Team</p>
+            Ihr Digital Masters Team</p>
         </div>
     </div>
 </body>
@@ -284,7 +284,7 @@ WAS SIE ERWARTET:
 
 Bei Fragen melden Sie sich gerne.
 
-Unicum Tech Team',
+Digital Masters Team',
         0,
         true
     ),
@@ -320,7 +320,7 @@ Unicum Tech Team',
             <p>Wir freuen uns auf unser Gespräch! Haben Sie noch Fragen oder möchten etwas Spezifisches besprechen? Lassen Sie es uns gerne vorab wissen.</p>
             
             <p>Bis morgen!<br>
-            Ihr Unicum Tech Team</p>
+            Ihr Digital Masters Team</p>
         </div>
     </div>
 </body>
@@ -336,7 +336,7 @@ Service: {{service_type}}
 
 Wir freuen uns auf unser Gespräch!
 
-Unicum Tech Team',
+Digital Masters Team',
         1320, -- 22 Stunden später (am Tag vor dem Termin)
         true
     );
@@ -399,7 +399,7 @@ BEGIN
             </ul>
             
             <p>Mit freundlichen Grüßen<br>
-            Ihr Unicum Tech Team</p>
+            Ihr Digital Masters Team</p>
         </div>
     </div>
 </body>
@@ -415,7 +415,7 @@ Wir melden uns innerhalb von 24 Stunden bei Ihnen zurück.
 Für noch schnellere Hilfe können Sie auch direkt einen Beratungstermin buchen.
 
 Mit freundlichen Grüßen
-Unicum Tech Team',
+Digital Masters Team',
         30, -- 30 Minuten später
         true
     );

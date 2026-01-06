@@ -7,7 +7,7 @@ CREATE TABLE public.smtp_settings (
   password text NOT NULL,
   secure boolean NOT NULL DEFAULT true,
   from_email text NOT NULL,
-  from_name text NOT NULL DEFAULT 'Unicum Tech',
+  from_name text NOT NULL DEFAULT 'Digital Masters',
   is_active boolean NOT NULL DEFAULT true,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now()

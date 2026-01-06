@@ -76,7 +76,7 @@ const handler = async (req: Request): Promise<Response> => {
           message: contactRequest.message || '',
           preferred_date: contactRequest.preferred_date || '',
           preferred_time: contactRequest.preferred_time || '',
-          company_name: 'Digital Masters'
+          company_name: 'Unicum Tech'
         }
       }
     });

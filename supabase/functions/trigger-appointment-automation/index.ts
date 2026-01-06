@@ -88,7 +88,7 @@ const handler = async (req: Request): Promise<Response> => {
           appointment_time: appointment.scheduled_time,
           meeting_type: appointment.meeting_type,
           meeting_link: appointment.meeting_link || '',
-          company_name: 'Digital Masters'
+          company_name: 'Unicum Tech'
         }
       }
     });

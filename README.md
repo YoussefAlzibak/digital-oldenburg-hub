@@ -7,7 +7,7 @@ Unicum Tech bietet professionelle Webentwicklung, CRM-Systeme und SEO-Lösungen 
 ## Kontakt
 
 - **Adresse**: Hirschberger Straße 30, 26135 Oldenburg
-- **Telefon**: +49 1706666809
+- **Telefon**: 0441 18160647
 - **E-Mail**: info@unicum-tech.com
 - **Website**: https://www.unicum-tech.de
 

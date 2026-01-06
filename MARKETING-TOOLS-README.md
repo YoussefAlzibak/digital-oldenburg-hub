@@ -321,7 +321,7 @@ Verfügbare Platzhalter:
 - {{email}} - E-Mail-Adresse
 - {{company}} - Unternehmen
 - {{unsubscribe_url}} - Abmelde-Link
-- {{company_name}} - Firmenname (Standard: "Digital Masters")
+- {{company_name}} - Firmenname (Standard: "Unicum Tech")
 ```
 
 ---

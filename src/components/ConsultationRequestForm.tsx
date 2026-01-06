@@ -1,0 +1,266 @@
+import { useState, FormEvent } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar, Clock, User, Mail, Phone } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+export default function ConsultationRequestForm() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    service: '',
+    message: '',
+    preferred_date: '',
+    preferred_time: '',
+    consultation_type: 'online'
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('contact_requests')
+        .insert([{
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || null,
+          company: formData.company || null,
+          service_type: formData.service,
+          message: formData.message || null,
+          preferred_date: formData.preferred_date || null,
+          preferred_time: formData.preferred_time || null
+        }])
+        .select('id')
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Beratungsanfrage gesendet!",
+        description: "Wir melden uns innerhalb von 24 Stunden bei Ihnen zurück.",
+      });
+
+      // Trigger contact form automation
+      try {
+        await supabase.functions.invoke('trigger-contact-automation', {
+          body: {
+            contactRequestId: data.id,
+            email: formData.email,
+            name: formData.name,
+            serviceType: formData.service
+          }
+        });
+        console.log('Contact form automation triggered successfully');
+      } catch (automationError) {
+        console.error('Contact form automation error:', automationError);
+        // Don't show error to user as the main request was successful
+      }
+
+      // Send confirmation email to customer
+      try {
+        await supabase.functions.invoke('send-contact-confirmation', {
+          body: {
+            contactRequest: {
+              id: data.id,
+              name: formData.name,
+              email: formData.email,
+              phone: formData.phone,
+              company: formData.company,
+              service_type: formData.service,
+              message: formData.message,
+              preferred_date: formData.preferred_date,
+              preferred_time: formData.preferred_time
+            }
+          }
+        });
+        console.log('Contact confirmation email sent successfully');
+      } catch (emailError) {
+        console.error('Contact confirmation email error:', emailError);
+        // Don't show error to user as the main request was successful
+      }
+
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        company: '',
+        service: '',
+        message: '',
+        preferred_date: '',
+        preferred_time: '',
+        consultation_type: 'online'
+      });
+    } catch (error) {
+      toast({
+        title: "Fehler",
+        description: "Ihre Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const today = new Date().toISOString().split('T')[0];
+
+  return (
+    <Card className="w-full max-w-2xl mx-auto">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Calendar className="h-5 w-5" />
+          Kostenlose Beratung anfragen
+        </CardTitle>
+        <CardDescription>
+          Vereinbaren Sie einen unverbindlichen Beratungstermin mit unseren Experten
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Name *
+              </Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => handleChange('name', e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="company">Unternehmen</Label>
+              <Input
+                id="company"
+                value={formData.company}
+                onChange={(e) => handleChange('company', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                E-Mail *
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleChange('email', e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="flex items-center gap-2">
+                <Phone className="h-4 w-4" />
+                Telefon
+              </Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => handleChange('phone', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="service">Service-Bereich</Label>
+            <Select value={formData.service} onValueChange={(value) => handleChange('service', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Wählen Sie einen Service-Bereich" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="webdesign">Webdesign & Development</SelectItem>
+                <SelectItem value="it-services">IT-Services & Support</SelectItem>
+                <SelectItem value="crm">CRM-Systeme</SelectItem>
+                <SelectItem value="print">Print & Grafikdesign</SelectItem>
+                <SelectItem value="consulting">IT-Beratung</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="preferred_date">Wunschtermin</Label>
+              <Input
+                id="preferred_date"
+                type="date"
+                min={today}
+                value={formData.preferred_date}
+                onChange={(e) => handleChange('preferred_date', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="preferred_time" className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Uhrzeit
+              </Label>
+              <Select value={formData.preferred_time} onValueChange={(value) => handleChange('preferred_time', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Wählen Sie eine Uhrzeit" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="09:00">09:00 Uhr</SelectItem>
+                  <SelectItem value="10:00">10:00 Uhr</SelectItem>
+                  <SelectItem value="11:00">11:00 Uhr</SelectItem>
+                  <SelectItem value="14:00">14:00 Uhr</SelectItem>
+                  <SelectItem value="15:00">15:00 Uhr</SelectItem>
+                  <SelectItem value="16:00">16:00 Uhr</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="consultation_type">Beratungsart</Label>
+            <Select value={formData.consultation_type} onValueChange={(value) => handleChange('consultation_type', value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="online">Online (Video-Call)</SelectItem>
+                <SelectItem value="phone">Telefonisch</SelectItem>
+                <SelectItem value="office">Vor Ort in unserem Büro</SelectItem>
+                <SelectItem value="client">Vor Ort beim Kunden</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="message">Nachricht</Label>
+            <Textarea
+              id="message"
+              rows={4}
+              placeholder="Beschreiben Sie kurz Ihr Anliegen oder Ihre Anforderungen..."
+              value={formData.message}
+              onChange={(e) => handleChange('message', e.target.value)}
+            />
+          </div>
+
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? 'Wird gesendet...' : 'Beratungstermin anfragen'}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}

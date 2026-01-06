@@ -1,0 +1,1 @@
+UPDATE profiles SET is_admin = true WHERE email = 'youssef.alzibak@gmail.com';

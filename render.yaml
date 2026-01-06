@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: unicum-tech
+    env: static
+    buildCommand: bun run build
+    staticPublishPath: ./build
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

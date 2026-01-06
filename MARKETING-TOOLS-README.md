@@ -589,8 +589,8 @@ Hier finden Sie detaillierte Informationen über:
 
 #### Kontakt für technische Unterstützung
 ```
-E-Mail: support@unicumtec.de
-Telefon: +49 (0) XXX XXX XXX
+E-Mail: support@unicum-tec.de
+Telefon: +49 44118160647
 Verfügbarkeit: Mo-Fr 9:00-18:00 Uhr
 ```
 

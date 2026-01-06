@@ -91,7 +91,7 @@ const handler = async (req: Request): Promise<Response> => {
               phone: subscriber.phone,
               trigger_date: triggerData.triggerDate || new Date().toISOString(),
               automation_id: triggerData.automationId,
-              company_name: 'Digital Masters'
+              company_name: 'Unicum Tech'
             }
           }
         });

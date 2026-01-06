@@ -1142,7 +1142,7 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
             <div className="border rounded-lg p-4 bg-white">
               <div className="mb-4 p-3 bg-gray-50 border-b">
                 <div className="text-sm font-medium">Betreff: {formData.subject}</div>
-                <div className="text-xs text-muted-foreground">Von: Digital Masters &lt;info@digital-masters.de&gt;</div>
+                <div className="text-xs text-muted-foreground">Von: Unicum Tech &lt;info@unicum-tech.com&gt;</div>
               </div>
               
               <div 

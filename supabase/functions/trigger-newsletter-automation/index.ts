@@ -57,7 +57,7 @@ const handler = async (req: Request): Promise<Response> => {
         subscriberId: subscriber.id,
         triggerData: {
           ...subscriptionData,
-          company_name: 'Digital Masters'
+          company_name: 'Unicum Tech'
         }
       }
     });

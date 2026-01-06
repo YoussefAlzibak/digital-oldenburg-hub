@@ -343,7 +343,7 @@ export default function AppointmentRenewal() {
             company: appointment.contact_requests.company || '',
             service_type: appointment.contact_requests.service_type,
             last_appointment_date: format(new Date(appointment.scheduled_date), 'dd.MM.yyyy'),
-            company_name: 'Digital Masters'
+            company_name: 'Unicum Tech'
           }
         }
       });

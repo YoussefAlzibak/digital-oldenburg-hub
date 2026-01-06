@@ -76,7 +76,7 @@ serve(async (req) => {
                 company: appointment.contact_requests.company || '',
                 service_type: appointment.contact_requests.service_type || 'Beratung',
                 last_appointment_date: new Date(appointment.scheduled_date).toLocaleDateString('de-DE'),
-                company_name: 'Digital Masters'
+                company_name: 'Unicum Tech'
               }
             }
           })

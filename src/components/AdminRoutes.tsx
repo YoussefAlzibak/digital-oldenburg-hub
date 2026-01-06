@@ -13,6 +13,7 @@ import Renewals from "@/pages/dashboard/Renewals";
 import CalendarSettings from "@/pages/dashboard/CalendarSettings";
 import Automations from "@/pages/dashboard/Automations";
 import Reviews from "@/pages/dashboard/Reviews";
+import Templates from "@/pages/dashboard/Templates";
 
 export default function AdminRoutes() {
   return (
@@ -35,6 +36,7 @@ export default function AdminRoutes() {
         <Route path="/email-marketing" element={<EmailMarketing />} />
         <Route path="/campaigns" element={<Campaigns />} />
         <Route path="/automations" element={<Automations />} />
+        <Route path="/templates" element={<Templates />} />
         
         {/* Settings */}
         <Route path="/email-settings" element={<EmailSettings />} />

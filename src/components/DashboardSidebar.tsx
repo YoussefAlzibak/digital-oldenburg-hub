@@ -13,7 +13,8 @@ import {
   ArrowLeft,
   LogOut,
   Send,
-  Star
+  Star,
+  FileText
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -45,6 +46,7 @@ const emailItems = [
   { title: "Abonnenten", url: "/admin/subscribers", icon: UserCheck },
   { title: "Marketing", url: "/admin/email-marketing", icon: Mail },
   { title: "Kampagnen", url: "/admin/campaigns", icon: Send },
+  { title: "Templates", url: "/admin/templates", icon: FileText },
   { title: "Automatisierungen", url: "/admin/automations", icon: RotateCcw },
   { title: "Verlängerungen", url: "/admin/renewals", icon: Calendar },
 ];

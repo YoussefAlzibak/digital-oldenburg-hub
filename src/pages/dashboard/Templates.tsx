@@ -47,7 +47,7 @@ const templateCategories = [
   { value: 'all', label: 'Alle Templates', icon: LayoutGrid },
   { value: 'marketing', label: 'Marketing', icon: Mail },
   { value: 'transactional', label: 'Transaktional', icon: Check },
-  { value: 'automation', label: 'Automatisierung', icon: Zap },
+  { value: 'automation', label: 'Automation', icon: Zap },
   { value: 'newsletter', label: 'Newsletter', icon: MessageSquare },
   { value: 'promotion', label: 'Promotion', icon: ShoppingBag },
 ];
@@ -278,15 +278,33 @@ export default function Templates() {
       <Dialog open={showPreview} onOpenChange={setShowPreview}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{previewTemplate?.name}</DialogTitle>
-            <DialogDescription>Betreff: {previewTemplate?.subject}</DialogDescription>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5" />
+              {previewTemplate?.name}
+            </DialogTitle>
+            <DialogDescription>
+              <span className="font-medium">Betreff:</span> {previewTemplate?.subject}
+            </DialogDescription>
           </DialogHeader>
-          <div className="border rounded-lg p-4 bg-white">
-            <div 
-              dangerouslySetInnerHTML={{ __html: previewTemplate?.html_content || '' }}
-              className="prose max-w-none"
-            />
-          </div>
+          <Tabs defaultValue="html" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="html">HTML-Ansicht</TabsTrigger>
+              <TabsTrigger value="text">Text-Ansicht</TabsTrigger>
+            </TabsList>
+            <TabsContent value="html">
+              <div className="border rounded-lg bg-white overflow-hidden">
+                <div 
+                  dangerouslySetInnerHTML={{ __html: previewTemplate?.html_content || '' }}
+                  className="prose max-w-none"
+                />
+              </div>
+            </TabsContent>
+            <TabsContent value="text">
+              <div className="border rounded-lg p-4 bg-muted/30 whitespace-pre-wrap font-mono text-sm">
+                {previewTemplate?.text_content || 'Keine Text-Version verfügbar'}
+              </div>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
 
@@ -414,10 +432,10 @@ export default function Templates() {
                   className="pl-9"
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <TabsList className="h-10">
-                    {templateCategories.slice(0, 4).map((cat) => (
+                  <TabsList className="h-10 flex-wrap">
+                    {templateCategories.map((cat) => (
                       <TabsTrigger key={cat.value} value={cat.value} className="text-xs px-3">
                         {cat.label}
                       </TabsTrigger>
@@ -627,22 +645,38 @@ export default function Templates() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
               {[
                 { var: '{{first_name}}', desc: 'Vorname' },
                 { var: '{{last_name}}', desc: 'Nachname' },
                 { var: '{{email}}', desc: 'E-Mail' },
                 { var: '{{company}}', desc: 'Unternehmen' },
-                { var: '{{company_name}}', desc: 'Unicum Tech' },
+                { var: '{{company_name}}', desc: 'Firmenname' },
+                { var: '{{phone}}', desc: 'Telefon' },
                 { var: '{{appointment_date}}', desc: 'Termindatum' },
                 { var: '{{appointment_time}}', desc: 'Terminzeit' },
                 { var: '{{service_type}}', desc: 'Service-Art' },
+                { var: '{{meeting_type}}', desc: 'Meeting-Art' },
+                { var: '{{meeting_link}}', desc: 'Meeting-Link' },
+                { var: '{{website_url}}', desc: 'Website URL' },
+                { var: '{{current_month}}', desc: 'Monat' },
+                { var: '{{current_year}}', desc: 'Jahr' },
               ].map((item) => (
-                <div key={item.var} className="flex items-center gap-2 text-sm">
+                <div 
+                  key={item.var} 
+                  className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-2 rounded transition-colors"
+                  onClick={() => {
+                    navigator.clipboard.writeText(item.var);
+                    toast({
+                      title: "Kopiert!",
+                      description: `${item.var} wurde in die Zwischenablage kopiert.`,
+                    });
+                  }}
+                >
                   <code className="bg-primary/10 px-2 py-1 rounded text-xs font-mono">
                     {item.var}
                   </code>
-                  <span className="text-muted-foreground">{item.desc}</span>
+                  <span className="text-muted-foreground text-xs">{item.desc}</span>
                 </div>
               ))}
             </div>

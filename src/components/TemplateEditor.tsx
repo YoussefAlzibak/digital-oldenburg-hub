@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
 import { 
   FileText, 
   Save, 
@@ -20,7 +21,11 @@ import {
   Mail,
   User,
   Building,
-  Phone
+  Phone,
+  Globe,
+  Clock,
+  Link,
+  Loader2
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -42,6 +47,14 @@ interface TemplateEditorProps {
   onClose: () => void;
   onSave: () => void;
 }
+
+const templateTypeOptions = [
+  { value: 'marketing', label: 'Marketing', description: 'Werbe-E-Mails und Kampagnen' },
+  { value: 'transactional', label: 'Transaktional', description: 'Bestätigungen und Benachrichtigungen' },
+  { value: 'automation', label: 'Automatisierung', description: 'Automatische E-Mails' },
+  { value: 'newsletter', label: 'Newsletter', description: 'Regelmäßige Updates' },
+  { value: 'promotion', label: 'Promotion', description: 'Sonderangebote und Aktionen' },
+];
 
 const defaultTemplates = {
   newsletter: {
@@ -419,30 +432,37 @@ export default function TemplateEditor({ template, isOpen, onClose, onSave }: Te
     subject: '',
     html_content: '',
     text_content: '',
-    template_type: 'marketing'
+    template_type: 'marketing',
+    is_active: true
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewMode, setPreviewMode] = useState<'html' | 'text'>('html');
+  const [saveError, setSaveError] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (template) {
-      setFormData({
-        name: template.name,
-        subject: template.subject,
-        html_content: template.html_content,
-        text_content: template.text_content || '',
-        template_type: template.template_type
-      });
-    } else {
-      // Reset form for new template
-      setFormData({
-        name: '',
-        subject: '',
-        html_content: '',
-        text_content: '',
-        template_type: 'marketing'
-      });
+    if (isOpen) {
+      setSaveError(null);
+      if (template) {
+        setFormData({
+          name: template.name,
+          subject: template.subject,
+          html_content: template.html_content,
+          text_content: template.text_content || '',
+          template_type: template.template_type,
+          is_active: template.is_active
+        });
+      } else {
+        // Reset form for new template
+        setFormData({
+          name: '',
+          subject: '',
+          html_content: '',
+          text_content: '',
+          template_type: 'marketing',
+          is_active: true
+        });
+      }
     }
   }, [template, isOpen]);
 
@@ -459,10 +479,33 @@ export default function TemplateEditor({ template, isOpen, onClose, onSave }: Te
   };
 
   const handleSave = async () => {
-    if (!formData.name || !formData.subject || !formData.html_content) {
+    setSaveError(null);
+    
+    if (!formData.name.trim()) {
+      setSaveError("Bitte geben Sie einen Template-Namen ein.");
       toast({
         title: "Fehler",
-        description: "Bitte füllen Sie alle Pflichtfelder aus.",
+        description: "Template-Name ist erforderlich.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!formData.subject.trim()) {
+      setSaveError("Bitte geben Sie einen Betreff ein.");
+      toast({
+        title: "Fehler",
+        description: "E-Mail-Betreff ist erforderlich.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!formData.html_content.trim()) {
+      setSaveError("Bitte geben Sie HTML-Inhalt ein.");
+      toast({
+        title: "Fehler",
+        description: "HTML-Inhalt ist erforderlich.",
         variant: "destructive"
       });
       return;
@@ -470,47 +513,61 @@ export default function TemplateEditor({ template, isOpen, onClose, onSave }: Te
 
     try {
       setIsSubmitting(true);
+      console.log('Saving template:', template ? 'update' : 'create', formData);
 
       if (template) {
         // Update existing template
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('email_templates')
           .update({
-            name: formData.name,
-            subject: formData.subject,
+            name: formData.name.trim(),
+            subject: formData.subject.trim(),
             html_content: formData.html_content,
-            text_content: formData.text_content,
-            template_type: formData.template_type
+            text_content: formData.text_content || null,
+            template_type: formData.template_type,
+            is_active: formData.is_active
           })
-          .eq('id', template.id);
+          .eq('id', template.id)
+          .select();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Update error:', error);
+          throw error;
+        }
+        console.log('Update successful:', data);
       } else {
         // Create new template
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('email_templates')
           .insert([{
-            name: formData.name,
-            subject: formData.subject,
+            name: formData.name.trim(),
+            subject: formData.subject.trim(),
             html_content: formData.html_content,
-            text_content: formData.text_content,
-            template_type: formData.template_type
-          }]);
+            text_content: formData.text_content || null,
+            template_type: formData.template_type,
+            is_active: formData.is_active
+          }])
+          .select();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Insert error:', error);
+          throw error;
+        }
+        console.log('Insert successful:', data);
       }
 
       toast({
         title: "Erfolg",
-        description: `Template wurde ${template ? 'aktualisiert' : 'erstellt'}.`,
+        description: `Template "${formData.name}" wurde ${template ? 'aktualisiert' : 'erstellt'}.`,
       });
 
       onSave();
-      onClose();
     } catch (error: any) {
+      console.error('Save error:', error);
+      setSaveError(error.message || 'Unbekannter Fehler beim Speichern');
       toast({
-        title: "Fehler",
-        description: error.message,
+        title: "Fehler beim Speichern",
+        description: error.message || 'Template konnte nicht gespeichert werden.',
         variant: "destructive"
       });
     } finally {
@@ -529,7 +586,10 @@ export default function TemplateEditor({ template, isOpen, onClose, onSave }: Te
     { key: '{{appointment_time}}', label: 'Termin Zeit', icon: Calendar },
     { key: '{{service_type}}', label: 'Service-Typ', icon: FileText },
     { key: '{{meeting_type}}', label: 'Meeting-Typ', icon: Calendar },
-    { key: '{{meeting_link}}', label: 'Meeting-Link', icon: Mail }
+    { key: '{{meeting_link}}', label: 'Meeting-Link', icon: Link },
+    { key: '{{website_url}}', label: 'Website URL', icon: Globe },
+    { key: '{{current_month}}', label: 'Aktueller Monat', icon: Clock },
+    { key: '{{current_year}}', label: 'Aktuelles Jahr', icon: Clock }
   ];
 
   return (
@@ -603,13 +663,38 @@ export default function TemplateEditor({ template, isOpen, onClose, onSave }: Te
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="marketing">Marketing</SelectItem>
-                    <SelectItem value="transactional">Transaktional</SelectItem>
-                    <SelectItem value="automation">Automatisierung</SelectItem>
+                    {templateTypeOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        <div className="flex flex-col">
+                          <span>{option.label}</span>
+                          <span className="text-xs text-muted-foreground">{option.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
+            
+            {/* Active Status */}
+            <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
+              <div>
+                <Label htmlFor="template-active" className="text-sm font-medium">Template aktiv</Label>
+                <p className="text-xs text-muted-foreground">Aktive Templates können für E-Mails verwendet werden</p>
+              </div>
+              <Switch
+                id="template-active"
+                checked={formData.is_active}
+                onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
+              />
+            </div>
+            
+            {/* Error Display */}
+            {saveError && (
+              <div className="p-3 border border-destructive/50 bg-destructive/10 rounded-lg text-destructive text-sm">
+                <strong>Fehler:</strong> {saveError}
+              </div>
+            )}
 
             {/* Subject */}
             <div>
@@ -751,18 +836,35 @@ export default function TemplateEditor({ template, isOpen, onClose, onSave }: Te
                 onClick={handleSave} 
                 disabled={isSubmitting}
                 className="w-full"
+                size="lg"
               >
-                <Save className="h-4 w-4 mr-2" />
-                {isSubmitting ? 'Speichere...' : (template ? 'Aktualisieren' : 'Erstellen')}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Speichere...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    {template ? 'Änderungen speichern' : 'Template erstellen'}
+                  </>
+                )}
               </Button>
               
               <Button 
                 variant="outline" 
                 onClick={onClose}
                 className="w-full"
+                disabled={isSubmitting}
               >
                 Abbrechen
               </Button>
+              
+              {template && (
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  Letzte Änderung: {new Date(template.created_at).toLocaleDateString('de-DE')}
+                </p>
+              )}
             </div>
           </div>
         </div>

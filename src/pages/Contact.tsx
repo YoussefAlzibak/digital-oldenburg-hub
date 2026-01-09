@@ -534,6 +534,9 @@ const Contact = () => {
           </div>
         </div>
       </section>
+      
+      {/* Mobile bottom padding for navigation */}
+      <div className="h-24 sm:hidden"></div>
     </WebsiteLayout>
   );
 };

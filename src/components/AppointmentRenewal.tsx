@@ -6,9 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
   Calendar as CalendarIcon, 
@@ -16,19 +16,20 @@ import {
   RotateCcw, 
   Plus, 
   Send, 
-  Eye, 
   Edit, 
   Trash2,
   Bell,
   Users,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Settings,
+  RefreshCw
 } from 'lucide-react';
-import { format, addDays, addWeeks, addMonths, isBefore, isAfter } from 'date-fns';
+import { format, addDays, addWeeks, addMonths, isBefore } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
 
 interface Appointment {
   id: string;
@@ -47,7 +48,7 @@ interface Appointment {
 }
 
 interface RenewalSettings {
-  id?: string;
+  id: string;
   appointment_id: string;
   renewal_type: string;
   frequency: string;
@@ -74,26 +75,37 @@ export default function AppointmentRenewal() {
   const [reminders, setReminders] = useState<RenewalReminder[]>([]);
   const [loading, setLoading] = useState(true);
   const [showRenewalDialog, setShowRenewalDialog] = useState(false);
-  const [showReminderDialog, setShowReminderDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date>();
-  const [formData, setFormData] = useState<Partial<RenewalSettings>>({
+  const [selectedSetting, setSelectedSetting] = useState<RenewalSettings | null>(null);
+  const [formData, setFormData] = useState({
     renewal_type: 'reminder',
     frequency: 'monthly',
     advance_notice_days: 7,
     max_renewals: 12,
-    is_active: true,
-    renewals_count: 0
+    is_active: true
   });
+  const [processing, setProcessing] = useState(false);
+
+  const { toast } = useToast();
 
   const getAppointmentById = (appointmentId: string) => {
     return appointments.find(a => a.id === appointmentId);
   };
 
-  const { toast } = useToast();
-
   useEffect(() => {
     loadData();
+    
+    // Real-time subscription for updates
+    const channel = supabase
+      .channel('renewal-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'renewal_settings' }, () => loadData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'renewal_reminders' }, () => loadData())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const loadData = async () => {
@@ -101,32 +113,21 @@ export default function AppointmentRenewal() {
       setLoading(true);
 
       const [appointmentsResponse, renewalSettingsResponse, remindersResponse] = await Promise.all([
-        // Load completed appointments
         supabase
           .from('appointments')
-          .select(`
-            *,
-            contact_requests (
-              name,
-              email,
-              company,
-              service_type
-            )
-          `)
+          .select(`*, contact_requests (name, email, company, service_type)`)
           .eq('status', 'completed')
           .order('scheduled_date', { ascending: false }),
         
-        // Load renewal settings
         supabase
           .from('renewal_settings')
           .select('*')
           .order('created_at', { ascending: false }),
         
-        // Load reminders separately and join data manually
         supabase
           .from('renewal_reminders')
           .select('*')
-          .order('created_at', { ascending: false })
+          .order('reminder_date', { ascending: true })
       ]);
 
       if (appointmentsResponse.error) throw appointmentsResponse.error;
@@ -150,12 +151,8 @@ export default function AppointmentRenewal() {
   };
 
   const handleCreateRenewal = async () => {
-    if (!selectedAppointment || !formData.renewal_type) {
-      toast({
-        title: "Fehler",
-        description: "Bitte wählen Sie einen Termin und alle erforderlichen Einstellungen.",
-        variant: "destructive"
-      });
+    if (!selectedAppointment) {
+      toast({ title: "Fehler", description: "Bitte wählen Sie einen Termin.", variant: "destructive" });
       return;
     }
 
@@ -163,172 +160,118 @@ export default function AppointmentRenewal() {
       const appointmentDate = new Date(selectedAppointment.scheduled_date);
       let nextRenewalDate: Date;
 
-      // Calculate next renewal date based on frequency
       switch (formData.frequency) {
-        case 'weekly':
-          nextRenewalDate = addWeeks(appointmentDate, 1);
-          break;
-        case 'monthly':
-          nextRenewalDate = addMonths(appointmentDate, 1);
-          break;
-        case 'quarterly':
-          nextRenewalDate = addMonths(appointmentDate, 3);
-          break;
-        case 'yearly':
-          nextRenewalDate = addMonths(appointmentDate, 12);
-          break;
-        default:
-          nextRenewalDate = addMonths(appointmentDate, 1);
+        case 'weekly': nextRenewalDate = addWeeks(appointmentDate, 1); break;
+        case 'monthly': nextRenewalDate = addMonths(appointmentDate, 1); break;
+        case 'quarterly': nextRenewalDate = addMonths(appointmentDate, 3); break;
+        case 'yearly': nextRenewalDate = addMonths(appointmentDate, 12); break;
+        default: nextRenewalDate = addMonths(appointmentDate, 1);
       }
 
-      // If automatic renewal, create the appointment immediately
-      if (formData.renewal_type === 'automatic') {
-        await createAutomaticRenewal(selectedAppointment, nextRenewalDate);
-      } else {
-        // Create reminder
-        await createRenewalReminder(selectedAppointment, nextRenewalDate);
-      }
+      const reminderDate = addDays(nextRenewalDate, -formData.advance_notice_days);
 
-      toast({
-        title: "Erfolg",
-        description: `${formData.renewal_type === 'automatic' ? 'Automatische Verlängerung' : 'Erinnerung'} wurde erstellt.`,
-      });
-
-      setShowRenewalDialog(false);
-      setSelectedAppointment(null);
-      setFormData({
-        renewal_type: 'reminder',
-        frequency: 'monthly',
-        advance_notice_days: 7,
-        max_renewals: 12,
-        is_active: true,
-        renewals_count: 0
-      });
-      loadData();
-
-    } catch (error: any) {
-      toast({
-        title: "Fehler",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  };
-
-  const createAutomaticRenewal = async (appointment: Appointment, renewalDate: Date) => {
-    // Validate contact information exists
-    if (!appointment.contact_requests?.email) {
-      toast({
-        title: "Fehler",
-        description: "Keine Kontaktdaten für automatische Verlängerung gefunden.",
-        variant: "destructive"
-      });
-      throw new Error("Missing contact information for renewal");
-    }
-
-    try {
-      // Create new appointment
-      const { data: newAppointment, error: appointmentError } = await supabase
-        .from('appointments')
-        .insert([{
-          scheduled_date: format(renewalDate, 'yyyy-MM-dd'),
-          scheduled_time: appointment.scheduled_time,
-          meeting_type: appointment.meeting_type,
-          status: 'scheduled',
-          contact_request_id: appointment.contact_request_id
-        }])
-        .select()
-        .single();
-
-      if (appointmentError) throw appointmentError;
-
-      // Send confirmation email
-      const { error: emailError } = await supabase.functions.invoke('trigger-appointment-automation', {
-        body: {
-          appointmentId: newAppointment.id,
-          contactEmail: appointment.contact_requests.email,
-          contactName: appointment.contact_requests.name,
-          appointmentDate: format(renewalDate, 'dd.MM.yyyy'),
-          appointmentTime: appointment.scheduled_time,
-          serviceType: appointment.contact_requests.service_type || 'Beratung'
-        }
-      });
-
-      if (emailError) {
-        console.error('Email confirmation error:', emailError);
-        toast({
-          title: "Warnung",
-          description: "Termin erstellt, aber Bestätigung konnte nicht versendet werden.",
-          variant: "destructive"
-        });
-      }
-    } catch (error: any) {
-      console.error('Failed to create automatic renewal:', error);
-      throw error;
-    }
-  };
-
-  const createRenewalReminder = async (appointment: Appointment, renewalDate: Date) => {
-    const reminderDate = addDays(renewalDate, -(formData.advance_notice_days || 7));
-
-    // Validate that we have contact information
-    if (!appointment.contact_requests?.email) {
-      toast({
-        title: "Fehler",
-        description: "Keine Kontaktdaten für diesen Termin gefunden.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      // Create renewal setting in database
+      // Create renewal setting
       const { data: renewalSetting, error: renewalError } = await supabase
         .from('renewal_settings')
         .insert([{
-          appointment_id: appointment.id,
-          renewal_type: formData.renewal_type!,
-          frequency: formData.frequency!,
-          advance_notice_days: formData.advance_notice_days!,
-          max_renewals: formData.max_renewals!,
+          appointment_id: selectedAppointment.id,
+          renewal_type: formData.renewal_type,
+          frequency: formData.frequency,
+          advance_notice_days: formData.advance_notice_days,
+          max_renewals: formData.max_renewals,
           renewals_count: 0,
-          next_renewal_date: format(renewalDate, 'yyyy-MM-dd'),
-          is_active: true
+          next_renewal_date: format(nextRenewalDate, 'yyyy-MM-dd'),
+          is_active: formData.is_active
         }])
         .select()
         .single();
 
       if (renewalError) throw renewalError;
 
-      // Create initial reminder entry
-      const { error: reminderError } = await supabase
-        .from('renewal_reminders')
-        .insert([{
-          appointment_id: appointment.id,
-          renewal_setting_id: renewalSetting.id,
-          reminder_date: format(reminderDate, 'yyyy-MM-dd'),
-          status: 'pending'
-        }]);
+      // Create initial reminder
+      await supabase.from('renewal_reminders').insert([{
+        appointment_id: selectedAppointment.id,
+        renewal_setting_id: renewalSetting.id,
+        reminder_date: format(reminderDate, 'yyyy-MM-dd'),
+        status: 'pending'
+      }]);
 
-      if (reminderError) throw reminderError;
+      toast({ title: "Erfolg", description: "Verlängerung wurde eingerichtet." });
+      setShowRenewalDialog(false);
+      setSelectedAppointment(null);
+      resetForm();
+      loadData();
 
     } catch (error: any) {
-      console.error('Failed to create renewal reminder:', error);
+      toast({ title: "Fehler", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleUpdateRenewal = async () => {
+    if (!selectedSetting) return;
+
+    try {
+      const { error } = await supabase
+        .from('renewal_settings')
+        .update({
+          renewal_type: formData.renewal_type,
+          frequency: formData.frequency,
+          advance_notice_days: formData.advance_notice_days,
+          max_renewals: formData.max_renewals,
+          is_active: formData.is_active
+        })
+        .eq('id', selectedSetting.id);
+
+      if (error) throw error;
+
+      toast({ title: "Erfolg", description: "Einstellungen wurden aktualisiert." });
+      setShowEditDialog(false);
+      setSelectedSetting(null);
+      loadData();
+
+    } catch (error: any) {
+      toast({ title: "Fehler", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleDeleteRenewal = async (settingId: string) => {
+    try {
+      // Delete related reminders first
+      await supabase.from('renewal_reminders').delete().eq('renewal_setting_id', settingId);
+      
+      const { error } = await supabase.from('renewal_settings').delete().eq('id', settingId);
+      if (error) throw error;
+
+      toast({ title: "Erfolg", description: "Verlängerung wurde gelöscht." });
+      loadData();
+
+    } catch (error: any) {
+      toast({ title: "Fehler", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const processRenewals = async () => {
+    setProcessing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('process-renewal-tasks');
+      if (error) throw error;
+
       toast({
-        title: "Fehler", 
-        description: "Erinnerung konnte nicht erstellt werden: " + error.message,
-        variant: "destructive"
+        title: "Erfolg",
+        description: `${data.processed || 0} Aufgaben und ${data.reminders_processed || 0} Erinnerungen verarbeitet.`
       });
+      loadData();
+
+    } catch (error: any) {
+      toast({ title: "Fehler", description: error.message, variant: "destructive" });
+    } finally {
+      setProcessing(false);
     }
   };
 
   const sendManualReminder = async (appointment: Appointment) => {
     if (!appointment.contact_requests?.email) {
-      toast({
-        title: "Fehler",
-        description: "Keine E-Mail-Adresse für diesen Termin gefunden.",
-        variant: "destructive"
-      });
+      toast({ title: "Fehler", description: "Keine E-Mail-Adresse gefunden.", variant: "destructive" });
       return;
     }
 
@@ -348,41 +291,46 @@ export default function AppointmentRenewal() {
         }
       });
 
-      toast({
-        title: "Erfolg",
-        description: "Erinnerung wurde versendet.",
-      });
+      toast({ title: "Erfolg", description: "Erinnerung wurde versendet." });
     } catch (error: any) {
-      toast({
-        title: "Fehler",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast({ title: "Fehler", description: error.message, variant: "destructive" });
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      renewal_type: 'reminder',
+      frequency: 'monthly',
+      advance_notice_days: 7,
+      max_renewals: 12,
+      is_active: true
+    });
+  };
+
+  const openEditDialog = (setting: RenewalSettings) => {
+    setSelectedSetting(setting);
+    setFormData({
+      renewal_type: setting.renewal_type,
+      frequency: setting.frequency,
+      advance_notice_days: setting.advance_notice_days,
+      max_renewals: setting.max_renewals,
+      is_active: setting.is_active
+    });
+    setShowEditDialog(true);
+  };
+
   const getStatusBadge = (status: string) => {
-    const variants: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
-      pending: "outline",
-      sent: "default",
-      failed: "destructive"
+    const config: Record<string, { variant: "default" | "secondary" | "destructive" | "outline", label: string }> = {
+      pending: { variant: "outline", label: "Ausstehend" },
+      sent: { variant: "default", label: "Versendet" },
+      failed: { variant: "destructive", label: "Fehlgeschlagen" }
     };
-
-    const labels: { [key: string]: string } = {
-      pending: "Ausstehend",
-      sent: "Versendet",
-      failed: "Fehlgeschlagen"
-    };
-
-    return (
-      <Badge variant={variants[status] || "outline"}>
-        {labels[status] || status}
-      </Badge>
-    );
+    const { variant, label } = config[status] || { variant: "outline", label: status };
+    return <Badge variant={variant}>{label}</Badge>;
   };
 
   const getFrequencyLabel = (frequency: string) => {
-    const labels: { [key: string]: string } = {
+    const labels: Record<string, string> = {
       weekly: 'Wöchentlich',
       monthly: 'Monatlich',
       quarterly: 'Vierteljährlich',
@@ -397,362 +345,506 @@ export default function AppointmentRenewal() {
     return isBefore(appointmentDate, thirtyDaysAgo);
   };
 
+  const appointmentsWithoutRenewal = appointments.filter(
+    a => a.contact_requests?.email && !renewalSettings.some(r => r.appointment_id === a.id)
+  );
+
+  const pendingReminders = reminders.filter(r => r.status === 'pending');
+  const sentReminders = reminders.filter(r => r.status === 'sent');
+
   if (loading) {
     return <div className="flex justify-center p-8">Lade Daten...</div>;
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Terminverlängerung</h2>
-          <p className="text-muted-foreground">Automatische Verlängerungen und Erinnerungen für abgeschlossene Termine</p>
+          <h2 className="text-2xl font-bold">Terminverlängerung</h2>
+          <p className="text-muted-foreground">Automatische Verlängerungen und Erinnerungen verwalten</p>
         </div>
         <div className="flex gap-2">
-          <Dialog open={showReminderDialog} onOpenChange={setShowReminderDialog}>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <Bell className="h-4 w-4 mr-2" />
-                Erinnerungen
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl">
-              <DialogHeader>
-                <DialogTitle>Erinnerungsübersicht</DialogTitle>
-                <DialogDescription>
-                  Übersicht aller geplanten und gesendeten Erinnerungen
-                </DialogDescription>
-              </DialogHeader>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Termin</TableHead>
-                    <TableHead>Erinnerungsdatum</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Versendet</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {reminders.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                        Keine Erinnerungen vorhanden
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                     reminders.map((reminder) => {
-                       const appointment = getAppointmentById(reminder.appointment_id);
-                       return (
-                       <TableRow key={reminder.id}>
-                         <TableCell>
-                           <div>
-                             <div className="font-medium">
-                               {appointment?.contact_requests?.name || 'Unbekannt'}
-                             </div>
-                             <div className="text-xs text-muted-foreground">
-                               {appointment ? format(new Date(appointment.scheduled_date), 'PPP', { locale: de }) : 'Unbekannt'}
-                             </div>
-                           </div>
-                         </TableCell>
-                         <TableCell>
-                           {format(new Date(reminder.reminder_date), 'PPP', { locale: de })}
-                         </TableCell>
-                         <TableCell>
-                           {getStatusBadge(reminder.status)}
-                         </TableCell>
-                         <TableCell>
-                           {reminder.sent_at ? format(new Date(reminder.sent_at), 'PPp', { locale: de }) : '-'}
-                         </TableCell>
-                       </TableRow>
-                       );
-                     })
-                  )}
-                </TableBody>
-              </Table>
-            </DialogContent>
-          </Dialog>
-
+          <Button variant="outline" onClick={processRenewals} disabled={processing}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${processing ? 'animate-spin' : ''}`} />
+            Verarbeiten
+          </Button>
           <Dialog open={showRenewalDialog} onOpenChange={setShowRenewalDialog}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                Verlängerung einrichten
+                Neue Verlängerung
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent>
               <DialogHeader>
-                <DialogTitle>Terminverlängerung einrichten</DialogTitle>
+                <DialogTitle>Verlängerung einrichten</DialogTitle>
                 <DialogDescription>
-                  Automatische Verlängerungen oder Erinnerungen für Termine konfigurieren
+                  Automatische Erinnerungen oder Verlängerungen konfigurieren
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label>Termin auswählen</Label>
-                  <Select 
-                    value={selectedAppointment?.id || ''} 
-                    onValueChange={(value) => {
-                      const appointment = appointments.find(a => a.id === value);
-                      setSelectedAppointment(appointment || null);
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Termin auswählen..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {appointments
-                        .filter(appointment => appointment.contact_requests?.email) // Only show appointments with contact data
-                        .map(appointment => (
-                        <SelectItem key={appointment.id} value={appointment.id}>
-                          <div>
-                            <div className="font-medium">
-                              {appointment.contact_requests?.name} - {appointment.contact_requests?.service_type || 'Unbekannt'}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {format(new Date(appointment.scheduled_date), 'PPP', { locale: de })} um {appointment.scheduled_time}
-                            </div>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Verlängerungstyp</Label>
-                    <Select 
-                      value={formData.renewal_type || 'reminder'} 
-                      onValueChange={(value: 'automatic' | 'reminder') => 
-                        setFormData({...formData, renewal_type: value})
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="reminder">
-                          <div>
-                            <div>Erinnerung senden</div>
-                            <div className="text-xs text-muted-foreground">E-Mail Erinnerung an Kunde</div>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="automatic">
-                          <div>
-                            <div>Automatisch verlängern</div>
-                            <div className="text-xs text-muted-foreground">Neuen Termin automatisch erstellen</div>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label>Häufigkeit</Label>
-                    <Select 
-                      value={formData.frequency || 'monthly'} 
-                      onValueChange={(value: 'weekly' | 'monthly' | 'quarterly' | 'yearly') => 
-                        setFormData({...formData, frequency: value})
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="weekly">Wöchentlich</SelectItem>
-                        <SelectItem value="monthly">Monatlich</SelectItem>
-                        <SelectItem value="quarterly">Vierteljährlich</SelectItem>
-                        <SelectItem value="yearly">Jährlich</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="advance-notice">Vorlaufzeit (Tage)</Label>
-                    <Input
-                      id="advance-notice"
-                      type="number"
-                      min="1"
-                      max="30"
-                      value={formData.advance_notice_days || 7}
-                      onChange={(e) => setFormData({...formData, advance_notice_days: parseInt(e.target.value)})}
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="max-renewals">Max. Verlängerungen</Label>
-                    <Input
-                      id="max-renewals"
-                      type="number"
-                      min="1"
-                      max="50"
-                      value={formData.max_renewals || 12}
-                      onChange={(e) => setFormData({...formData, max_renewals: parseInt(e.target.value)})}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="is-active"
-                    checked={formData.is_active !== false}
-                    onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
-                  />
-                  <Label htmlFor="is-active">Aktiviert</Label>
-                </div>
-
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setShowRenewalDialog(false)}>
-                    Abbrechen
-                  </Button>
-                  <Button onClick={handleCreateRenewal}>
-                    <RotateCcw className="h-4 w-4 mr-2" />
-                    Verlängerung einrichten
-                  </Button>
-                </div>
-              </div>
+              <RenewalForm
+                appointments={appointmentsWithoutRenewal}
+                selectedAppointment={selectedAppointment}
+                setSelectedAppointment={setSelectedAppointment}
+                formData={formData}
+                setFormData={setFormData}
+                onSubmit={handleCreateRenewal}
+                onCancel={() => { setShowRenewalDialog(false); resetForm(); }}
+                submitLabel="Einrichten"
+              />
             </DialogContent>
           </Dialog>
         </div>
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-primary">{appointments.length}</div>
-            <div className="text-sm text-muted-foreground">Abgeschlossene Termine</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-orange-600">
-              {appointments.filter(a => isRenewalDue(a)).length}
-            </div>
-            <div className="text-sm text-muted-foreground">Verlängerung fällig</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">{renewalSettings.length}</div>
+            <div className="text-2xl font-bold text-primary">{renewalSettings.filter(r => r.is_active).length}</div>
             <div className="text-sm text-muted-foreground">Aktive Verlängerungen</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">{reminders.length}</div>
-            <div className="text-sm text-muted-foreground">Geplante Erinnerungen</div>
+            <div className="text-2xl font-bold text-orange-600">{pendingReminders.length}</div>
+            <div className="text-sm text-muted-foreground">Ausstehende Erinnerungen</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-green-600">{sentReminders.length}</div>
+            <div className="text-sm text-muted-foreground">Versendete Erinnerungen</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-blue-600">{appointmentsWithoutRenewal.length}</div>
+            <div className="text-sm text-muted-foreground">Termine ohne Verlängerung</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Appointments Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Abgeschlossene Termine
-          </CardTitle>
-          <CardDescription>
-            Übersicht aller abgeschlossenen Termine und deren Verlängerungsstatus
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Kunde</TableHead>
-                <TableHead>Service</TableHead>
-                <TableHead>Letzter Termin</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Aktionen</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {appointments.map((appointment) => (
-                <TableRow key={appointment.id}>
-                  <TableCell>
-                  <div>
-                    <div className="font-medium">
-                      {appointment.contact_requests?.name || 'Unbekannt'}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {appointment.contact_requests?.email || 'Keine E-Mail'}
-                    </div>
-                    {appointment.contact_requests?.company && (
-                      <div className="text-xs text-muted-foreground">
-                        {appointment.contact_requests.company}
-                      </div>
-                    )}
-                  </div>
-                  </TableCell>
-                <TableCell>
-                  <Badge variant="outline">
-                    {appointment.contact_requests?.service_type || 'Unbekannt'}
-                  </Badge>
-                </TableCell>
-                  <TableCell>
-                    <div>
-                      <div>{format(new Date(appointment.scheduled_date), 'PPP', { locale: de })}</div>
-                      <div className="text-sm text-muted-foreground">{appointment.scheduled_time}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {isRenewalDue(appointment) ? (
-                        <div className="flex items-center gap-1 text-orange-600">
-                          <AlertCircle className="h-4 w-4" />
-                          <span className="text-sm">Verlängerung fällig</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1 text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span className="text-sm">Aktuell</span>
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => sendManualReminder(appointment)}
-                        disabled={!appointment.contact_requests?.email}
-                        title={!appointment.contact_requests?.email ? "Keine E-Mail verfügbar" : "Manuelle Erinnerung senden"}
-                      >
-                        <Send className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedAppointment(appointment);
-                          setShowRenewalDialog(true);
-                        }}
-                        disabled={!appointment.contact_requests?.email}
-                        title={!appointment.contact_requests?.email ? "Keine Kontaktdaten verfügbar" : "Verlängerung einrichten"}
-                      >
-                        <RotateCcw className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          
-              {appointments.filter(appointment => appointment.contact_requests?.email).length === 0 && (
+      {/* Main Content Tabs */}
+      <Tabs defaultValue="active" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="active" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Aktive Verlängerungen ({renewalSettings.length})
+          </TabsTrigger>
+          <TabsTrigger value="reminders" className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            Erinnerungen ({reminders.length})
+          </TabsTrigger>
+          <TabsTrigger value="appointments" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Abgeschlossene Termine ({appointments.length})
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Active Renewals Tab */}
+        <TabsContent value="active">
+          <Card>
+            <CardHeader>
+              <CardTitle>Aktive Verlängerungseinstellungen</CardTitle>
+              <CardDescription>Verwalten Sie Ihre automatischen Verlängerungen</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {renewalSettings.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  Keine Termine mit Kontaktdaten gefunden. 
+                  Keine aktiven Verlängerungen vorhanden.
                   <br />
-                  Nur Termine mit verknüpften Kontaktanfragen können verlängert werden.
+                  <Button variant="link" onClick={() => setShowRenewalDialog(true)}>
+                    Jetzt erste Verlängerung einrichten
+                  </Button>
                 </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Kunde</TableHead>
+                      <TableHead>Typ</TableHead>
+                      <TableHead>Häufigkeit</TableHead>
+                      <TableHead>Nächster Termin</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Aktionen</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {renewalSettings.map((setting) => {
+                      const appointment = getAppointmentById(setting.appointment_id);
+                      return (
+                        <TableRow key={setting.id}>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{appointment?.contact_requests?.name || 'Unbekannt'}</div>
+                              <div className="text-xs text-muted-foreground">{appointment?.contact_requests?.email}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={setting.renewal_type === 'automatic' ? 'default' : 'secondary'}>
+                              {setting.renewal_type === 'automatic' ? 'Automatisch' : 'Erinnerung'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{getFrequencyLabel(setting.frequency)}</TableCell>
+                          <TableCell>
+                            {setting.next_renewal_date 
+                              ? format(new Date(setting.next_renewal_date), 'PPP', { locale: de })
+                              : '-'
+                            }
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={setting.is_active ? 'default' : 'outline'}>
+                              {setting.is_active ? 'Aktiv' : 'Inaktiv'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="outline" onClick={() => openEditDialog(setting)}>
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button size="sm" variant="destructive">
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Verlängerung löschen?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Diese Aktion kann nicht rückgängig gemacht werden. Alle zugehörigen Erinnerungen werden ebenfalls gelöscht.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeleteRenewal(setting.id)}>
+                                      Löschen
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
               )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Reminders Tab */}
+        <TabsContent value="reminders">
+          <Card>
+            <CardHeader>
+              <CardTitle>Erinnerungsübersicht</CardTitle>
+              <CardDescription>Alle geplanten und gesendeten Erinnerungen</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {reminders.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Keine Erinnerungen vorhanden.
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Kunde</TableHead>
+                      <TableHead>Erinnerungsdatum</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Versendet</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {reminders.map((reminder) => {
+                      const appointment = getAppointmentById(reminder.appointment_id);
+                      return (
+                        <TableRow key={reminder.id}>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{appointment?.contact_requests?.name || 'Unbekannt'}</div>
+                              <div className="text-xs text-muted-foreground">
+                                Termin: {appointment ? format(new Date(appointment.scheduled_date), 'PPP', { locale: de }) : '-'}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>{format(new Date(reminder.reminder_date), 'PPP', { locale: de })}</TableCell>
+                          <TableCell>{getStatusBadge(reminder.status)}</TableCell>
+                          <TableCell>
+                            {reminder.sent_at ? format(new Date(reminder.sent_at), 'PPp', { locale: de }) : '-'}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Appointments Tab */}
+        <TabsContent value="appointments">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Abgeschlossene Termine</span>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/admin/appointments">Zur Terminübersicht</Link>
+                </Button>
+              </CardTitle>
+              <CardDescription>Übersicht aller abgeschlossenen Termine</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {appointments.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Keine abgeschlossenen Termine vorhanden.
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Kunde</TableHead>
+                      <TableHead>Service</TableHead>
+                      <TableHead>Termin</TableHead>
+                      <TableHead>Verlängerung</TableHead>
+                      <TableHead>Aktionen</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {appointments.map((appointment) => {
+                      const hasRenewal = renewalSettings.some(r => r.appointment_id === appointment.id);
+                      const isDue = isRenewalDue(appointment);
+                      return (
+                        <TableRow key={appointment.id}>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{appointment.contact_requests?.name || 'Unbekannt'}</div>
+                              <div className="text-xs text-muted-foreground">{appointment.contact_requests?.email || '-'}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{appointment.contact_requests?.service_type || 'Unbekannt'}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <div>{format(new Date(appointment.scheduled_date), 'PPP', { locale: de })}</div>
+                              <div className="text-xs text-muted-foreground">{appointment.scheduled_time}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {hasRenewal ? (
+                              <div className="flex items-center gap-1 text-green-600">
+                                <CheckCircle className="h-4 w-4" />
+                                <span className="text-sm">Eingerichtet</span>
+                              </div>
+                            ) : isDue ? (
+                              <div className="flex items-center gap-1 text-orange-600">
+                                <AlertCircle className="h-4 w-4" />
+                                <span className="text-sm">Fällig</span>
+                              </div>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => sendManualReminder(appointment)}
+                                disabled={!appointment.contact_requests?.email}
+                                title="Erinnerung senden"
+                              >
+                                <Send className="h-4 w-4" />
+                              </Button>
+                              {!hasRenewal && appointment.contact_requests?.email && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setSelectedAppointment(appointment);
+                                    setShowRenewalDialog(true);
+                                  }}
+                                  title="Verlängerung einrichten"
+                                >
+                                  <RotateCcw className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Verlängerung bearbeiten</DialogTitle>
+            <DialogDescription>Einstellungen für diese Verlängerung ändern</DialogDescription>
+          </DialogHeader>
+          <RenewalForm
+            formData={formData}
+            setFormData={setFormData}
+            onSubmit={handleUpdateRenewal}
+            onCancel={() => { setShowEditDialog(false); setSelectedSetting(null); }}
+            submitLabel="Speichern"
+            hideAppointmentSelect
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// Separate form component for reusability
+interface RenewalFormProps {
+  appointments?: Appointment[];
+  selectedAppointment?: Appointment | null;
+  setSelectedAppointment?: (a: Appointment | null) => void;
+  formData: {
+    renewal_type: string;
+    frequency: string;
+    advance_notice_days: number;
+    max_renewals: number;
+    is_active: boolean;
+  };
+  setFormData: (data: any) => void;
+  onSubmit: () => void;
+  onCancel: () => void;
+  submitLabel: string;
+  hideAppointmentSelect?: boolean;
+}
+
+function RenewalForm({
+  appointments,
+  selectedAppointment,
+  setSelectedAppointment,
+  formData,
+  setFormData,
+  onSubmit,
+  onCancel,
+  submitLabel,
+  hideAppointmentSelect
+}: RenewalFormProps) {
+  return (
+    <div className="space-y-4">
+      {!hideAppointmentSelect && appointments && setSelectedAppointment && (
+        <div>
+          <Label>Termin auswählen</Label>
+          <Select
+            value={selectedAppointment?.id || ''}
+            onValueChange={(value) => {
+              const apt = appointments.find(a => a.id === value);
+              setSelectedAppointment(apt || null);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Termin auswählen..." />
+            </SelectTrigger>
+            <SelectContent>
+              {appointments.map(apt => (
+                <SelectItem key={apt.id} value={apt.id}>
+                  <div>
+                    <span className="font-medium">{apt.contact_requests?.name}</span>
+                    <span className="text-muted-foreground ml-2">
+                      {format(new Date(apt.scheduled_date), 'dd.MM.yyyy', { locale: de })}
+                    </span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>Typ</Label>
+          <Select
+            value={formData.renewal_type}
+            onValueChange={(value) => setFormData({ ...formData, renewal_type: value })}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="reminder">Erinnerung</SelectItem>
+              <SelectItem value="automatic">Automatisch</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Häufigkeit</Label>
+          <Select
+            value={formData.frequency}
+            onValueChange={(value) => setFormData({ ...formData, frequency: value })}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="weekly">Wöchentlich</SelectItem>
+              <SelectItem value="monthly">Monatlich</SelectItem>
+              <SelectItem value="quarterly">Vierteljährlich</SelectItem>
+              <SelectItem value="yearly">Jährlich</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>Vorlaufzeit (Tage)</Label>
+          <Input
+            type="number"
+            min="1"
+            max="30"
+            value={formData.advance_notice_days}
+            onChange={(e) => setFormData({ ...formData, advance_notice_days: parseInt(e.target.value) })}
+          />
+        </div>
+
+        <div>
+          <Label>Max. Verlängerungen</Label>
+          <Input
+            type="number"
+            min="1"
+            max="50"
+            value={formData.max_renewals}
+            onChange={(e) => setFormData({ ...formData, max_renewals: parseInt(e.target.value) })}
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Switch
+          checked={formData.is_active}
+          onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+        />
+        <Label>Aktiviert</Label>
+      </div>
+
+      <div className="flex justify-end gap-2 pt-4">
+        <Button variant="outline" onClick={onCancel}>Abbrechen</Button>
+        <Button onClick={onSubmit}>
+          <RotateCcw className="h-4 w-4 mr-2" />
+          {submitLabel}
+        </Button>
+      </div>
     </div>
   );
 }

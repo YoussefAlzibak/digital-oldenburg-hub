@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Home, Briefcase, FolderOpen, Users, Calendar } from "lucide-react";
+import { Home, Briefcase, FolderOpen, Users, Calendar, MessageCircle } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
 const navItems = [
   { icon: Home, label: "Home", href: "/" },
   { icon: Briefcase, label: "Services", href: "/services" },
+  { icon: MessageCircle, label: "Kontakt", href: "/contact" },
   { icon: Calendar, label: "Termin", href: "/book-appointment" },
   { icon: FolderOpen, label: "Portfolio", href: "/portfolio" },
-  { icon: Users, label: "Über uns", href: "/about" },
 ];
 
 export function WebsiteMobileNav() {

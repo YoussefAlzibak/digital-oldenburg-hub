@@ -2,7 +2,18 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Mail, Phone, Calendar, Eye, CheckCircle, XCircle } from 'lucide-react';
+import { Mail, Phone, Calendar, Eye, CheckCircle, XCircle, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -85,6 +96,29 @@ export default function Requests() {
       toast({
         title: "Status aktualisiert",
         description: `Anfrage wurde als ${status} markiert.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteRequest = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('contact_requests')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      await loadData();
+      toast({
+        title: "Anfrage gelöscht",
+        description: "Die Kontaktanfrage wurde erfolgreich gelöscht.",
       });
     } catch (error: any) {
       toast({
@@ -231,6 +265,28 @@ export default function Requests() {
                     Abschließen
                   </Button>
                 )}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button size="sm" variant="destructive">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Löschen
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Anfrage löschen?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Diese Aktion kann nicht rückgängig gemacht werden. Die Kontaktanfrage von {request.name} wird dauerhaft gelöscht.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => deleteRequest(request.id)}>
+                        Löschen
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </CardContent>
           </Card>

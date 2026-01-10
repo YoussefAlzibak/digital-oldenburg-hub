@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
   FileText, 
   Plus, 
@@ -23,7 +25,10 @@ import {
   Zap,
   ShoppingBag,
   MessageSquare,
-  RotateCcw
+  RotateCcw,
+  AlertTriangle,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -41,6 +46,14 @@ interface EmailTemplate {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+}
+
+interface TemplateUsage {
+  templateId: string;
+  usedInAutomations: number;
+  usedInCampaigns: number;
+  automationNames: string[];
+  campaignNames: string[];
 }
 
 const templateCategories = [
@@ -99,6 +112,7 @@ const prebuiltTemplates = [
 
 export default function Templates() {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const [templateUsage, setTemplateUsage] = useState<Map<string, TemplateUsage>>(new Map());
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -108,6 +122,8 @@ export default function Templates() {
   const [showPreview, setShowPreview] = useState(false);
   const [previewTemplate, setPreviewTemplate] = useState<EmailTemplate | null>(null);
   const [showStarterDialog, setShowStarterDialog] = useState(false);
+  const [showCleanupDialog, setShowCleanupDialog] = useState(false);
+  const [unusedTemplates, setUnusedTemplates] = useState<EmailTemplate[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -117,13 +133,51 @@ export default function Templates() {
   const loadTemplates = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Load templates
+      const { data: templatesData, error: templatesError } = await supabase
         .from('email_templates')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setTemplates(data || []);
+      if (templatesError) throw templatesError;
+      setTemplates(templatesData || []);
+
+      // Load automation steps to check usage
+      const { data: stepsData } = await supabase
+        .from('email_automation_steps')
+        .select('template_id, automation_id, email_automations(name)');
+
+      // Load campaigns to check usage
+      const { data: campaignsData } = await supabase
+        .from('email_campaigns')
+        .select('template_id, name');
+
+      // Build usage map
+      const usageMap = new Map<string, TemplateUsage>();
+      
+      (templatesData || []).forEach(template => {
+        const automationSteps = (stepsData || []).filter(s => s.template_id === template.id);
+        const campaigns = (campaignsData || []).filter(c => c.template_id === template.id);
+        
+        usageMap.set(template.id, {
+          templateId: template.id,
+          usedInAutomations: automationSteps.length,
+          usedInCampaigns: campaigns.length,
+          automationNames: automationSteps.map(s => (s.email_automations as any)?.name || 'Unbekannt'),
+          campaignNames: campaigns.map(c => c.name)
+        });
+      });
+
+      setTemplateUsage(usageMap);
+
+      // Find unused templates
+      const unused = (templatesData || []).filter(t => {
+        const usage = usageMap.get(t.id);
+        return !usage || (usage.usedInAutomations === 0 && usage.usedInCampaigns === 0);
+      });
+      setUnusedTemplates(unused);
+
     } catch (error: any) {
       toast({
         title: "Fehler",
@@ -355,6 +409,16 @@ export default function Templates() {
                 </div>
               </DialogContent>
             </Dialog>
+            {unusedTemplates.length > 0 && (
+              <Button 
+                variant="outline" 
+                className="text-orange-600 border-orange-500/30 hover:bg-orange-500/10"
+                onClick={() => setShowCleanupDialog(true)}
+              >
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                {unusedTemplates.length} ungenutzt
+              </Button>
+            )}
             <Button onClick={() => {
               setEditingTemplate(null);
               setShowEditor(true);
@@ -365,8 +429,78 @@ export default function Templates() {
           </div>
         </div>
 
+        {/* Cleanup Dialog */}
+        <AlertDialog open={showCleanupDialog} onOpenChange={setShowCleanupDialog}>
+          <AlertDialogContent className="max-w-2xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-orange-600" />
+                Ungenutzte Templates bereinigen
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Die folgenden Templates werden weder in Automatisierungen noch in Kampagnen verwendet.
+                Möchten Sie diese löschen?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="max-h-[300px] overflow-y-auto my-4">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Typ</TableHead>
+                    <TableHead>Erstellt</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {unusedTemplates.map((template) => (
+                    <TableRow key={template.id}>
+                      <TableCell className="font-medium">{template.name}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={getTypeColor(template.template_type)}>
+                          {getTypeLabel(template.template_type)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {format(new Date(template.created_at), 'dd.MM.yyyy', { locale: de })}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={async () => {
+                  try {
+                    for (const template of unusedTemplates) {
+                      await supabase.from('email_templates').delete().eq('id', template.id);
+                    }
+                    toast({
+                      title: "Bereinigt",
+                      description: `${unusedTemplates.length} ungenutzte Templates wurden gelöscht.`,
+                    });
+                    loadTemplates();
+                  } catch (error: any) {
+                    toast({
+                      title: "Fehler",
+                      description: error.message,
+                      variant: "destructive"
+                    });
+                  }
+                  setShowCleanupDialog(false);
+                }}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Alle löschen ({unusedTemplates.length})
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -382,12 +516,25 @@ export default function Templates() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Aktiv</p>
+                  <p className="text-sm text-muted-foreground">Genutzt</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {templates.filter(t => t.is_active).length}
+                    {templates.length - unusedTemplates.length}
                   </p>
                 </div>
-                <Check className="h-8 w-8 text-green-500/30" />
+                <CheckCircle className="h-8 w-8 text-green-500/30" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Ungenutzt</p>
+                  <p className="text-2xl font-bold text-orange-600">
+                    {unusedTemplates.length}
+                  </p>
+                </div>
+                <XCircle className="h-8 w-8 text-orange-500/30" />
               </div>
             </CardContent>
           </Card>
@@ -509,7 +656,7 @@ export default function Templates() {
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-3">
                     <Badge variant="outline" className={getTypeColor(template.template_type)}>
                       {getTypeLabel(template.template_type)}
                     </Badge>
@@ -517,6 +664,31 @@ export default function Templates() {
                       {format(new Date(template.created_at), 'dd. MMM yyyy', { locale: de })}
                     </span>
                   </div>
+                  
+                  {/* Usage indicator */}
+                  {(() => {
+                    const usage = templateUsage.get(template.id);
+                    const isUsed = usage && (usage.usedInAutomations > 0 || usage.usedInCampaigns > 0);
+                    return (
+                      <div className={`text-xs p-2 rounded mb-3 ${isUsed ? 'bg-green-500/10 text-green-600' : 'bg-orange-500/10 text-orange-600'}`}>
+                        {isUsed ? (
+                          <div className="flex items-center gap-1">
+                            <CheckCircle className="h-3 w-3" />
+                            <span>
+                              {usage!.usedInAutomations > 0 && `${usage!.usedInAutomations} Automatisierung(en)`}
+                              {usage!.usedInAutomations > 0 && usage!.usedInCampaigns > 0 && ', '}
+                              {usage!.usedInCampaigns > 0 && `${usage!.usedInCampaigns} Kampagne(n)`}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            <XCircle className="h-3 w-3" />
+                            <span>Nicht verwendet</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                   
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button

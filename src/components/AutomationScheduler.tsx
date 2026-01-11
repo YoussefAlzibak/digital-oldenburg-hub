@@ -28,6 +28,7 @@ import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import AppointmentReminderConfig from './AppointmentReminderConfig';
 
 interface EmailAutomation {
   id: string;
@@ -536,6 +537,14 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
                     />
                   </div>
                 </div>
+              )}
+
+              {/* Appointment reminder settings */}
+              {formData.trigger_type === 'appointment_booked' && (
+                <AppointmentReminderConfig
+                  triggerConfig={formData.trigger_config}
+                  onChange={(config) => setFormData({...formData, trigger_config: config})}
+                />
               )}
             </CardContent>
           </Card>

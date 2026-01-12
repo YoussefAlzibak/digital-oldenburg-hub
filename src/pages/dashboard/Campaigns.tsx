@@ -17,13 +17,18 @@ import {
   Clock,
   CheckCircle2,
   Server,
-  AlertCircle
+  AlertCircle,
+  Eye,
+  Zap,
+  RefreshCw
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import CampaignBuilder from '@/components/CampaignBuilder';
+import CampaignAnalytics from '@/components/CampaignAnalytics';
+import CampaignPreview from '@/components/CampaignPreview';
 
 interface EmailCampaign {
   id: string;
@@ -75,6 +80,11 @@ export default function Campaigns() {
   const [queueCount, setQueueCount] = useState(0);
   const [sendingCampaignId, setSendingCampaignId] = useState<string | null>(null);
   const [emailLists, setEmailLists] = useState<{ id: string; name: string }[]>([]);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [analyticsCampaignId, setAnalyticsCampaignId] = useState<string>('');
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewCampaign, setPreviewCampaign] = useState<EmailCampaign | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   const { toast } = useToast();
 
@@ -278,6 +288,26 @@ export default function Campaigns() {
     return list?.name || 'Unbekannte Liste';
   };
 
+  const handleViewAnalytics = (campaign: EmailCampaign) => {
+    setAnalyticsCampaignId(campaign.id);
+    setShowAnalytics(true);
+  };
+
+  const handleViewPreview = (campaign: EmailCampaign) => {
+    setPreviewCampaign(campaign);
+    setShowPreview(true);
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await Promise.all([loadCampaigns(), loadQueueCount()]);
+    setIsRefreshing(false);
+    toast({
+      title: "Aktualisiert",
+      description: "Kampagnen-Daten wurden neu geladen.",
+    });
+  };
+
   const handleSendCampaign = async (campaign: EmailCampaign) => {
     if (!smtpConfigured) {
       toast({
@@ -427,6 +457,15 @@ export default function Campaigns() {
               <span>{queueCount} E-Mails in Warteschlange</span>
             </div>
           )}
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Aktualisieren
+          </Button>
           <Button onClick={() => {
             setEditingCampaign(null);
             setShowCampaignBuilder(true);
@@ -604,6 +643,26 @@ export default function Campaigns() {
                               <Button
                                 size="sm"
                                 variant="outline"
+                                onClick={() => handleViewPreview(campaign)}
+                                title="Vorschau"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+
+                              {campaign.status === 'sent' && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleViewAnalytics(campaign)}
+                                  title="Analytics"
+                                >
+                                  <BarChart3 className="h-4 w-4" />
+                                </Button>
+                              )}
+                              
+                              <Button
+                                size="sm"
+                                variant="outline"
                                 onClick={() => handleEditCampaign(campaign)}
                                 title="Bearbeiten"
                               >
@@ -669,6 +728,26 @@ export default function Campaigns() {
           }}
           onSave={() => {
             loadCampaigns();
+          }}
+        />
+      )}
+
+      {/* Campaign Analytics Dialog */}
+      <CampaignAnalytics
+        campaignId={analyticsCampaignId}
+        isOpen={showAnalytics}
+        onClose={() => setShowAnalytics(false)}
+      />
+
+      {/* Campaign Preview Dialog */}
+      {previewCampaign && (
+        <CampaignPreview
+          subject={previewCampaign.subject}
+          htmlContent={previewCampaign.html_content}
+          isOpen={showPreview}
+          onClose={() => {
+            setShowPreview(false);
+            setPreviewCampaign(null);
           }}
         />
       )}

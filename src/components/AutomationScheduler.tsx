@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Calendar } from '@/components/ui/calendar';
+import { Calendar as CalendarUI } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   Zap, 
@@ -375,7 +375,7 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
       label: '📅 Termin gebucht', 
       description: 'Bestätigung und Vorbereitung vor wichtigen Terminen',
       useCase: 'Perfekt für: Terminbestätigungen, Erinnerungen, Vorbereitungsmaterial',
-      icon: Calendar
+      icon: CalendarIcon
     },
     { 
       value: 'date_based', 
@@ -517,7 +517,7 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
+                        <CalendarUI
                           mode="single"
                           selected={selectedDate}
                           onSelect={setSelectedDate}

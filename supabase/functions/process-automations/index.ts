@@ -7,12 +7,18 @@ const corsHeaders = {
 };
 
 interface AutomationTriggerRequest {
-  triggerType: 'subscription' | 'appointment_booked' | 'contact_form' | 'date_based';
+  triggerType: 'subscription' | 'appointment_booked' | 'contact_form' | 'date_based' | 'newsletter_signup';
   subscriberEmail?: string;
   subscriberId?: string;
   appointmentId?: string;
   contactRequestId?: string;
   triggerData?: any;
+}
+
+interface ReminderTime {
+  minutes_before: number;
+  label: string;
+  enabled: boolean;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -75,7 +81,7 @@ const handler = async (req: Request): Promise<Response> => {
         .from('email_subscribers')
         .select('id')
         .eq('email', triggerRequest.subscriberEmail)
-        .single();
+        .maybeSingle();
 
       if (existingSubscriber) {
         subscriberId = existingSubscriber.id;
@@ -110,38 +116,155 @@ const handler = async (req: Request): Promise<Response> => {
     for (const automation of automations) {
       console.log(`Processing automation: ${automation.name}`);
       
-      if (!automation.email_automation_steps || automation.email_automation_steps.length === 0) {
-        console.log(`No steps found for automation: ${automation.name}`);
-        continue;
-      }
+      // Special handling for appointment_booked trigger
+      if (triggerRequest.triggerType === 'appointment_booked') {
+        const triggerConfig = automation.trigger_config || {};
+        const sendConfirmation = triggerConfig.send_confirmation !== false;
+        const sendReminder = triggerConfig.send_reminder !== false;
+        const reminderTimes: ReminderTime[] = triggerConfig.reminder_times || [];
+        
+        console.log('Appointment automation config:', { sendConfirmation, sendReminder, reminderTimes });
+        
+        // Calculate appointment datetime
+        const appointmentDate = triggerRequest.triggerData?.appointment_date;
+        const appointmentTime = triggerRequest.triggerData?.appointment_time;
+        
+        if (!appointmentDate || !appointmentTime) {
+          console.error('Missing appointment date or time for appointment automation');
+          continue;
+        }
+        
+        // Parse appointment datetime
+        const appointmentDateTime = new Date(`${appointmentDate}T${appointmentTime}:00`);
+        console.log('Appointment datetime:', appointmentDateTime.toISOString());
+        
+        if (!automation.email_automation_steps || automation.email_automation_steps.length === 0) {
+          console.log(`No steps found for automation: ${automation.name}`);
+          continue;
+        }
 
-      // Sort steps by step_number
-      const steps = automation.email_automation_steps
-        .filter((step: any) => step.is_active)
-        .sort((a: any, b: any) => a.step_number - b.step_number);
+        // Sort steps by step_number
+        const steps = automation.email_automation_steps
+          .filter((step: any) => step.is_active)
+          .sort((a: any, b: any) => a.step_number - b.step_number);
+        
+        // Step 1: Send confirmation immediately (if enabled)
+        if (sendConfirmation && steps.length > 0) {
+          const confirmationStep = steps[0]; // First step is the confirmation
+          const now = new Date();
+          
+          const { error: queueError } = await supabase
+            .from('email_queue')
+            .insert([{
+              subscriber_id: subscriberId,
+              automation_id: automation.id,
+              automation_step_id: confirmationStep.id,
+              subject: personalizeContent(confirmationStep.subject, triggerRequest.triggerData),
+              html_content: personalizeContent(confirmationStep.html_content, triggerRequest.triggerData),
+              text_content: personalizeContent(confirmationStep.text_content || '', triggerRequest.triggerData),
+              scheduled_at: now.toISOString(),
+              status: 'pending'
+            }]);
 
-      // Queue emails for each step with appropriate delays
-      for (const step of steps) {
-        const scheduledAt = new Date();
-        scheduledAt.setMinutes(scheduledAt.getMinutes() + (step.delay_minutes || 0));
+          if (queueError) {
+            console.error('Error queuing confirmation email:', queueError);
+          } else {
+            totalEmailsQueued++;
+            console.log('Queued confirmation email for immediate sending');
+          }
+        }
+        
+        // Step 2: Schedule reminder emails based on configured reminder times (relative to appointment)
+        if (sendReminder && reminderTimes.length > 0) {
+          // Find reminder template (step 2 or later)
+          const reminderTemplate = steps.length > 1 ? steps[1] : steps[0];
+          
+          for (const reminder of reminderTimes) {
+            if (!reminder.enabled) continue;
+            
+            // Calculate reminder time: appointment time MINUS minutes_before
+            const reminderDateTime = new Date(appointmentDateTime.getTime() - (reminder.minutes_before * 60 * 1000));
+            const now = new Date();
+            
+            // Only schedule if the reminder time is in the future
+            if (reminderDateTime <= now) {
+              console.log(`Skipping reminder ${reminder.label} - time has already passed`);
+              continue;
+            }
+            
+            // Customize subject based on reminder time
+            let reminderSubject = reminderTemplate.subject;
+            if (reminder.minutes_before <= 60) {
+              reminderSubject = `⏰ In ${reminder.minutes_before} Minuten: Ihr Termin bei Unicum Tech`;
+            } else if (reminder.minutes_before <= 120) {
+              reminderSubject = `⏰ In ${Math.round(reminder.minutes_before / 60)} Stunde(n): Ihr Termin bei Unicum Tech`;
+            } else if (reminder.minutes_before <= 1440) {
+              reminderSubject = `📅 Morgen: Ihr Termin bei Unicum Tech um ${appointmentTime} Uhr`;
+            } else {
+              const days = Math.round(reminder.minutes_before / 1440);
+              reminderSubject = `📅 In ${days} Tag(en): Ihr Termin bei Unicum Tech`;
+            }
+            
+            const { error: queueError } = await supabase
+              .from('email_queue')
+              .insert([{
+                subscriber_id: subscriberId,
+                automation_id: automation.id,
+                automation_step_id: reminderTemplate.id,
+                subject: personalizeContent(reminderSubject, triggerRequest.triggerData),
+                html_content: personalizeContent(reminderTemplate.html_content, triggerRequest.triggerData),
+                text_content: personalizeContent(reminderTemplate.text_content || '', triggerRequest.triggerData),
+                scheduled_at: reminderDateTime.toISOString(),
+                status: 'pending'
+              }]);
 
-        const { error: queueError } = await supabase
-          .from('email_queue')
-          .insert([{
-            subscriber_id: subscriberId,
-            automation_id: automation.id,
-            automation_step_id: step.id,
-            subject: personalizeContent(step.subject, triggerRequest.triggerData),
-            html_content: personalizeContent(step.html_content, triggerRequest.triggerData),
-            text_content: personalizeContent(step.text_content || '', triggerRequest.triggerData),
-            scheduled_at: scheduledAt.toISOString()
-          }]);
+            if (queueError) {
+              console.error(`Error queuing reminder email (${reminder.label}):`, queueError);
+            } else {
+              totalEmailsQueued++;
+              console.log(`Queued reminder email "${reminder.label}" scheduled for: ${reminderDateTime.toISOString()}`);
+            }
+          }
+        }
+        
+      } else {
+        // Standard automation processing for other trigger types
+        if (!automation.email_automation_steps || automation.email_automation_steps.length === 0) {
+          console.log(`No steps found for automation: ${automation.name}`);
+          continue;
+        }
 
-        if (queueError) {
-          console.error(`Error queuing email for step ${step.step_number}:`, queueError);
-        } else {
-          totalEmailsQueued++;
-          console.log(`Queued email for step ${step.step_number}, scheduled for: ${scheduledAt.toISOString()}`);
+        // Sort steps by step_number
+        const steps = automation.email_automation_steps
+          .filter((step: any) => step.is_active)
+          .sort((a: any, b: any) => a.step_number - b.step_number);
+
+        // Queue emails for each step with appropriate delays (from current time)
+        let cumulativeDelay = 0;
+        for (const step of steps) {
+          cumulativeDelay += (step.delay_minutes || 0);
+          const scheduledAt = new Date();
+          scheduledAt.setMinutes(scheduledAt.getMinutes() + cumulativeDelay);
+
+          const { error: queueError } = await supabase
+            .from('email_queue')
+            .insert([{
+              subscriber_id: subscriberId,
+              automation_id: automation.id,
+              automation_step_id: step.id,
+              subject: personalizeContent(step.subject, triggerRequest.triggerData),
+              html_content: personalizeContent(step.html_content, triggerRequest.triggerData),
+              text_content: personalizeContent(step.text_content || '', triggerRequest.triggerData),
+              scheduled_at: scheduledAt.toISOString(),
+              status: 'pending'
+            }]);
+
+          if (queueError) {
+            console.error(`Error queuing email for step ${step.step_number}:`, queueError);
+          } else {
+            totalEmailsQueued++;
+            console.log(`Queued email for step ${step.step_number}, scheduled for: ${scheduledAt.toISOString()}`);
+          }
         }
       }
     }
@@ -192,6 +315,7 @@ const handler = async (req: Request): Promise<Response> => {
 function getTriggerSource(triggerType: string): string {
   switch (triggerType) {
     case 'subscription':
+    case 'newsletter_signup':
       return 'automation_subscription';
     case 'appointment_booked':
       return 'automation_appointment';
@@ -219,6 +343,8 @@ function personalizeContent(content: string, data: any): string {
   personalizedContent = personalizedContent.replace(/\{\{service_type\}\}/g, data.service_type || '');
   personalizedContent = personalizedContent.replace(/\{\{appointment_date\}\}/g, data.appointment_date || '');
   personalizedContent = personalizedContent.replace(/\{\{appointment_time\}\}/g, data.appointment_time || '');
+  personalizedContent = personalizedContent.replace(/\{\{meeting_type\}\}/g, data.meeting_type || '');
+  personalizedContent = personalizedContent.replace(/\{\{meeting_link\}\}/g, data.meeting_link || '');
   
   return personalizedContent;
 }

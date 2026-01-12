@@ -16,10 +16,7 @@ import {
   Clock, 
   Mail, 
   Plus, 
-  Edit, 
   Trash2, 
-  Play, 
-  Pause,
   Settings,
   Users
 } from 'lucide-react';

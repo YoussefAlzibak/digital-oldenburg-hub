@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Calendar, Clock, ChevronLeft, ChevronRight, Filter, Users, Phone, Video, MapPin, Ban, Settings, Plus } from 'lucide-react';
+import { Calendar, Clock, ChevronLeft, ChevronRight, Filter, Users, Phone, Video, MapPin, Ban, Settings, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { format, parseISO, addDays, startOfWeek, endOfWeek, isSameDay } from 'date-fns';
+import { format, parseISO, startOfWeek, endOfWeek, isSameDay } from 'date-fns';
 import { de } from 'date-fns/locale';
 
 interface Appointment {
@@ -16,8 +16,6 @@ interface Appointment {
   meeting_type: string;
   status: string;
   created_at: string;
-  name?: string;
-  email?: string;
 }
 
 interface Holiday {
@@ -25,7 +23,13 @@ interface Holiday {
   name: string;
   date: Date;
   type: 'holiday' | 'vacation' | 'blocked';
-  isRecurring: boolean;
+  is_recurring: boolean;
+}
+
+interface DaySchedule {
+  start: string;
+  end: string;
+  active: boolean;
 }
 
 interface AvailabilityTemplate {
@@ -33,9 +37,9 @@ interface AvailabilityTemplate {
   name: string;
   description: string;
   schedule: {
-    [key: string]: { start: string; end: string; active: boolean };
+    [key: string]: DaySchedule;
   };
-  isActive: boolean;
+  is_active: boolean;
 }
 
 interface CalendarDay {
@@ -51,42 +55,20 @@ interface CalendarDay {
 const DAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
-// Mock data for holidays and availability (in real app, this would come from database)
-const MOCK_HOLIDAYS: Holiday[] = [
-  { id: '1', name: 'Weihnachtstag', date: new Date(2024, 11, 25), type: 'holiday', isRecurring: true },
-  { id: '2', name: 'Neujahr', date: new Date(2024, 0, 1), type: 'holiday', isRecurring: true },
-];
-
-const MOCK_AVAILABILITY: AvailabilityTemplate = {
-  id: '1',
-  name: 'Standard Bürozeiten',
-  description: 'Montag bis Freitag, 9:00 - 17:00 Uhr',
-  schedule: {
-    monday: { start: '09:00', end: '17:00', active: true },
-    tuesday: { start: '09:00', end: '17:00', active: true },
-    wednesday: { start: '09:00', end: '17:00', active: true },
-    thursday: { start: '09:00', end: '17:00', active: true },
-    friday: { start: '09:00', end: '17:00', active: true },
-    saturday: { start: '09:00', end: '17:00', active: false },
-    sunday: { start: '09:00', end: '17:00', active: false },
-  },
-  isActive: true,
-};
-
 export default function IntegratedCalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
+  const [availability, setAvailability] = useState<AvailabilityTemplate | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
   const [loading, setLoading] = useState(true);
-  const [holidays] = useState<Holiday[]>(MOCK_HOLIDAYS);
-  const [availability] = useState<AvailabilityTemplate>(MOCK_AVAILABILITY);
 
   useEffect(() => {
-    loadAppointments();
-  }, [currentDate]);
+    loadData();
+  }, [currentDate, viewMode]);
 
-  const loadAppointments = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
       
@@ -103,18 +85,56 @@ export default function IntegratedCalendarView() {
         startDate = new Date(currentDate);
         endDate = new Date(currentDate);
       }
-      
-      const { data, error } = await supabase
+
+      // Fetch appointments
+      const { data: appointmentData, error: appointmentError } = await supabase
         .from('appointments')
         .select('*')
         .gte('scheduled_date', startDate.toISOString().split('T')[0])
         .lte('scheduled_date', endDate.toISOString().split('T')[0])
         .order('scheduled_date', { ascending: true });
 
-      if (error) throw error;
-      setAppointments(data || []);
+      if (appointmentError) throw appointmentError;
+      setAppointments(appointmentData || []);
+
+      // Fetch holidays/blocked dates
+      const { data: holidayData, error: holidayError } = await supabase
+        .from('calendar_blocked_dates')
+        .select('*')
+        .order('date', { ascending: true });
+
+      if (holidayError) throw holidayError;
+      
+      const formattedHolidays = (holidayData || []).map(h => ({
+        id: h.id,
+        name: h.name,
+        date: parseISO(h.date),
+        type: h.type as Holiday['type'],
+        is_recurring: h.is_recurring,
+      }));
+      setHolidays(formattedHolidays);
+
+      // Fetch active availability template
+      const { data: availabilityData, error: availabilityError } = await supabase
+        .from('availability_templates')
+        .select('*')
+        .eq('is_active', true)
+        .limit(1);
+
+      if (availabilityError) throw availabilityError;
+      
+      if (availabilityData && availabilityData.length > 0) {
+        const template = availabilityData[0];
+        setAvailability({
+          id: template.id,
+          name: template.name,
+          description: template.description || '',
+          schedule: template.schedule as unknown as AvailabilityTemplate['schedule'],
+          is_active: template.is_active,
+        });
+      }
     } catch (error) {
-      console.error('Error loading appointments:', error);
+      console.error('Error loading calendar data:', error);
     } finally {
       setLoading(false);
     }
@@ -135,6 +155,10 @@ export default function IntegratedCalendarView() {
   };
 
   const isAvailable = (date: Date): { available: boolean; hours?: { start: string; end: string } } => {
+    if (!availability) {
+      return { available: true };
+    }
+
     const dayKey = DAY_KEYS[date.getDay() === 0 ? 6 : date.getDay() - 1];
     const daySchedule = availability.schedule[dayKey];
     
@@ -156,7 +180,6 @@ export default function IntegratedCalendarView() {
     const month = currentDate.getMonth();
     
     const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
     const startDate = new Date(firstDay);
     
     // Start from Monday
@@ -249,7 +272,12 @@ export default function IntegratedCalendarView() {
   const blockedDays = calendarDays.filter(d => !d.isAvailable && d.isCurrentMonth).length;
 
   if (loading) {
-    return <div className="flex justify-center p-8">Lade integrierte Kalender-Ansicht...</div>;
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-3 text-muted-foreground">Kalender wird geladen...</span>
+      </div>
+    );
   }
 
   return (
@@ -325,6 +353,9 @@ export default function IntegratedCalendarView() {
                   <SelectItem value="cancelled">Abgesagt</SelectItem>
                 </SelectContent>
               </Select>
+              <Button variant="outline" size="sm" onClick={() => loadData()}>
+                Aktualisieren
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -349,12 +380,21 @@ export default function IntegratedCalendarView() {
           </div>
 
           {/* Current Availability Template */}
-          <Alert className="border-blue-200 bg-blue-50/50">
-            <Settings className="h-4 w-4 text-blue-600" />
-            <AlertDescription className="text-blue-800">
-              <strong>Aktive Verfügbarkeit:</strong> {availability.name} - {availability.description}
-            </AlertDescription>
-          </Alert>
+          {availability ? (
+            <Alert className="border-blue-200 bg-blue-50/50">
+              <Settings className="h-4 w-4 text-blue-600" />
+              <AlertDescription className="text-blue-800">
+                <strong>Aktive Verfügbarkeit:</strong> {availability.name} - {availability.description}
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <Alert className="border-amber-200 bg-amber-50/50">
+              <Settings className="h-4 w-4 text-amber-600" />
+              <AlertDescription className="text-amber-800">
+                <strong>Keine Verfügbarkeitsvorlage aktiv.</strong> Erstellen Sie eine Vorlage im Tab "Verfügbarkeit".
+              </AlertDescription>
+            </Alert>
+          )}
 
           {/* Weekday Headers */}
           <div className="grid grid-cols-7 gap-1 text-center text-sm font-medium text-muted-foreground">
@@ -460,47 +500,34 @@ export default function IntegratedCalendarView() {
             </div>
             
             <div className="space-y-2">
-              <h4 className="font-medium text-sm">Status</h4>
+              <h4 className="font-medium text-sm">Terminstatus</h4>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-xs px-1 py-0">Ausstehend</Badge>
+                  <Badge variant="default" className="text-xs">Bestätigt</Badge>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="default" className="text-xs px-1 py-0">Bestätigt</Badge>
+                  <Badge variant="outline" className="text-xs">Ausstehend</Badge>
                 </div>
               </div>
             </div>
             
             <div className="space-y-2">
-              <h4 className="font-medium text-sm">Feiertage</h4>
+              <h4 className="font-medium text-sm">Sperrgründe</h4>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-red-100 text-red-800 text-xs px-1 py-0">Feiertag</Badge>
+                  <Badge className="text-xs bg-red-100 text-red-800">Feiertag</Badge>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-blue-100 text-blue-800 text-xs px-1 py-0">Urlaub</Badge>
+                  <Badge className="text-xs bg-blue-100 text-blue-800">Urlaub</Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge className="text-xs bg-gray-100 text-gray-800">Gesperrt</Badge>
                 </div>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Button variant="outline" className="h-16 flex-col gap-2">
-          <Plus className="h-5 w-5" />
-          <span>Neuen Termin erstellen</span>
-        </Button>
-        <Button variant="outline" className="h-16 flex-col gap-2">
-          <Ban className="h-5 w-5" />
-          <span>Tag sperren</span>
-        </Button>
-        <Button variant="outline" className="h-16 flex-col gap-2">
-          <Settings className="h-5 w-5" />
-          <span>Verfügbarkeit anpassen</span>
-        </Button>
-      </div>
     </div>
   );
 }

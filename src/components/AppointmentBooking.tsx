@@ -5,22 +5,43 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, MapPin, Video, Phone, Building, User, Mail, MessageCircle } from 'lucide-react';
+import { Calendar, Clock, MapPin, Video, Phone, Building, User, Mail, MessageCircle, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { parseISO, isSameDay } from 'date-fns';
 
 interface TimeSlot {
   time: string;
   available: boolean;
 }
 
+interface DaySchedule {
+  start: string;
+  end: string;
+  active: boolean;
+}
+
+interface AvailabilityTemplate {
+  schedule: {
+    [key: string]: DaySchedule;
+  };
+}
+
+interface BlockedDate {
+  date: Date;
+}
+
+const DAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
 export default function AppointmentBooking() {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [appointmentType, setAppointmentType] = useState<'online' | 'phone' | 'office' | 'client'>('online');
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
+  const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([]);
+  const [availability, setAvailability] = useState<AvailabilityTemplate | null>(null);
   const [isBooking, setIsBooking] = useState(false);
+  const [loadingSlots, setLoadingSlots] = useState(false);
   const [step, setStep] = useState(1);
   const [customerData, setCustomerData] = useState({
     name: '',
@@ -31,23 +52,102 @@ export default function AppointmentBooking() {
   });
   const { toast } = useToast();
 
-  const timeSlots = [
-    { time: '09:00', available: true },
-    { time: '10:00', available: true },
-    { time: '11:00', available: true },
-    { time: '14:00', available: true },
-    { time: '15:00', available: true },
-    { time: '16:00', available: true },
-  ];
+  useEffect(() => {
+    loadAvailabilitySettings();
+  }, []);
 
   useEffect(() => {
-    if (selectedDate) {
+    if (selectedDate && availability) {
       checkAvailability();
     }
-  }, [selectedDate]);
+  }, [selectedDate, availability]);
+
+  const loadAvailabilitySettings = async () => {
+    try {
+      // Fetch active availability template
+      const { data: availabilityData, error: availabilityError } = await supabase
+        .from('availability_templates')
+        .select('schedule')
+        .eq('is_active', true)
+        .limit(1);
+
+      if (availabilityError) throw availabilityError;
+      
+      if (availabilityData && availabilityData.length > 0) {
+        setAvailability({
+          schedule: availabilityData[0].schedule as unknown as AvailabilityTemplate['schedule']
+        });
+      }
+
+      // Fetch blocked dates
+      const { data: blockedData, error: blockedError } = await supabase
+        .from('calendar_blocked_dates')
+        .select('date');
+
+      if (blockedError) throw blockedError;
+      
+      const blocked = (blockedData || []).map(b => ({
+        date: parseISO(b.date)
+      }));
+      setBlockedDates(blocked);
+    } catch (error) {
+      console.error('Error loading availability settings:', error);
+    }
+  };
+
+  const generateTimeSlots = (start: string, end: string): string[] => {
+    const slots: string[] = [];
+    const [startHour] = start.split(':').map(Number);
+    const [endHour] = end.split(':').map(Number);
+    
+    for (let hour = startHour; hour < endHour; hour++) {
+      slots.push(`${hour.toString().padStart(2, '0')}:00`);
+    }
+    
+    return slots;
+  };
 
   const checkAvailability = async () => {
+    if (!selectedDate) return;
+    
+    setLoadingSlots(true);
     try {
+      const selectedDateObj = new Date(selectedDate);
+      const dayOfWeek = selectedDateObj.getDay();
+      const dayKey = DAY_KEYS[dayOfWeek];
+      
+      // Check if it's a blocked date
+      const isBlocked = blockedDates.some(b => isSameDay(b.date, selectedDateObj));
+      
+      if (isBlocked) {
+        setAvailableSlots([]);
+        toast({
+          title: "Dieser Tag ist nicht verfügbar",
+          description: "Bitte wählen Sie einen anderen Tag.",
+          variant: "destructive"
+        });
+        setLoadingSlots(false);
+        return;
+      }
+      
+      // Get schedule for the selected day
+      const daySchedule = availability?.schedule?.[dayKey];
+      
+      if (!daySchedule?.active) {
+        setAvailableSlots([]);
+        toast({
+          title: "Keine Termine an diesem Tag",
+          description: "An diesem Wochentag sind keine Termine verfügbar.",
+          variant: "destructive"
+        });
+        setLoadingSlots(false);
+        return;
+      }
+      
+      // Generate time slots based on availability
+      const timeSlots = generateTimeSlots(daySchedule.start, daySchedule.end);
+      
+      // Check which slots are already booked
       const { data: bookedSlots } = await supabase
         .from('appointments')
         .select('scheduled_time')
@@ -56,16 +156,32 @@ export default function AppointmentBooking() {
 
       const bookedTimes = bookedSlots?.map(slot => slot.scheduled_time) || [];
 
-      const updatedSlots = timeSlots.map(slot => ({
-        ...slot,
-        available: !bookedTimes.includes(slot.time)
+      const updatedSlots = timeSlots.map(time => ({
+        time,
+        available: !bookedTimes.includes(time)
       }));
 
       setAvailableSlots(updatedSlots);
     } catch (error) {
       console.error('Error checking availability:', error);
-      setAvailableSlots(timeSlots);
+      setAvailableSlots([]);
+    } finally {
+      setLoadingSlots(false);
     }
+  };
+
+  const isDateBlocked = (dateStr: string): boolean => {
+    const date = new Date(dateStr);
+    const dayOfWeek = date.getDay();
+    const dayKey = DAY_KEYS[dayOfWeek];
+    
+    // Check if it's a blocked date
+    const isBlocked = blockedDates.some(b => isSameDay(b.date, date));
+    if (isBlocked) return true;
+    
+    // Check if this weekday is available
+    const daySchedule = availability?.schedule?.[dayKey];
+    return !daySchedule?.active;
   };
 
   const handleBookAppointment = async () => {
@@ -137,7 +253,7 @@ export default function AppointmentBooking() {
         company: '',
         message: ''
       });
-      checkAvailability();
+      setAvailableSlots([]);
     } catch (error: any) {
       console.error('Booking error:', error);
       toast({
@@ -158,7 +274,7 @@ export default function AppointmentBooking() {
 
   const getMaxDate = () => {
     const maxDate = new Date();
-    maxDate.setDate(maxDate.getDate() + 30);
+    maxDate.setDate(maxDate.getDate() + 60);
     return maxDate.toISOString().split('T')[0];
   };
 
@@ -226,36 +342,56 @@ export default function AppointmentBooking() {
                 min={getMinDate()}
                 max={getMaxDate()}
                 value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
+                onChange={(e) => {
+                  setSelectedDate(e.target.value);
+                  setSelectedTime('');
+                }}
                 className="w-full px-3 py-2 border border-input rounded-md bg-background"
               />
+              {selectedDate && isDateBlocked(selectedDate) && (
+                <p className="text-sm text-destructive">
+                  An diesem Tag sind keine Termine verfügbar. Bitte wählen Sie einen anderen Tag.
+                </p>
+              )}
             </div>
 
             {/* Verfügbare Zeiten */}
-            {selectedDate && (
+            {selectedDate && !isDateBlocked(selectedDate) && (
               <div className="space-y-3">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Clock className="h-4 w-4" />
                   Verfügbare Zeiten
                 </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {availableSlots.map((slot) => (
-                    <Button
-                      key={slot.time}
-                      variant={selectedTime === slot.time ? "default" : "outline"}
-                      disabled={!slot.available}
-                      onClick={() => setSelectedTime(slot.time)}
-                      className="relative"
-                    >
-                      {slot.time}
-                      {!slot.available && (
-                        <Badge variant="destructive" className="absolute -top-2 -right-2 text-xs px-1">
-                          Belegt
-                        </Badge>
-                      )}
-                    </Button>
-                  ))}
-                </div>
+                {loadingSlots ? (
+                  <div className="flex items-center justify-center p-4">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    <span className="ml-2 text-sm text-muted-foreground">Verfügbarkeit wird geprüft...</span>
+                  </div>
+                ) : availableSlots.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Keine Termine an diesem Tag verfügbar.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-4 gap-2">
+                    {availableSlots.map((slot) => (
+                      <Button
+                        key={slot.time}
+                        variant={selectedTime === slot.time ? "default" : "outline"}
+                        disabled={!slot.available}
+                        onClick={() => setSelectedTime(slot.time)}
+                        className="relative"
+                        size="sm"
+                      >
+                        {slot.time}
+                        {!slot.available && (
+                          <Badge variant="destructive" className="absolute -top-2 -right-2 text-xs px-1">
+                            Belegt
+                          </Badge>
+                        )}
+                      </Button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -396,7 +532,14 @@ export default function AppointmentBooking() {
                 disabled={!customerData.name || !customerData.email || isBooking}
                 className="flex-1"
               >
-                {isBooking ? 'Wird gebucht...' : 'Termin verbindlich buchen'}
+                {isBooking ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Wird gebucht...
+                  </>
+                ) : (
+                  'Termin verbindlich buchen'
+                )}
               </Button>
             </div>
           </>

@@ -109,6 +109,66 @@ export type Database = {
         }
         Relationships: []
       }
+      availability_templates: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          schedule: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          schedule?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          schedule?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      calendar_blocked_dates: {
+        Row: {
+          created_at: string
+          date: string
+          description: string | null
+          id: string
+          is_recurring: boolean
+          name: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          description?: string | null
+          id?: string
+          is_recurring?: boolean
+          name: string
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          is_recurring?: boolean
+          name?: string
+          type?: string
+        }
+        Relationships: []
+      }
       contact_requests: {
         Row: {
           budget_range: string | null

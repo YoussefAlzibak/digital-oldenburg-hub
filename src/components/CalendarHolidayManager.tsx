@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,8 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Calendar } from '@/components/ui/calendar';
 import { useToast } from '@/hooks/use-toast';
-import { CalendarDays, Plus, Trash2, AlertTriangle, Info } from 'lucide-react';
-import { format, parseISO, addDays } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+import { CalendarDays, Plus, Trash2, AlertTriangle, Info, Loader2 } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 
 interface Holiday {
@@ -16,7 +17,7 @@ interface Holiday {
   name: string;
   date: Date;
   type: 'holiday' | 'vacation' | 'blocked';
-  isRecurring: boolean;
+  is_recurring: boolean;
   description?: string;
 }
 
@@ -26,40 +27,57 @@ const HOLIDAY_TYPES = [
   { value: 'blocked', label: 'Gesperrt', color: 'bg-gray-100 text-gray-800' },
 ];
 
-const GERMAN_HOLIDAYS_2024 = [
-  { name: 'Neujahr', date: '2024-01-01', isRecurring: true },
-  { name: 'Karfreitag', date: '2024-03-29', isRecurring: false },
-  { name: 'Ostermontag', date: '2024-04-01', isRecurring: false },
-  { name: 'Tag der Arbeit', date: '2024-05-01', isRecurring: true },
-  { name: 'Christi Himmelfahrt', date: '2024-05-09', isRecurring: false },
-  { name: 'Pfingstmontag', date: '2024-05-20', isRecurring: false },
-  { name: 'Tag der Deutschen Einheit', date: '2024-10-03', isRecurring: true },
-  { name: 'Weihnachtstag', date: '2024-12-25', isRecurring: true },
-  { name: 'Zweiter Weihnachtstag', date: '2024-12-26', isRecurring: true },
-];
-
 export default function CalendarHolidayManager() {
-  const [holidays, setHolidays] = useState<Holiday[]>(
-    GERMAN_HOLIDAYS_2024.map((h, i) => ({
-      id: `holiday-${i}`,
-      name: h.name,
-      date: parseISO(h.date),
-      type: 'holiday' as const,
-      isRecurring: h.isRecurring,
-    }))
-  );
-
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [newHoliday, setNewHoliday] = useState({
     name: '',
     type: 'blocked' as Holiday['type'],
-    isRecurring: false,
+    is_recurring: false,
     description: '',
   });
   const [showAddForm, setShowAddForm] = useState(false);
   const { toast } = useToast();
 
-  const addHoliday = () => {
+  useEffect(() => {
+    loadHolidays();
+  }, []);
+
+  const loadHolidays = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('calendar_blocked_dates')
+        .select('*')
+        .order('date', { ascending: true });
+
+      if (error) throw error;
+
+      const formattedHolidays = (data || []).map(h => ({
+        id: h.id,
+        name: h.name,
+        date: parseISO(h.date),
+        type: h.type as Holiday['type'],
+        is_recurring: h.is_recurring,
+        description: h.description || undefined,
+      }));
+
+      setHolidays(formattedHolidays);
+    } catch (error) {
+      console.error('Error loading holidays:', error);
+      toast({
+        title: "Fehler",
+        description: "Feiertage konnten nicht geladen werden",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addHoliday = async () => {
     if (!selectedDate || !newHoliday.name) {
       toast({
         title: "Fehler",
@@ -69,32 +87,67 @@ export default function CalendarHolidayManager() {
       return;
     }
 
-    const holiday: Holiday = {
-      id: `custom-${Date.now()}`,
-      name: newHoliday.name,
-      date: selectedDate,
-      type: newHoliday.type,
-      isRecurring: newHoliday.isRecurring,
-      description: newHoliday.description,
-    };
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('calendar_blocked_dates')
+        .insert({
+          name: newHoliday.name,
+          date: format(selectedDate, 'yyyy-MM-dd'),
+          type: newHoliday.type,
+          is_recurring: newHoliday.is_recurring,
+          description: newHoliday.description || null,
+        });
 
-    setHolidays(prev => [...prev, holiday]);
-    setNewHoliday({ name: '', type: 'blocked', isRecurring: false, description: '' });
-    setSelectedDate(undefined);
-    setShowAddForm(false);
+      if (error) throw error;
 
-    toast({
-      title: "Termin hinzugefügt",
-      description: `${holiday.name} wurde für ${format(holiday.date, 'dd.MM.yyyy', { locale: de })} gesperrt.`,
-    });
+      toast({
+        title: "Termin hinzugefügt",
+        description: `${newHoliday.name} wurde für ${format(selectedDate, 'dd.MM.yyyy', { locale: de })} gesperrt.`,
+      });
+
+      setNewHoliday({ name: '', type: 'blocked', is_recurring: false, description: '' });
+      setSelectedDate(undefined);
+      setShowAddForm(false);
+      loadHolidays();
+    } catch (error) {
+      console.error('Error adding holiday:', error);
+      toast({
+        title: "Fehler",
+        description: "Termin konnte nicht gesperrt werden",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const removeHoliday = (id: string) => {
-    setHolidays(prev => prev.filter(h => h.id !== id));
-    toast({
-      title: "Termin entfernt",
-      description: "Der gesperrte Termin wurde erfolgreich entfernt.",
-    });
+  const removeHoliday = async (id: string) => {
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('calendar_blocked_dates')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Termin entfernt",
+        description: "Der gesperrte Termin wurde erfolgreich entfernt.",
+      });
+
+      loadHolidays();
+    } catch (error) {
+      console.error('Error removing holiday:', error);
+      toast({
+        title: "Fehler",
+        description: "Termin konnte nicht entfernt werden",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const getHolidayTypeInfo = (type: Holiday['type']) => {
@@ -103,10 +156,11 @@ export default function CalendarHolidayManager() {
 
   const getUpcomingHolidays = () => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     return holidays
       .filter(h => h.date >= today)
       .sort((a, b) => a.date.getTime() - b.date.getTime())
-      .slice(0, 5);
+      .slice(0, 10);
   };
 
   const isHolidayDate = (date: Date) => {
@@ -114,6 +168,15 @@ export default function CalendarHolidayManager() {
       h.date.toDateString() === date.toDateString()
     );
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-3 text-muted-foreground">Feiertage werden geladen...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -127,6 +190,7 @@ export default function CalendarHolidayManager() {
         <Button 
           onClick={() => setShowAddForm(!showAddForm)}
           className="flex items-center gap-2"
+          disabled={saving}
         >
           <Plus className="h-4 w-4" />
           Termin sperren
@@ -229,8 +293,8 @@ export default function CalendarHolidayManager() {
                   <input
                     type="checkbox"
                     id="recurring"
-                    checked={newHoliday.isRecurring}
-                    onChange={(e) => setNewHoliday(prev => ({ ...prev, isRecurring: e.target.checked }))}
+                    checked={newHoliday.is_recurring}
+                    onChange={(e) => setNewHoliday(prev => ({ ...prev, is_recurring: e.target.checked }))}
                     className="rounded"
                   />
                   <Label htmlFor="recurring" className="text-sm">
@@ -243,15 +307,23 @@ export default function CalendarHolidayManager() {
                     onClick={() => setShowAddForm(false)}
                     variant="outline"
                     className="flex-1"
+                    disabled={saving}
                   >
                     Abbrechen
                   </Button>
                   <Button 
                     onClick={addHoliday}
                     className="flex-1"
-                    disabled={!selectedDate || !newHoliday.name}
+                    disabled={!selectedDate || !newHoliday.name || saving}
                   >
-                    Termin sperren
+                    {saving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Speichern...
+                      </>
+                    ) : (
+                      'Termin sperren'
+                    )}
                   </Button>
                 </div>
               </CardContent>
@@ -267,7 +339,7 @@ export default function CalendarHolidayManager() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-[400px] overflow-y-auto">
                 {getUpcomingHolidays().length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     Keine kommenden gesperrten Termine
@@ -286,18 +358,17 @@ export default function CalendarHolidayManager() {
                           </div>
                           <p className="text-xs text-muted-foreground">
                             {format(holiday.date, 'dd.MM.yyyy', { locale: de })}
-                            {holiday.isRecurring && ' (jährlich)'}
+                            {holiday.is_recurring && ' (jährlich)'}
                           </p>
                         </div>
-                        {!holiday.id.startsWith('holiday-') && (
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => removeHoliday(holiday.id)}
-                          >
-                            <Trash2 className="h-3 w-3 text-destructive" />
-                          </Button>
-                        )}
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => removeHoliday(holiday.id)}
+                          disabled={saving}
+                        >
+                          <Trash2 className="h-3 w-3 text-destructive" />
+                        </Button>
                       </div>
                     );
                   })

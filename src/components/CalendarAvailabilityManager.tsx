@@ -6,22 +6,29 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Plus, Trash2, Edit3, Clock, AlertCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Calendar, Plus, Trash2, Edit3, Clock, AlertCircle, Loader2 } from 'lucide-react';
+
+interface DaySchedule {
+  start: string;
+  end: string;
+  active: boolean;
+}
 
 interface AvailabilityTemplate {
   id: string;
   name: string;
   description: string;
   schedule: {
-    monday?: { start: string; end: string; active: boolean };
-    tuesday?: { start: string; end: string; active: boolean };
-    wednesday?: { start: string; end: string; active: boolean };
-    thursday?: { start: string; end: string; active: boolean };
-    friday?: { start: string; end: string; active: boolean };
-    saturday?: { start: string; end: string; active: boolean };
-    sunday?: { start: string; end: string; active: boolean };
+    monday?: DaySchedule;
+    tuesday?: DaySchedule;
+    wednesday?: DaySchedule;
+    thursday?: DaySchedule;
+    friday?: DaySchedule;
+    saturday?: DaySchedule;
+    sunday?: DaySchedule;
   };
-  isActive: boolean;
+  is_active: boolean;
 }
 
 const DAYS = [
@@ -34,63 +41,144 @@ const DAYS = [
   { key: 'sunday', label: 'Sonntag' },
 ];
 
+const DEFAULT_SCHEDULE = {
+  monday: { start: '09:00', end: '17:00', active: true },
+  tuesday: { start: '09:00', end: '17:00', active: true },
+  wednesday: { start: '09:00', end: '17:00', active: true },
+  thursday: { start: '09:00', end: '17:00', active: true },
+  friday: { start: '09:00', end: '17:00', active: true },
+  saturday: { start: '09:00', end: '17:00', active: false },
+  sunday: { start: '09:00', end: '17:00', active: false },
+};
+
 export default function CalendarAvailabilityManager() {
-  const [templates, setTemplates] = useState<AvailabilityTemplate[]>([
-    {
-      id: '1',
-      name: 'Standard Bürozeiten',
-      description: 'Montag bis Freitag, 9:00 - 17:00 Uhr',
-      schedule: {
-        monday: { start: '09:00', end: '17:00', active: true },
-        tuesday: { start: '09:00', end: '17:00', active: true },
-        wednesday: { start: '09:00', end: '17:00', active: true },
-        thursday: { start: '09:00', end: '17:00', active: true },
-        friday: { start: '09:00', end: '17:00', active: true },
-        saturday: { start: '09:00', end: '17:00', active: false },
-        sunday: { start: '09:00', end: '17:00', active: false },
-      },
-      isActive: true,
-    },
-    {
-      id: '2',
-      name: 'Erweiterte Zeiten',
-      description: 'Montag bis Samstag, flexiblere Zeiten',
-      schedule: {
-        monday: { start: '08:00', end: '18:00', active: true },
-        tuesday: { start: '08:00', end: '18:00', active: true },
-        wednesday: { start: '08:00', end: '18:00', active: true },
-        thursday: { start: '08:00', end: '18:00', active: true },
-        friday: { start: '08:00', end: '18:00', active: true },
-        saturday: { start: '10:00', end: '14:00', active: true },
-        sunday: { start: '08:00', end: '18:00', active: false },
-      },
-      isActive: false,
-    },
-  ]);
-  
+  const [templates, setTemplates] = useState<AvailabilityTemplate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newTemplate, setNewTemplate] = useState<Partial<AvailabilityTemplate>>({
+  const [newTemplate, setNewTemplate] = useState({
     name: '',
     description: '',
-    schedule: {},
+    schedule: { ...DEFAULT_SCHEDULE },
   });
   const { toast } = useToast();
 
-  const activateTemplate = (templateId: string) => {
-    setTemplates(prev => prev.map(template => ({
-      ...template,
-      isActive: template.id === templateId
-    })));
-    
-    toast({
-      title: "Verfügbarkeits-Vorlage aktiviert",
-      description: "Die neue Vorlage ist jetzt aktiv und wird für die Terminplanung verwendet.",
-    });
+  useEffect(() => {
+    loadTemplates();
+  }, []);
+
+  const loadTemplates = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('availability_templates')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      const formattedTemplates = (data || []).map(t => ({
+        id: t.id,
+        name: t.name,
+        description: t.description || '',
+        schedule: t.schedule as AvailabilityTemplate['schedule'],
+        is_active: t.is_active,
+      }));
+
+      setTemplates(formattedTemplates);
+    } catch (error) {
+      console.error('Error loading templates:', error);
+      toast({
+        title: "Fehler",
+        description: "Vorlagen konnten nicht geladen werden",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const deleteTemplate = (templateId: string) => {
+  const createTemplate = async () => {
+    if (!newTemplate.name) {
+      toast({
+        title: "Fehler",
+        description: "Bitte geben Sie einen Namen ein",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('availability_templates')
+        .insert({
+          name: newTemplate.name,
+          description: newTemplate.description,
+          schedule: newTemplate.schedule,
+          is_active: false,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Vorlage erstellt",
+        description: "Die neue Verfügbarkeits-Vorlage wurde gespeichert.",
+      });
+
+      setNewTemplate({ name: '', description: '', schedule: { ...DEFAULT_SCHEDULE } });
+      setShowCreateForm(false);
+      loadTemplates();
+    } catch (error) {
+      console.error('Error creating template:', error);
+      toast({
+        title: "Fehler",
+        description: "Vorlage konnte nicht erstellt werden",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const activateTemplate = async (templateId: string) => {
+    setSaving(true);
+    try {
+      // Deactivate all templates
+      await supabase
+        .from('availability_templates')
+        .update({ is_active: false })
+        .neq('id', templateId);
+
+      // Activate the selected template
+      const { error } = await supabase
+        .from('availability_templates')
+        .update({ is_active: true })
+        .eq('id', templateId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Vorlage aktiviert",
+        description: "Die neue Vorlage ist jetzt aktiv und wird für die Terminplanung verwendet.",
+      });
+
+      loadTemplates();
+    } catch (error) {
+      console.error('Error activating template:', error);
+      toast({
+        title: "Fehler",
+        description: "Vorlage konnte nicht aktiviert werden",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteTemplate = async (templateId: string) => {
     const template = templates.find(t => t.id === templateId);
-    if (template?.isActive) {
+    if (template?.is_active) {
       toast({
         title: "Fehler",
         description: "Die aktive Vorlage kann nicht gelöscht werden. Aktivieren Sie zuerst eine andere Vorlage.",
@@ -99,17 +187,58 @@ export default function CalendarAvailabilityManager() {
       return;
     }
 
-    setTemplates(prev => prev.filter(template => template.id !== templateId));
-    toast({
-      title: "Vorlage gelöscht",
-      description: "Die Verfügbarkeits-Vorlage wurde erfolgreich entfernt.",
-    });
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('availability_templates')
+        .delete()
+        .eq('id', templateId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Vorlage gelöscht",
+        description: "Die Verfügbarkeits-Vorlage wurde erfolgreich entfernt.",
+      });
+
+      loadTemplates();
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      toast({
+        title: "Fehler",
+        description: "Vorlage konnte nicht gelöscht werden",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const updateNewSchedule = (dayKey: string, field: string, value: string | boolean) => {
+    setNewTemplate(prev => ({
+      ...prev,
+      schedule: {
+        ...prev.schedule,
+        [dayKey]: {
+          ...prev.schedule[dayKey as keyof typeof prev.schedule],
+          [field]: value,
+        },
+      },
+    }));
   };
 
   const getActiveHours = (schedule: AvailabilityTemplate['schedule']) => {
-    const activeDays = Object.entries(schedule).filter(([_, day]) => day?.active).length;
-    return activeDays;
+    return Object.entries(schedule).filter(([_, day]) => day?.active).length;
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-3 text-muted-foreground">Verfügbarkeits-Vorlagen werden geladen...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -123,6 +252,7 @@ export default function CalendarAvailabilityManager() {
         <Button 
           onClick={() => setShowCreateForm(!showCreateForm)}
           className="flex items-center gap-2"
+          disabled={saving}
         >
           <Plus className="h-4 w-4" />
           Neue Vorlage erstellen
@@ -144,7 +274,7 @@ export default function CalendarAvailabilityManager() {
                 <Input
                   id="template-name"
                   placeholder="z.B. Sommerstunden"
-                  value={newTemplate.name || ''}
+                  value={newTemplate.name}
                   onChange={(e) => setNewTemplate(prev => ({ ...prev, name: e.target.value }))}
                 />
               </div>
@@ -153,7 +283,7 @@ export default function CalendarAvailabilityManager() {
                 <Input
                   id="template-description"
                   placeholder="z.B. Reduzierte Stunden im Sommer"
-                  value={newTemplate.description || ''}
+                  value={newTemplate.description}
                   onChange={(e) => setNewTemplate(prev => ({ ...prev, description: e.target.value }))}
                 />
               </div>
@@ -161,29 +291,38 @@ export default function CalendarAvailabilityManager() {
             
             <div className="space-y-3">
               <Label>Wochenzeitplan definieren</Label>
-              {DAYS.map(day => (
-                <div key={day.key} className="flex items-center gap-4 p-3 border rounded-lg">
-                  <div className="w-20">
-                    <Badge variant="outline">{day.label}</Badge>
+              {DAYS.map(day => {
+                const daySchedule = newTemplate.schedule[day.key as keyof typeof newTemplate.schedule];
+                return (
+                  <div key={day.key} className="flex items-center gap-4 p-3 border rounded-lg">
+                    <div className="w-24">
+                      <Badge variant="outline">{day.label}</Badge>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="time"
+                        className="w-28"
+                        value={daySchedule?.start || '09:00'}
+                        onChange={(e) => updateNewSchedule(day.key, 'start', e.target.value)}
+                      />
+                      <span className="text-muted-foreground">bis</span>
+                      <Input
+                        type="time"
+                        className="w-28"
+                        value={daySchedule?.end || '17:00'}
+                        onChange={(e) => updateNewSchedule(day.key, 'end', e.target.value)}
+                      />
+                    </div>
+                    <Button 
+                      variant={daySchedule?.active ? "default" : "outline"} 
+                      size="sm"
+                      onClick={() => updateNewSchedule(day.key, 'active', !daySchedule?.active)}
+                    >
+                      {daySchedule?.active ? 'Aktiv' : 'Inaktiv'}
+                    </Button>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="time"
-                      className="w-24"
-                      defaultValue="09:00"
-                    />
-                    <span className="text-muted-foreground">bis</span>
-                    <Input
-                      type="time"
-                      className="w-24"
-                      defaultValue="17:00"
-                    />
-                  </div>
-                  <Button variant="outline" size="sm">
-                    Aktiv
-                  </Button>
-                </div>
-              ))}
+                );
+              })}
             </div>
             
             <div className="flex gap-2 pt-4">
@@ -191,88 +330,122 @@ export default function CalendarAvailabilityManager() {
                 onClick={() => setShowCreateForm(false)}
                 variant="outline"
                 className="flex-1"
+                disabled={saving}
               >
                 Abbrechen
               </Button>
-              <Button className="flex-1">
-                Vorlage speichern
+              <Button 
+                onClick={createTemplate}
+                className="flex-1"
+                disabled={saving}
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Speichern...
+                  </>
+                ) : (
+                  'Vorlage speichern'
+                )}
               </Button>
             </div>
           </CardContent>
         </Card>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {templates.map(template => (
-          <Card key={template.id} className={`glass-card ${template.isActive ? 'border-primary ring-2 ring-primary/20' : ''}`}>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    {template.name}
-                    {template.isActive && (
-                      <Badge className="bg-primary text-primary-foreground">Aktiv</Badge>
-                    )}
-                  </CardTitle>
-                  <CardDescription>{template.description}</CardDescription>
-                </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="sm">
-                    <Edit3 className="h-4 w-4" />
-                  </Button>
-                  {!template.isActive && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => deleteTemplate(template.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                {DAYS.map(day => {
-                  const daySchedule = template.schedule[day.key as keyof typeof template.schedule];
-                  return (
-                    <div key={day.key} className="flex items-center justify-between text-sm">
-                      <span className="w-20">{day.label}</span>
-                      {daySchedule?.active ? (
-                        <div className="flex items-center gap-1 text-green-600">
-                          <Clock className="h-3 w-3" />
-                          <span>{daySchedule.start} - {daySchedule.end}</span>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">Nicht verfügbar</span>
+      {templates.length === 0 ? (
+        <Card className="glass-card">
+          <CardContent className="p-8 text-center">
+            <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-lg font-medium mb-2">Keine Vorlagen vorhanden</h3>
+            <p className="text-muted-foreground mb-4">
+              Erstellen Sie Ihre erste Verfügbarkeits-Vorlage, um die Terminplanung zu starten.
+            </p>
+            <Button onClick={() => setShowCreateForm(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Erste Vorlage erstellen
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {templates.map(template => (
+            <Card key={template.id} className={`glass-card ${template.is_active ? 'border-primary ring-2 ring-primary/20' : ''}`}>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calendar className="h-5 w-5" />
+                      {template.name}
+                      {template.is_active && (
+                        <Badge className="bg-primary text-primary-foreground">Aktiv</Badge>
                       )}
-                    </div>
-                  );
-                })}
-              </div>
+                    </CardTitle>
+                    <CardDescription>{template.description}</CardDescription>
+                  </div>
+                  <div className="flex gap-1">
+                    {!template.is_active && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => deleteTemplate(template.id)}
+                        disabled={saving}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  {DAYS.map(day => {
+                    const daySchedule = template.schedule[day.key as keyof typeof template.schedule];
+                    return (
+                      <div key={day.key} className="flex items-center justify-between text-sm">
+                        <span className="w-24">{day.label}</span>
+                        {daySchedule?.active ? (
+                          <div className="flex items-center gap-1 text-green-600">
+                            <Clock className="h-3 w-3" />
+                            <span>{daySchedule.start} - {daySchedule.end}</span>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">Nicht verfügbar</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
 
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-xs">
-                  {getActiveHours(template.schedule)} aktive Tage pro Woche
-                </AlertDescription>
-              </Alert>
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-xs">
+                    {getActiveHours(template.schedule)} aktive Tage pro Woche
+                  </AlertDescription>
+                </Alert>
 
-              {!template.isActive && (
-                <Button 
-                  onClick={() => activateTemplate(template.id)}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Diese Vorlage aktivieren
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                {!template.is_active && (
+                  <Button 
+                    onClick={() => activateTemplate(template.id)}
+                    variant="outline"
+                    className="w-full"
+                    disabled={saving}
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Aktiviere...
+                      </>
+                    ) : (
+                      'Diese Vorlage aktivieren'
+                    )}
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -20,9 +20,21 @@ serve(async (req) => {
 
     console.log('Testing Google Calendar connection', { client_id, calendar_id })
 
-    // Validate that all required credentials are provided
-    if (!client_id || !client_secret || !calendar_id) {
-      throw new Error('Missing required credentials: client_id, client_secret, or calendar_id')
+    // Validate inputs with specific error messages
+    const missingFields: string[] = []
+    
+    if (!client_id) {
+      missingFields.push('OAuth Client ID (im Formular eingeben)')
+    }
+    if (!client_secret) {
+      missingFields.push('GOOGLE_CLIENT_SECRET (in Supabase Secrets konfigurieren)')
+    }
+    if (!calendar_id) {
+      missingFields.push('Kalender ID (im Formular eingeben, z.B. "primary")')
+    }
+    
+    if (missingFields.length > 0) {
+      throw new Error(`Fehlende Konfiguration: ${missingFields.join(', ')}`)
     }
 
     // In a real implementation, you would:

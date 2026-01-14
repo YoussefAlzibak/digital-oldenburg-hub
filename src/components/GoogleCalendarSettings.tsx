@@ -10,7 +10,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Calendar, Clock, Settings, Globe, Users, AlertTriangle, CheckCircle, XCircle, Info } from 'lucide-react';
+import { 
+  Calendar, Clock, Settings, Globe, Users, AlertTriangle, CheckCircle, 
+  XCircle, Info, Loader2, ExternalLink, RefreshCw, Unlink 
+} from 'lucide-react';
 
 interface GoogleCalendarConfig {
   id?: string;
@@ -24,6 +27,12 @@ interface GoogleCalendarConfig {
   is_active: boolean;
 }
 
+interface OAuthStatus {
+  connected: boolean;
+  expires_at?: string;
+  scope?: string;
+}
+
 const WORKING_DAYS = [
   { value: 'monday', label: 'Montag' },
   { value: 'tuesday', label: 'Dienstag' },
@@ -33,6 +42,11 @@ const WORKING_DAYS = [
   { value: 'saturday', label: 'Samstag' },
   { value: 'sunday', label: 'Sonntag' },
 ];
+
+const GOOGLE_SCOPES = [
+  'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/calendar.events',
+].join(' ');
 
 export default function GoogleCalendarSettings() {
   const [config, setConfig] = useState<GoogleCalendarConfig>({
@@ -49,11 +63,13 @@ export default function GoogleCalendarSettings() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
+  const [oauthStatus, setOauthStatus] = useState<OAuthStatus>({ connected: false });
+  const [refreshingToken, setRefreshingToken] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     loadSettings();
+    checkOAuthStatus();
   }, []);
 
   const loadSettings = async () => {
@@ -83,7 +99,6 @@ export default function GoogleCalendarSettings() {
           working_days: settings.working_days,
           is_active: settings.is_active,
         });
-        setIsConnected(true);
       }
     } catch (error) {
       console.error('Error loading settings:', error);
@@ -97,13 +112,167 @@ export default function GoogleCalendarSettings() {
     }
   };
 
+  const checkOAuthStatus = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('google_oauth_tokens')
+        .select('expires_at, scope')
+        .limit(1)
+        .maybeSingle();
+
+      if (data) {
+        const expiresAt = new Date(data.expires_at);
+        const isExpired = expiresAt <= new Date();
+        
+        setOauthStatus({
+          connected: !isExpired,
+          expires_at: data.expires_at,
+          scope: data.scope,
+        });
+      } else {
+        setOauthStatus({ connected: false });
+      }
+    } catch (error) {
+      console.error('Error checking OAuth status:', error);
+      setOauthStatus({ connected: false });
+    }
+  };
+
+  const initiateOAuth = () => {
+    if (!config.client_id) {
+      toast({
+        title: "Fehler",
+        description: "Bitte geben Sie zuerst die OAuth Client ID ein",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const redirectUri = `${window.location.origin}/admin/calendar-settings`;
+    
+    const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    authUrl.searchParams.set('client_id', config.client_id);
+    authUrl.searchParams.set('redirect_uri', redirectUri);
+    authUrl.searchParams.set('response_type', 'code');
+    authUrl.searchParams.set('scope', GOOGLE_SCOPES);
+    authUrl.searchParams.set('access_type', 'offline');
+    authUrl.searchParams.set('prompt', 'consent');
+    authUrl.searchParams.set('state', 'google_calendar_connect');
+
+    window.location.href = authUrl.toString();
+  };
+
+  // Handle OAuth callback
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+
+    if (code && state === 'google_calendar_connect') {
+      handleOAuthCallback(code);
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
+  const handleOAuthCallback = async (code: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('google-oauth-callback', {
+        body: {
+          code,
+          redirect_uri: `${window.location.origin}/admin/calendar-settings`,
+        },
+      });
+
+      if (error) throw error;
+      if (!data.success) throw new Error(data.error);
+
+      toast({
+        title: "Erfolgreich verbunden!",
+        description: "Google Calendar wurde erfolgreich verbunden.",
+      });
+
+      setOauthStatus({
+        connected: true,
+        expires_at: data.expires_at,
+      });
+
+    } catch (error) {
+      console.error('OAuth callback error:', error);
+      toast({
+        title: "Verbindung fehlgeschlagen",
+        description: error instanceof Error ? error.message : "OAuth-Verbindung konnte nicht hergestellt werden",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshOAuthToken = async () => {
+    setRefreshingToken(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('refresh-google-token');
+
+      if (error) throw error;
+      if (!data.success) throw new Error(data.error);
+
+      toast({
+        title: "Token aktualisiert",
+        description: "Das Access Token wurde erfolgreich erneuert.",
+      });
+
+      setOauthStatus(prev => ({
+        ...prev,
+        connected: true,
+        expires_at: data.expires_at,
+      }));
+
+    } catch (error) {
+      console.error('Token refresh error:', error);
+      toast({
+        title: "Fehler",
+        description: "Token konnte nicht aktualisiert werden",
+        variant: "destructive",
+      });
+    } finally {
+      setRefreshingToken(false);
+    }
+  };
+
+  const disconnectGoogle = async () => {
+    try {
+      const { error } = await supabase
+        .from('google_oauth_tokens')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+
+      if (error) throw error;
+
+      toast({
+        title: "Verbindung getrennt",
+        description: "Google Calendar wurde getrennt.",
+      });
+
+      setOauthStatus({ connected: false });
+
+    } catch (error) {
+      console.error('Disconnect error:', error);
+      toast({
+        title: "Fehler",
+        description: "Verbindung konnte nicht getrennt werden",
+        variant: "destructive",
+      });
+    }
+  };
+
   const saveSettings = async () => {
     setSaving(true);
     try {
-      // Use the database function to save settings (client_secret is now stored securely in Supabase secrets)
       const { error } = await supabase.rpc('save_google_calendar_settings', {
         p_client_id: config.client_id,
-        p_calendar_id: config.calendar_id,
+        p_calendar_id: config.calendar_id || 'primary',
         p_buffer_minutes: config.buffer_minutes,
         p_auto_sync: config.auto_sync,
         p_working_hours_start: config.working_hours_start,
@@ -113,7 +282,6 @@ export default function GoogleCalendarSettings() {
 
       if (error) throw error;
 
-      setIsConnected(true);
       toast({
         title: "Erfolgreich",
         description: "Google Calendar Einstellungen wurden gespeichert",
@@ -136,11 +304,12 @@ export default function GoogleCalendarSettings() {
       const { data, error } = await supabase.functions.invoke('test-google-calendar', {
         body: {
           client_id: config.client_id,
-          calendar_id: config.calendar_id,
+          calendar_id: config.calendar_id || 'primary',
         }
       });
 
       if (error) throw error;
+      if (!data.success) throw new Error(data.error);
 
       toast({
         title: "Erfolgreich",
@@ -150,7 +319,7 @@ export default function GoogleCalendarSettings() {
       console.error('Error testing connection:', error);
       toast({
         title: "Fehler",
-        description: "Google Calendar Verbindung fehlgeschlagen",
+        description: error instanceof Error ? error.message : "Google Calendar Verbindung fehlgeschlagen",
         variant: "destructive",
       });
     } finally {
@@ -167,30 +336,77 @@ export default function GoogleCalendarSettings() {
     }));
   };
 
+  const getTokenExpiryInfo = () => {
+    if (!oauthStatus.expires_at) return null;
+    const expiresAt = new Date(oauthStatus.expires_at);
+    const now = new Date();
+    const diff = expiresAt.getTime() - now.getTime();
+    const minutes = Math.floor(diff / 60000);
+    
+    if (minutes < 0) return { text: 'Abgelaufen', color: 'text-red-600' };
+    if (minutes < 10) return { text: `Läuft in ${minutes} Min ab`, color: 'text-amber-600' };
+    return { text: `Gültig für ${minutes} Min`, color: 'text-green-600' };
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <span className="ml-3 text-muted-foreground">Kalender-Einstellungen werden geladen...</span>
       </div>
     );
   }
 
+  const tokenInfo = getTokenExpiryInfo();
+
   return (
     <div className="space-y-6">
-      {/* Status Banner */}
-      {isConnected ? (
+      {/* OAuth Status Banner */}
+      {oauthStatus.connected ? (
         <Alert className="border-green-200 bg-green-50/50">
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-800">
-            <strong>Google Calendar erfolgreich verbunden</strong> - Ihre Termine werden automatisch synchronisiert
+            <div className="flex items-center justify-between">
+              <div>
+                <strong>Google Calendar verbunden</strong>
+                {tokenInfo && (
+                  <span className={`ml-2 text-sm ${tokenInfo.color}`}>
+                    ({tokenInfo.text})
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={refreshOAuthToken}
+                  disabled={refreshingToken}
+                >
+                  {refreshingToken ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4" />
+                  )}
+                  <span className="ml-1">Token erneuern</span>
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={disconnectGoogle}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Unlink className="h-4 w-4 mr-1" />
+                  Trennen
+                </Button>
+              </div>
+            </div>
           </AlertDescription>
         </Alert>
       ) : (
         <Alert className="border-amber-200 bg-amber-50/50">
           <AlertTriangle className="h-4 w-4 text-amber-600" />
           <AlertDescription className="text-amber-800">
-            <strong>Kalender-Integration nicht konfiguriert</strong> - Konfigurieren Sie Ihre Google Calendar-Verbindung für automatische Terminplanung
+            <strong>Google Calendar nicht verbunden</strong> - Konfigurieren Sie die OAuth-Verbindung für automatische Terminplanung
           </AlertDescription>
         </Alert>
       )}
@@ -220,7 +436,7 @@ export default function GoogleCalendarSettings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-primary" />
-                Google Calendar API-Konfiguration
+                Google Calendar OAuth-Konfiguration
               </CardTitle>
               <CardDescription>
                 Verbinden Sie Ihr Google Calendar für automatische Terminplanung und Synchronisation
@@ -230,7 +446,14 @@ export default function GoogleCalendarSettings() {
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  Benötigen Sie Hilfe? Folgen Sie unserer <a href="#" className="text-primary underline">Schritt-für-Schritt Anleitung</a> zur Google Calendar API-Einrichtung.
+                  <strong>Setup-Anleitung:</strong>
+                  <ol className="list-decimal ml-4 mt-2 space-y-1 text-sm">
+                    <li>Erstellen Sie ein Google Cloud Projekt unter <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" className="text-primary underline">console.cloud.google.com</a></li>
+                    <li>Aktivieren Sie die Google Calendar API</li>
+                    <li>Erstellen Sie OAuth 2.0 Credentials (Web Application)</li>
+                    <li>Fügen Sie <code className="bg-muted px-1 rounded">{window.location.origin}/admin/calendar-settings</code> als Redirect URI hinzu</li>
+                    <li>Speichern Sie den Client Secret als <code className="bg-muted px-1 rounded">GOOGLE_CLIENT_SECRET</code> und <code className="bg-muted px-1 rounded">GOOGLE_CLIENT_ID</code> in Supabase Secrets</li>
+                  </ol>
                 </AlertDescription>
               </Alert>
 
@@ -243,44 +466,29 @@ export default function GoogleCalendarSettings() {
                   <Input
                     id="client_id"
                     type="text"
-                    placeholder="1234567890-abcdef..."
+                    placeholder="1234567890-abcdef.apps.googleusercontent.com"
                     value={config.client_id}
                     onChange={(e) => setConfig(prev => ({ ...prev, client_id: e.target.value }))}
                     className="font-mono text-sm"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="client_secret" className="flex items-center gap-2">
-                    OAuth Client Secret
-                    <Badge variant="secondary" className="text-xs">Sicher gespeichert</Badge>
+                  <Label htmlFor="calendar_id" className="flex items-center gap-2">
+                    Kalender ID
+                    <Badge variant="outline" className="text-xs">Optional</Badge>
                   </Label>
-                  <Alert>
-                    <Info className="h-4 w-4" />
-                    <AlertDescription>
-                      🔒 <strong>Sicherheitsschutz aktiv:</strong> Der Client Secret wird sicher in den Supabase Secrets gespeichert und nicht in der Datenbank.
-                      <br />
-                      Konfigurieren Sie den GOOGLE_CLIENT_SECRET über die Supabase Admin-Oberfläche.
-                    </AlertDescription>
-                  </Alert>
+                  <Input
+                    id="calendar_id"
+                    type="text"
+                    placeholder="primary"
+                    value={config.calendar_id}
+                    onChange={(e) => setConfig(prev => ({ ...prev, calendar_id: e.target.value }))}
+                    className="font-mono text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Leer lassen für Hauptkalender ("primary")
+                  </p>
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="calendar_id" className="flex items-center gap-2">
-                  Kalender ID
-                  <Badge variant="outline" className="text-xs">Optional</Badge>
-                </Label>
-                <Input
-                  id="calendar_id"
-                  type="text"
-                  placeholder="primary (für Hauptkalender) oder spezifische ID"
-                  value={config.calendar_id}
-                  onChange={(e) => setConfig(prev => ({ ...prev, calendar_id: e.target.value }))}
-                  className="font-mono text-sm"
-                />
-                <p className="text-sm text-muted-foreground">
-                  Lassen Sie dieses Feld leer oder verwenden Sie "primary" für Ihren Hauptkalender
-                </p>
               </div>
 
               <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
@@ -296,12 +504,29 @@ export default function GoogleCalendarSettings() {
                   {config.auto_sync ? "Aktiviert" : "Deaktiviert"}
                 </Badge>
               </div>
+
+              {/* OAuth Connection Button */}
+              {!oauthStatus.connected && (
+                <div className="p-4 border-2 border-dashed rounded-lg text-center space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Klicken Sie auf den Button, um sich mit Google zu verbinden
+                  </p>
+                  <Button 
+                    onClick={initiateOAuth}
+                    disabled={!config.client_id}
+                    className="gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Mit Google verbinden
+                  </Button>
+                </div>
+              )}
             </CardContent>
             <CardFooter className="flex gap-2">
               <Button onClick={testConnection} disabled={testing} variant="outline" className="flex-1">
                 {testing ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Teste Verbindung...
                   </>
                 ) : (
@@ -314,7 +539,7 @@ export default function GoogleCalendarSettings() {
               <Button onClick={saveSettings} disabled={saving} className="flex-1">
                 {saving ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Speichere...
                   </>
                 ) : (
@@ -359,9 +584,6 @@ export default function GoogleCalendarSettings() {
                       <SelectItem value="60">60 Minuten</SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-sm text-muted-foreground">
-                    Zeit zwischen Terminen für Vorbereitung und Nachbereitung
-                  </p>
                 </div>
                 
                 <div className="space-y-2">
@@ -373,12 +595,6 @@ export default function GoogleCalendarSettings() {
                         {config.buffer_minutes === 0 ? 'Keine Pufferzeit' : `${config.buffer_minutes} Minuten Puffer`}
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {config.buffer_minutes > 0 
-                        ? `Zwischen jedem Termin wird automatisch ${config.buffer_minutes} Minuten Pufferzeit eingeplant`
-                        : 'Termine können direkt aufeinander folgen'
-                      }
-                    </p>
                   </div>
                 </div>
               </div>
@@ -441,16 +657,6 @@ export default function GoogleCalendarSettings() {
                   </div>
                 </div>
               </div>
-
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Aktuelle Verfügbarkeit:</strong> {config.working_days.length > 0 
-                    ? `${config.working_days.length} Tage pro Woche, täglich von ${config.working_hours_start} bis ${config.working_hours_end} Uhr`
-                    : 'Keine Arbeitstage definiert'
-                  }
-                </AlertDescription>
-              </Alert>
             </CardContent>
           </Card>
         </TabsContent>
@@ -462,47 +668,23 @@ export default function GoogleCalendarSettings() {
                 <Settings className="h-5 w-5 text-primary" />
                 Erweiterte Einstellungen
               </CardTitle>
-              <CardDescription>
-                Zusätzliche Konfigurationsoptionen für die Kalender-Integration
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertDescription>
-                  Diese erweiterten Einstellungen ermöglichen eine feinere Kontrolle über die Kalender-Integration. 
-                  Ändern Sie diese nur, wenn Sie die Auswirkungen verstehen.
-                </AlertDescription>
-              </Alert>
-
-              <div className="space-y-4">
-                <div className="p-4 border rounded-lg space-y-3">
-                  <h4 className="font-medium">Synchronisations-Einstellungen</h4>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-sm">Bidirektionale Synchronisation</Label>
-                      <p className="text-xs text-muted-foreground">Termine in beide Richtungen synchronisieren</p>
-                    </div>
-                    <Switch defaultChecked={true} />
+              <div className="p-4 border rounded-lg space-y-3">
+                <h4 className="font-medium">Synchronisations-Einstellungen</h4>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm">Bidirektionale Synchronisation</Label>
+                    <p className="text-xs text-muted-foreground">Termine in beide Richtungen synchronisieren</p>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-sm">Konflikterkennung</Label>
-                      <p className="text-xs text-muted-foreground">Automatisch nach Terminkonflikten suchen</p>
-                    </div>
-                    <Switch defaultChecked={true} />
-                  </div>
+                  <Switch defaultChecked={true} />
                 </div>
-
-                <div className="p-4 border rounded-lg space-y-3">
-                  <h4 className="font-medium">Benachrichtigungs-Einstellungen</h4>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-sm">E-Mail-Erinnerungen</Label>
-                      <p className="text-xs text-muted-foreground">Automatische E-Mail-Erinnerungen senden</p>
-                    </div>
-                    <Switch defaultChecked={true} />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm">Konflikterkennung</Label>
+                    <p className="text-xs text-muted-foreground">Automatisch nach Terminkonflikten suchen</p>
                   </div>
+                  <Switch defaultChecked={true} />
                 </div>
               </div>
             </CardContent>

@@ -13,7 +13,10 @@ serve(async (req) => {
   }
 
   try {
-    const { client_id, calendar_id } = await req.json()
+    const body = await req.json()
+    const client_id = body.client_id
+    // Default to "primary" if no calendar_id provided
+    const calendar_id = body.calendar_id || 'primary'
     
     // Get client_secret from environment (Supabase secrets)
     const client_secret = Deno.env.get('GOOGLE_CLIENT_SECRET')
@@ -28,9 +31,6 @@ serve(async (req) => {
     }
     if (!client_secret) {
       missingFields.push('GOOGLE_CLIENT_SECRET (in Supabase Secrets konfigurieren)')
-    }
-    if (!calendar_id) {
-      missingFields.push('Kalender ID (im Formular eingeben, z.B. "primary")')
     }
     
     if (missingFields.length > 0) {

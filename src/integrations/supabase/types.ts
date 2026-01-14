@@ -22,12 +22,17 @@ export type Database = {
           contact_request_id: string | null
           created_at: string
           duration_minutes: number
+          google_calendar_synced: boolean | null
+          google_event_id: string | null
           id: string
+          last_synced_at: string | null
           meeting_link: string | null
           meeting_type: string
           scheduled_date: string
           scheduled_time: string
           status: string
+          sync_conflict: boolean | null
+          sync_error: string | null
           updated_at: string
         }
         Insert: {
@@ -37,12 +42,17 @@ export type Database = {
           contact_request_id?: string | null
           created_at?: string
           duration_minutes?: number
+          google_calendar_synced?: boolean | null
+          google_event_id?: string | null
           id?: string
+          last_synced_at?: string | null
           meeting_link?: string | null
           meeting_type?: string
           scheduled_date: string
           scheduled_time: string
           status?: string
+          sync_conflict?: boolean | null
+          sync_error?: string | null
           updated_at?: string
         }
         Update: {
@@ -52,12 +62,17 @@ export type Database = {
           contact_request_id?: string | null
           created_at?: string
           duration_minutes?: number
+          google_calendar_synced?: boolean | null
+          google_event_id?: string | null
           id?: string
+          last_synced_at?: string | null
           meeting_link?: string | null
           meeting_type?: string
           scheduled_date?: string
           scheduled_time?: string
           status?: string
+          sync_conflict?: boolean | null
+          sync_error?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -778,6 +793,83 @@ export type Database = {
           working_days?: string[]
           working_hours_end?: string
           working_hours_start?: string
+        }
+        Relationships: []
+      }
+      google_calendar_sync_log: {
+        Row: {
+          appointment_id: string | null
+          created_at: string | null
+          error_message: string | null
+          google_event_id: string | null
+          id: string
+          status: string
+          sync_data: Json | null
+          sync_type: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          google_event_id?: string | null
+          id?: string
+          status: string
+          sync_data?: Json | null
+          sync_type: string
+        }
+        Update: {
+          appointment_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          google_event_id?: string | null
+          id?: string
+          status?: string
+          sync_data?: Json | null
+          sync_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "google_calendar_sync_log_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      google_oauth_tokens: {
+        Row: {
+          access_token: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          refresh_token: string | null
+          scope: string | null
+          token_type: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          access_token: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          refresh_token?: string | null
+          scope?: string | null
+          token_type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          access_token?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          refresh_token?: string | null
+          scope?: string | null
+          token_type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }

@@ -8,13 +8,31 @@ const corsHeaders = {
 
 const GOOGLE_CALENDAR_API = 'https://www.googleapis.com/calendar/v3'
 
+interface TimeSlot {
+  time: string
+  available: boolean
+  reason?: string
+}
+
+interface ReminderConfig {
+  email_24h: boolean
+  email_1h: boolean
+  popup_30m: boolean
+  popup_10m: boolean
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    const { date, duration_minutes = 60 } = await req.json()
+    const { 
+      date, 
+      duration_minutes = 60,
+      include_buffer = true,
+      check_google = true 
+    } = await req.json()
 
     if (!date) {
       throw new Error('date is required (YYYY-MM-DD format)')
@@ -24,7 +42,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    console.log(`Checking availability for ${date}`)
+    console.log(`Checking availability for ${date} (duration: ${duration_minutes}min, buffer: ${include_buffer}, google: ${check_google})`)
 
     // Get OAuth token
     const { data: tokenData } = await supabase
@@ -47,11 +65,14 @@ serve(async (req) => {
       .eq('is_active', true)
       .single()
 
-    // Get blocked dates
+    // Get blocked dates (including recurring holidays)
+    const dateObj = new Date(date)
+    const monthDay = `${(dateObj.getMonth() + 1).toString().padStart(2, '0')}-${dateObj.getDate().toString().padStart(2, '0')}`
+    
     const { data: blockedDates } = await supabase
       .from('calendar_blocked_dates')
       .select('*')
-      .eq('date', date)
+      .or(`date.eq.${date},and(is_recurring.eq.true,date.ilike.%-${monthDay})`)
 
     // Check if date is blocked
     if (blockedDates && blockedDates.length > 0) {
@@ -61,6 +82,7 @@ serve(async (req) => {
           available: false,
           reason: 'Date is blocked',
           blocked_by: blockedDates[0].name,
+          blocked_type: blockedDates[0].type,
           slots: [],
         }),
         {
@@ -70,7 +92,6 @@ serve(async (req) => {
     }
 
     // Check day of week availability
-    const dateObj = new Date(date)
     const dayOfWeek = dateObj.getDay()
     const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
     const dayKey = dayKeys[dayOfWeek]
@@ -84,6 +105,7 @@ serve(async (req) => {
           success: true,
           available: false,
           reason: 'Day not available according to schedule',
+          day: dayKey,
           slots: [],
         }),
         {
@@ -92,31 +114,45 @@ serve(async (req) => {
       )
     }
 
-    // Generate time slots
-    const slots: { time: string; available: boolean }[] = []
-    const startHour = parseInt(daySchedule.start.split(':')[0])
-    const endHour = parseInt(daySchedule.end.split(':')[0])
-    const bufferMinutes = settings?.buffer_minutes || 15
+    // Settings
+    const bufferMinutes = include_buffer ? (settings?.buffer_minutes || 15) : 0
+    const calendarId = settings?.calendar_id || 'primary'
 
-    // Get existing appointments
+    // Generate time slots with buffer consideration
+    const slots: TimeSlot[] = []
+    const startHour = parseInt(daySchedule.start.split(':')[0])
+    const startMin = parseInt(daySchedule.start.split(':')[1] || '0')
+    const endHour = parseInt(daySchedule.end.split(':')[0])
+    const endMin = parseInt(daySchedule.end.split(':')[1] || '0')
+
+    // Get existing appointments with their durations
     const { data: appointments } = await supabase
       .from('appointments')
-      .select('scheduled_time, duration_minutes')
+      .select('scheduled_time, duration_minutes, status')
       .eq('scheduled_date', date)
-      .in('status', ['confirmed', 'pending'])
+      .in('status', ['confirmed', 'pending', 'scheduled'])
 
-    const bookedSlots = new Set(appointments?.map(a => a.scheduled_time) || [])
+    // Create a map of booked time ranges (including buffer)
+    const bookedRanges: { start: number; end: number }[] = []
+    
+    if (appointments) {
+      for (const apt of appointments) {
+        const [h, m] = apt.scheduled_time.split(':').map(Number)
+        const startMins = h * 60 + m
+        const endMins = startMins + (apt.duration_minutes || 60) + bufferMinutes
+        bookedRanges.push({ start: startMins - bufferMinutes, end: endMins })
+      }
+    }
 
     // If Google Calendar is connected, also check Google events
     let googleBusyTimes: { start: string; end: string }[] = []
     
-    if (tokenData?.access_token) {
+    if (check_google && tokenData?.access_token) {
       try {
-        const timeMin = new Date(`${date}T${daySchedule.start}:00+01:00`).toISOString()
-        const timeMax = new Date(`${date}T${daySchedule.end}:00+01:00`).toISOString()
+        // Build time range for the day
+        const timeMin = new Date(`${date}T${daySchedule.start}:00`).toISOString()
+        const timeMax = new Date(`${date}T${daySchedule.end}:00`).toISOString()
 
-        const calendarId = settings?.calendar_id || 'primary'
-        
         const freeBusyResponse = await fetch(
           `${GOOGLE_CALENDAR_API}/freeBusy`,
           {
@@ -136,39 +172,71 @@ serve(async (req) => {
         if (freeBusyResponse.ok) {
           const freeBusyData = await freeBusyResponse.json()
           googleBusyTimes = freeBusyData.calendars?.[calendarId]?.busy || []
+          
+          // Add Google busy times to booked ranges
+          for (const busy of googleBusyTimes) {
+            const busyStart = new Date(busy.start)
+            const busyEnd = new Date(busy.end)
+            
+            if (busyStart.toISOString().startsWith(date)) {
+              const startMins = busyStart.getHours() * 60 + busyStart.getMinutes()
+              const endMins = busyEnd.getHours() * 60 + busyEnd.getMinutes()
+              bookedRanges.push({ 
+                start: startMins - bufferMinutes, 
+                end: endMins + bufferMinutes 
+              })
+            }
+          }
+        } else if (freeBusyResponse.status === 401) {
+          console.log('Google token expired, availability check will use local data only')
         }
       } catch (error) {
         console.error('Error fetching Google Calendar busy times:', error)
       }
     }
 
-    // Generate slots
-    for (let hour = startHour; hour < endHour; hour++) {
-      const timeStr = `${hour.toString().padStart(2, '0')}:00`
+    // Generate slots with 30-minute intervals
+    const workStartMins = startHour * 60 + startMin
+    const workEndMins = endHour * 60 + endMin
+
+    for (let mins = workStartMins; mins + duration_minutes <= workEndMins; mins += 30) {
+      const hours = Math.floor(mins / 60)
+      const minutes = mins % 60
+      const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
       
-      // Check if slot is booked in our system
-      let isAvailable = !bookedSlots.has(timeStr)
+      const slotEnd = mins + duration_minutes
 
-      // Check if slot conflicts with Google Calendar
-      if (isAvailable && googleBusyTimes.length > 0) {
-        const slotStart = new Date(`${date}T${timeStr}:00+01:00`)
-        const slotEnd = new Date(slotStart.getTime() + duration_minutes * 60000)
+      // Check if this slot conflicts with any booked range
+      let isAvailable = true
+      let conflictReason: string | undefined
 
-        for (const busy of googleBusyTimes) {
-          const busyStart = new Date(busy.start)
-          const busyEnd = new Date(busy.end)
-
-          if (slotStart < busyEnd && slotEnd > busyStart) {
-            isAvailable = false
-            break
-          }
+      for (const range of bookedRanges) {
+        if (mins < range.end && slotEnd > range.start) {
+          isAvailable = false
+          conflictReason = 'Time slot conflicts with existing appointment'
+          break
         }
       }
 
-      slots.push({ time: timeStr, available: isAvailable })
+      slots.push({ 
+        time: timeStr, 
+        available: isAvailable,
+        reason: conflictReason
+      })
     }
 
     const availableSlots = slots.filter(s => s.available)
+
+    // Calculate next available slot
+    const nextAvailable = availableSlots.length > 0 ? availableSlots[0].time : null
+
+    // Build reminder configuration based on settings
+    const reminderConfig: ReminderConfig = {
+      email_24h: true,
+      email_1h: false,
+      popup_30m: true,
+      popup_10m: true,
+    }
 
     return new Response(
       JSON.stringify({
@@ -180,8 +248,13 @@ serve(async (req) => {
           end: daySchedule.end,
         },
         buffer_minutes: bufferMinutes,
+        duration_minutes,
         slots,
+        available_count: availableSlots.length,
+        next_available: nextAvailable,
         google_connected: !!tokenData?.access_token,
+        google_events_checked: googleBusyTimes.length,
+        reminder_config: reminderConfig,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

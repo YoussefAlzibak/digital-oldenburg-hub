@@ -127,6 +127,37 @@ const handler = async (req: Request): Promise<Response> => {
       // Don't fail the booking if automation fails
     }
 
+    // Auto-sync to Google Calendar if connected
+    try {
+      const { data: calendarSettings } = await supabase
+        .from('google_calendar_settings')
+        .select('auto_sync, is_active')
+        .eq('is_active', true)
+        .single();
+
+      if (calendarSettings?.auto_sync) {
+        const { data: tokenData } = await supabase
+          .from('google_oauth_tokens')
+          .select('id')
+          .limit(1)
+          .single();
+
+        if (tokenData) {
+          console.log('Auto-syncing appointment to Google Calendar...');
+          await supabase.functions.invoke('sync-appointment-to-google', {
+            body: {
+              appointment_id: appointment.id,
+              action: 'create'
+            }
+          });
+          console.log('Google Calendar sync completed');
+        }
+      }
+    } catch (syncError) {
+      console.error('Google Calendar auto-sync error:', syncError);
+      // Don't fail the booking if sync fails
+    }
+
     console.log('Successfully created appointment:', appointment);
 
     return new Response(

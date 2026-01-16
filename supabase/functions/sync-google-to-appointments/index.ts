@@ -1,5 +1,5 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -36,9 +36,9 @@ interface GoogleEvent {
   }>
 }
 
-serve(async (req) => {
+serve(async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -305,7 +305,7 @@ serve(async (req) => {
   }
 })
 
-async function performFullSync(supabase: any, accessToken: string, calendarId: string) {
+function performFullSync(_supabase: ReturnType<typeof createClient>, _accessToken: string, _calendarId: string): Response {
   // Implementation for full sync (recursive call with full_sync flag)
   return new Response(
     JSON.stringify({
@@ -315,7 +315,7 @@ async function performFullSync(supabase: any, accessToken: string, calendarId: s
     {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     }
-  )
+  );
 }
 
 async function refreshToken(refreshTokenValue: string) {

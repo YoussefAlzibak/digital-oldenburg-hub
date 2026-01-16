@@ -3,7 +3,9 @@ import GoogleCalendarSettings from '@/components/GoogleCalendarSettings';
 import CalendarAvailabilityManager from '@/components/CalendarAvailabilityManager';
 import CalendarHolidayManager from '@/components/CalendarHolidayManager';
 import IntegratedCalendarView from '@/components/IntegratedCalendarView';
-import { Calendar, Clock, Ban, Settings } from 'lucide-react';
+import GoogleCalendarSyncStatus from '@/components/GoogleCalendarSyncStatus';
+import CalendarReminderManager from '@/components/CalendarReminderManager';
+import { Calendar, Clock, Ban, Settings, RefreshCw, Bell } from 'lucide-react';
 
 export default function CalendarSettings() {
   return (
@@ -16,27 +18,43 @@ export default function CalendarSettings() {
       </div>
 
       <Tabs defaultValue="integration" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="integration" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
-            Integration
+            <span className="hidden sm:inline">Integration</span>
+          </TabsTrigger>
+          <TabsTrigger value="sync" className="flex items-center gap-2">
+            <RefreshCw className="h-4 w-4" />
+            <span className="hidden sm:inline">Sync-Status</span>
+          </TabsTrigger>
+          <TabsTrigger value="reminders" className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            <span className="hidden sm:inline">Erinnerungen</span>
           </TabsTrigger>
           <TabsTrigger value="availability" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            Verfügbarkeit
+            <span className="hidden sm:inline">Verfügbarkeit</span>
           </TabsTrigger>
           <TabsTrigger value="holidays" className="flex items-center gap-2">
             <Ban className="h-4 w-4" />
-            Gesperrte Termine
+            <span className="hidden sm:inline">Gesperrt</span>
           </TabsTrigger>
           <TabsTrigger value="calendar" className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
-            Kalender-Ansicht
+            <span className="hidden sm:inline">Kalender</span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="integration" className="space-y-6">
           <GoogleCalendarSettings />
+        </TabsContent>
+
+        <TabsContent value="sync" className="space-y-6">
+          <GoogleCalendarSyncStatus />
+        </TabsContent>
+
+        <TabsContent value="reminders" className="space-y-6">
+          <CalendarReminderManager />
         </TabsContent>
 
         <TabsContent value="availability" className="space-y-6">

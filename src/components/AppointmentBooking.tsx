@@ -64,19 +64,44 @@ export default function AppointmentBooking() {
 
   const loadAvailabilitySettings = async () => {
     try {
-      // Fetch active availability template
-      const { data: availabilityData, error: availabilityError } = await supabase
-        .from('availability_templates')
-        .select('schedule')
+      // First check google_calendar_settings for working hours
+      const { data: calendarSettings, error: calendarError } = await supabase
+        .from('google_calendar_settings')
+        .select('*')
         .eq('is_active', true)
+        .order('updated_at', { ascending: false })
         .limit(1);
 
-      if (availabilityError) throw availabilityError;
-      
-      if (availabilityData && availabilityData.length > 0) {
-        setAvailability({
-          schedule: availabilityData[0].schedule as unknown as AvailabilityTemplate['schedule']
+      if (!calendarError && calendarSettings && calendarSettings.length > 0) {
+        const settings = calendarSettings[0];
+        // Convert google_calendar_settings to availability format
+        const schedule: AvailabilityTemplate['schedule'] = {};
+        const workingDays = settings.working_days || ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+        
+        DAY_KEYS.forEach(day => {
+          schedule[day] = {
+            start: settings.working_hours_start?.substring(0, 5) || '09:00',
+            end: settings.working_hours_end?.substring(0, 5) || '18:00',
+            active: workingDays.includes(day)
+          };
         });
+        
+        setAvailability({ schedule });
+      } else {
+        // Fallback to availability_templates
+        const { data: availabilityData, error: availabilityError } = await supabase
+          .from('availability_templates')
+          .select('schedule')
+          .eq('is_active', true)
+          .limit(1);
+
+        if (availabilityError) throw availabilityError;
+        
+        if (availabilityData && availabilityData.length > 0) {
+          setAvailability({
+            schedule: availabilityData[0].schedule as unknown as AvailabilityTemplate['schedule']
+          });
+        }
       }
 
       // Fetch blocked dates

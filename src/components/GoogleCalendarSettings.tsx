@@ -301,24 +301,22 @@ export default function GoogleCalendarSettings() {
   const testConnection = async () => {
     setTesting(true);
     try {
-      const { data, error } = await supabase.functions.invoke('test-google-calendar', {
+      const response = await supabase.functions.invoke('test-google-calendar', {
         body: {
           client_id: config.client_id,
           calendar_id: config.calendar_id || 'primary',
         }
       });
 
-      // Handle edge function error responses (non-2xx status codes)
+      const { data, error } = response;
+
+      // Handle edge function error responses
       if (error) {
-        // Try to get the actual error message from the response
-        const errorContext = (error as any)?.context;
-        if (errorContext && typeof errorContext === 'object') {
-          const body = errorContext.body || errorContext;
-          if (body?.error) {
-            throw new Error(body.error);
-          }
+        // For FunctionsHttpError, the data might still contain the error details
+        if (data?.error) {
+          throw new Error(data.error);
         }
-        throw error;
+        throw new Error(error.message || 'Verbindungstest fehlgeschlagen');
       }
       
       if (!data?.success) {

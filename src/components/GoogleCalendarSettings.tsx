@@ -308,18 +308,44 @@ export default function GoogleCalendarSettings() {
         }
       });
 
-      if (error) throw error;
-      if (!data.success) throw new Error(data.error);
+      // Handle edge function error responses (non-2xx status codes)
+      if (error) {
+        // Try to get the actual error message from the response
+        const errorContext = (error as any)?.context;
+        if (errorContext && typeof errorContext === 'object') {
+          const body = errorContext.body || errorContext;
+          if (body?.error) {
+            throw new Error(body.error);
+          }
+        }
+        throw error;
+      }
+      
+      if (!data?.success) {
+        throw new Error(data?.error || 'Verbindungstest fehlgeschlagen');
+      }
 
       toast({
         title: "Erfolgreich",
-        description: "Google Calendar Verbindung erfolgreich getestet",
+        description: data.calendar_name 
+          ? `Verbunden mit Kalender: ${data.calendar_name}` 
+          : "Google Calendar Verbindung erfolgreich getestet",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error testing connection:', error);
+      
+      // Extract error message from various error formats
+      let errorMessage = "Google Calendar Verbindung fehlgeschlagen";
+      
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
       toast({
-        title: "Fehler",
-        description: error instanceof Error ? error.message : "Google Calendar Verbindung fehlgeschlagen",
+        title: "Verbindungstest fehlgeschlagen",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

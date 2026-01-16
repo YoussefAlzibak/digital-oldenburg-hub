@@ -37,18 +37,100 @@ serve(async (req) => {
       throw new Error(`Fehlende Konfiguration: ${missingFields.join(', ')}`)
     }
 
-    // In a real implementation, you would:
-    // 1. Use OAuth2 to get an access token
-    // 2. Make a test request to Google Calendar API
-    // 3. Verify the calendar exists and is accessible
+    // Create Supabase client to access stored OAuth tokens
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // For now, we'll simulate a successful test
-    console.log('Google Calendar test successful')
+    // Get stored OAuth tokens
+    const { data: tokenData, error: tokenError } = await supabase
+      .from('google_oauth_tokens')
+      .select('access_token, refresh_token, expires_at')
+      .limit(1)
+      .single()
+
+    if (tokenError || !tokenData) {
+      throw new Error('Keine OAuth-Verbindung gefunden. Bitte verbinden Sie zuerst Google Calendar über "Mit Google verbinden".')
+    }
+
+    // Check if token is expired
+    const expiresAt = new Date(tokenData.expires_at)
+    const now = new Date()
+    let accessToken = tokenData.access_token
+
+    if (expiresAt <= now) {
+      // Token is expired, try to refresh
+      if (!tokenData.refresh_token) {
+        throw new Error('Access Token ist abgelaufen und kein Refresh Token vorhanden. Bitte verbinden Sie Google Calendar erneut.')
+      }
+
+      console.log('Access token expired, refreshing...')
+      
+      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          client_id: client_id,
+          client_secret: client_secret,
+          refresh_token: tokenData.refresh_token,
+          grant_type: 'refresh_token',
+        }),
+      })
+
+      const refreshData = await tokenResponse.json()
+
+      if (!tokenResponse.ok || refreshData.error) {
+        throw new Error(`Token-Aktualisierung fehlgeschlagen: ${refreshData.error_description || refreshData.error}`)
+      }
+
+      accessToken = refreshData.access_token
+
+      // Update the stored token
+      const newExpiresAt = new Date(Date.now() + (refreshData.expires_in || 3600) * 1000)
+      await supabase
+        .from('google_oauth_tokens')
+        .update({
+          access_token: accessToken,
+          expires_at: newExpiresAt.toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', tokenData.id || undefined)
+    }
+
+    // Make a real test request to Google Calendar API
+    console.log('Making test request to Google Calendar API...')
+    
+    const calendarResponse = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendar_id)}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      }
+    )
+
+    const calendarData = await calendarResponse.json()
+
+    if (!calendarResponse.ok) {
+      if (calendarResponse.status === 401) {
+        throw new Error('Authentifizierung fehlgeschlagen. Bitte verbinden Sie Google Calendar erneut.')
+      } else if (calendarResponse.status === 404) {
+        throw new Error(`Kalender "${calendar_id}" nicht gefunden. Überprüfen Sie die Kalender-ID.`)
+      } else {
+        throw new Error(`Google Calendar API Fehler: ${calendarData.error?.message || 'Unbekannter Fehler'}`)
+      }
+    }
+
+    console.log('Google Calendar test successful:', calendarData.summary)
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Google Calendar connection test successful' 
+        message: 'Google Calendar Verbindung erfolgreich getestet',
+        calendar_name: calendarData.summary,
+        calendar_timezone: calendarData.timeZone,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

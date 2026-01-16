@@ -18,6 +18,53 @@ const appointmentSchema = z.object({
   message: z.string().max(2000, 'Message too long').optional(),
 });
 
+const DAYS_MAP: Record<string, number> = {
+  'sunday': 0,
+  'monday': 1,
+  'tuesday': 2,
+  'wednesday': 3,
+  'thursday': 4,
+  'friday': 5,
+  'saturday': 6,
+};
+
+function parseTime(timeStr: string): { hours: number; minutes: number } {
+  const parts = timeStr.split(':');
+  return {
+    hours: parseInt(parts[0], 10),
+    minutes: parseInt(parts[1] || '0', 10),
+  };
+}
+
+function isTimeWithinWorkingHours(
+  appointmentTime: string,
+  workingStart: string,
+  workingEnd: string
+): boolean {
+  const appt = parseTime(appointmentTime);
+  const start = parseTime(workingStart);
+  const end = parseTime(workingEnd);
+  
+  const apptMinutes = appt.hours * 60 + appt.minutes;
+  const startMinutes = start.hours * 60 + start.minutes;
+  const endMinutes = end.hours * 60 + end.minutes;
+  
+  return apptMinutes >= startMinutes && apptMinutes < endMinutes;
+}
+
+function isWorkingDay(dateStr: string, workingDays: string[]): boolean {
+  const date = new Date(dateStr);
+  const dayOfWeek = date.getDay();
+  
+  // Find the day name for this number
+  for (const [dayName, dayNum] of Object.entries(DAYS_MAP)) {
+    if (dayNum === dayOfWeek && workingDays.includes(dayName)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -37,6 +84,102 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log('Received appointment booking:', bookingData);
 
+    // Get calendar settings for working hours validation
+    const { data: calendarSettings } = await supabase
+      .from('google_calendar_settings')
+      .select('*')
+      .eq('is_active', true)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    // Check working days if settings exist
+    if (calendarSettings && calendarSettings.working_days) {
+      if (!isWorkingDay(bookingData.appointment_date, calendarSettings.working_days)) {
+        const dayNames: Record<string, string> = {
+          'monday': 'Montag',
+          'tuesday': 'Dienstag',
+          'wednesday': 'Mittwoch',
+          'thursday': 'Donnerstag',
+          'friday': 'Freitag',
+          'saturday': 'Samstag',
+          'sunday': 'Sonntag',
+        };
+        const workingDaysList = calendarSettings.working_days.map((d: string) => dayNames[d] || d).join(', ');
+        
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: `Termine sind nur an folgenden Tagen verfügbar: ${workingDaysList}` 
+          }),
+          {
+            status: 400,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders },
+          }
+        );
+      }
+    }
+
+    // Check working hours if settings exist
+    if (calendarSettings && calendarSettings.working_hours_start && calendarSettings.working_hours_end) {
+      if (!isTimeWithinWorkingHours(
+        bookingData.appointment_time,
+        calendarSettings.working_hours_start,
+        calendarSettings.working_hours_end
+      )) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: `Termine sind nur zwischen ${calendarSettings.working_hours_start} und ${calendarSettings.working_hours_end} möglich.` 
+          }),
+          {
+            status: 400,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders },
+          }
+        );
+      }
+    }
+
+    // Check blocked dates
+    const { data: blockedDates } = await supabase
+      .from('calendar_blocked_dates')
+      .select('*')
+      .or(`date.eq.${bookingData.appointment_date},is_recurring.eq.true`);
+
+    if (blockedDates && blockedDates.length > 0) {
+      for (const blocked of blockedDates) {
+        if (blocked.date === bookingData.appointment_date) {
+          return new Response(
+            JSON.stringify({ 
+              success: false, 
+              error: `Dieser Tag ist nicht verfügbar: ${blocked.name}` 
+            }),
+            {
+              status: 400,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders },
+            }
+          );
+        }
+        // Check recurring dates (same month-day)
+        if (blocked.is_recurring) {
+          const blockedMonthDay = blocked.date.substring(5); // MM-DD
+          const appointmentMonthDay = bookingData.appointment_date.substring(5);
+          if (blockedMonthDay === appointmentMonthDay) {
+            return new Response(
+              JSON.stringify({ 
+                success: false, 
+                error: `Dieser Tag ist nicht verfügbar: ${blocked.name}` 
+              }),
+              {
+                status: 400,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders },
+              }
+            );
+          }
+        }
+      }
+    }
+
     // Check if the time slot is still available
     const { data: existingAppointments } = await supabase
       .from('appointments')
@@ -53,12 +196,46 @@ const handler = async (req: Request): Promise<Response> => {
         }),
         {
           status: 400,
-          headers: { 
-            'Content-Type': 'application/json', 
-            ...corsHeaders 
-          },
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
         }
       );
+    }
+
+    // Check buffer time with existing appointments
+    if (calendarSettings && calendarSettings.buffer_minutes > 0) {
+      const { data: nearbyAppointments } = await supabase
+        .from('appointments')
+        .select('scheduled_time, duration_minutes')
+        .eq('scheduled_date', bookingData.appointment_date)
+        .in('status', ['confirmed', 'pending', 'scheduled']);
+
+      if (nearbyAppointments) {
+        const requestedTime = parseTime(bookingData.appointment_time);
+        const requestedMinutes = requestedTime.hours * 60 + requestedTime.minutes;
+        
+        for (const appt of nearbyAppointments) {
+          const existingTime = parseTime(appt.scheduled_time);
+          const existingMinutes = existingTime.hours * 60 + existingTime.minutes;
+          const duration = appt.duration_minutes || 60;
+          
+          // Check if requested time conflicts with existing appointment + buffer
+          const existingEnd = existingMinutes + duration + calendarSettings.buffer_minutes;
+          const existingStart = existingMinutes - calendarSettings.buffer_minutes;
+          
+          if (requestedMinutes > existingStart && requestedMinutes < existingEnd) {
+            return new Response(
+              JSON.stringify({ 
+                success: false, 
+                error: 'Dieser Zeitraum ist wegen eines anderen Termins nicht verfügbar. Bitte wählen Sie eine andere Zeit.' 
+              }),
+              {
+                status: 400,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders },
+              }
+            );
+          }
+        }
+      }
     }
 
     // Create the appointment
@@ -77,8 +254,6 @@ const handler = async (req: Request): Promise<Response> => {
       console.error('Error creating appointment:', appointmentError);
       throw appointmentError;
     }
-
-    let contactRequestId = null;
 
     // Create contact request with appointment data
     const { data: contactData, error: contactError } = await supabase
@@ -99,13 +274,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (contactError) {
       console.error('Error creating contact request:', contactError);
-    } else {
-      const contactRequestId = contactData?.id;
-      
+    } else if (contactData) {
       // Update appointment with contact request ID
       await supabase
         .from('appointments')
-        .update({ contact_request_id: contactRequestId })
+        .update({ contact_request_id: contactData.id })
         .eq('id', appointment.id);
     }
 
@@ -124,23 +297,16 @@ const handler = async (req: Request): Promise<Response> => {
       console.log('Appointment automation triggered successfully');
     } catch (automationError) {
       console.error('Appointment automation error:', automationError);
-      // Don't fail the booking if automation fails
     }
 
     // Auto-sync to Google Calendar if connected
     try {
-      const { data: calendarSettings } = await supabase
-        .from('google_calendar_settings')
-        .select('auto_sync, is_active')
-        .eq('is_active', true)
-        .single();
-
       if (calendarSettings?.auto_sync) {
         const { data: tokenData } = await supabase
           .from('google_oauth_tokens')
           .select('id')
           .limit(1)
-          .single();
+          .maybeSingle();
 
         if (tokenData) {
           console.log('Auto-syncing appointment to Google Calendar...');
@@ -155,7 +321,6 @@ const handler = async (req: Request): Promise<Response> => {
       }
     } catch (syncError) {
       console.error('Google Calendar auto-sync error:', syncError);
-      // Don't fail the booking if sync fails
     }
 
     console.log('Successfully created appointment:', appointment);
@@ -168,31 +333,24 @@ const handler = async (req: Request): Promise<Response> => {
       }),
       {
         status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          ...corsHeaders,
-        },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
       }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in book-appointment function:', error);
     
-    // Handle validation errors with more specific status code
-    const isValidationError = error.name === 'ZodError';
+    const isZodError = error instanceof Error && error.name === 'ZodError';
+    const errorMessage = error instanceof Error ? error.message : 'Ein Fehler ist aufgetreten';
     
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: isValidationError ? 'Invalid input data' : (error.message || 'Ein Fehler ist beim Buchen des Termins aufgetreten'),
-        details: isValidationError ? error.errors : undefined
+        error: isZodError ? 'Ungültige Eingabedaten' : errorMessage,
       }),
       {
-        status: isValidationError ? 400 : 500,
-        headers: { 
-          'Content-Type': 'application/json', 
-          ...corsHeaders 
-        },
+        status: isZodError ? 400 : 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
       }
     );
   }

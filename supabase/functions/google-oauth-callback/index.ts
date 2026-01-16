@@ -1,33 +1,35 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
-const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
+const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 
-serve(async (req) => {
+serve(async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { code, redirect_uri } = await req.json()
+    const { code, redirect_uri } = await req.json();
     
-    const client_id = Deno.env.get('GOOGLE_CLIENT_ID')
-    const client_secret = Deno.env.get('GOOGLE_CLIENT_SECRET')
+    const client_id = Deno.env.get('GOOGLE_CLIENT_ID');
+    const client_secret = Deno.env.get('GOOGLE_CLIENT_SECRET');
     
     if (!client_id || !client_secret) {
-      throw new Error('Google OAuth credentials not configured in Supabase Secrets')
+      console.error('Missing Google OAuth credentials');
+      throw new Error('Google OAuth credentials not configured in Supabase Secrets');
     }
 
     if (!code) {
-      throw new Error('Authorization code is required')
+      throw new Error('Authorization code is required');
     }
 
-    console.log('Exchanging authorization code for tokens...')
+    console.log('Exchanging authorization code for tokens...');
+    console.log('Using redirect_uri:', redirect_uri);
 
     // Exchange authorization code for tokens
     const tokenResponse = await fetch(GOOGLE_TOKEN_URL, {
@@ -39,42 +41,48 @@ serve(async (req) => {
         code,
         client_id,
         client_secret,
-        redirect_uri: redirect_uri || `${Deno.env.get('SUPABASE_URL')}/functions/v1/google-oauth-callback`,
+        redirect_uri: redirect_uri,
         grant_type: 'authorization_code',
       }),
-    })
+    });
 
-    const tokenData = await tokenResponse.json()
+    const tokenData = await tokenResponse.json();
 
     if (tokenData.error) {
-      console.error('Token exchange error:', tokenData)
-      throw new Error(tokenData.error_description || tokenData.error)
+      console.error('Token exchange error:', tokenData);
+      throw new Error(tokenData.error_description || tokenData.error);
     }
 
-    console.log('Token exchange successful')
+    console.log('Token exchange successful, storing tokens...');
 
     // Calculate expiration time
-    const expiresAt = new Date(Date.now() + (tokenData.expires_in * 1000))
+    const expiresAt = new Date(Date.now() + (tokenData.expires_in * 1000));
 
     // Store tokens in database
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get user from auth header if available
-    const authHeader = req.headers.get('Authorization')
-    let userId = null
+    const authHeader = req.headers.get('Authorization');
+    let userId: string | null = null;
     
     if (authHeader) {
-      const token = authHeader.replace('Bearer ', '')
-      const { data: { user } } = await supabase.auth.getUser(token)
-      userId = user?.id
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user } } = await supabase.auth.getUser(token);
+      userId = user?.id || null;
     }
 
-    // Store tokens (upsert to handle existing tokens)
+    // First, delete any existing tokens to avoid conflicts
+    await supabase
+      .from('google_oauth_tokens')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+
+    // Insert new token
     const { error: dbError } = await supabase
       .from('google_oauth_tokens')
-      .upsert({
+      .insert({
         user_id: userId,
         access_token: tokenData.access_token,
         refresh_token: tokenData.refresh_token,
@@ -82,16 +90,14 @@ serve(async (req) => {
         expires_at: expiresAt.toISOString(),
         scope: tokenData.scope,
         updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'user_id'
-      })
+      });
 
     if (dbError) {
-      console.error('Database error:', dbError)
-      throw new Error('Failed to store OAuth tokens')
+      console.error('Database error:', dbError);
+      throw new Error('Failed to store OAuth tokens: ' + dbError.message);
     }
 
-    console.log('Tokens stored successfully')
+    console.log('Tokens stored successfully');
 
     return new Response(
       JSON.stringify({
@@ -103,10 +109,10 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       }
-    )
+    );
 
   } catch (error) {
-    console.error('OAuth callback error:', error)
+    console.error('OAuth callback error:', error);
     return new Response(
       JSON.stringify({
         success: false,
@@ -116,6 +122,6 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
       }
-    )
+    );
   }
-})
+});

@@ -140,6 +140,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Google Calendar test failed:', error)
+    // Return 200 with success: false so the client can read the error message
     return new Response(
       JSON.stringify({ 
         success: false, 
@@ -147,7 +148,7 @@ serve(async (req) => {
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+        status: 200, // Use 200 so client can read the JSON body
       }
     )
   }

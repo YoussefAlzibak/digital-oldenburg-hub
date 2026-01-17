@@ -903,6 +903,30 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          count: number | null
+          created_at: string | null
+          id: string
+          key: string
+          window_start: string | null
+        }
+        Insert: {
+          count?: number | null
+          created_at?: string | null
+          id?: string
+          key: string
+          window_start?: string | null
+        }
+        Update: {
+          count?: number | null
+          created_at?: string | null
+          id?: string
+          key?: string
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       renewal_reminders: {
         Row: {
           appointment_id: string
@@ -1098,6 +1122,15 @@ export type Database = {
       }
     }
     Functions: {
+      check_rate_limit: {
+        Args: {
+          p_key: string
+          p_max_requests?: number
+          p_window_minutes?: number
+        }
+        Returns: boolean
+      }
+      cleanup_rate_limits: { Args: never; Returns: undefined }
       get_google_calendar_settings: {
         Args: never
         Returns: {

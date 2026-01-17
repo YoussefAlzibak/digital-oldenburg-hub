@@ -31,6 +31,36 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Rate Limiting: 5 Anfragen pro IP pro Stunde
+    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+                     req.headers.get('x-real-ip') || 
+                     'unknown';
+    const rateLimitKey = `consultation:${clientIP}`;
+    
+    const { data: isAllowed, error: rateLimitError } = await supabase.rpc('check_rate_limit', {
+      p_key: rateLimitKey,
+      p_max_requests: 5,
+      p_window_minutes: 60
+    });
+
+    if (rateLimitError) {
+      console.error('Rate limit check error:', rateLimitError);
+    }
+
+    if (isAllowed === false) {
+      console.warn(`Rate limit exceeded for IP: ${clientIP}`);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Zu viele Anfragen. Bitte versuchen Sie es später erneut.' 
+        }),
+        {
+          status: 429,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        }
+      );
+    }
+
     const rawData = await req.json();
     
     // Validate input data
@@ -46,12 +76,11 @@ const handler = async (req: Request): Promise<Response> => {
         email: requestData.email,
         phone: requestData.phone,
         company: requestData.company,
-        service: requestData.service,
+        service_type: requestData.service || 'consultation',
         message: requestData.message,
         preferred_date: requestData.preferred_date,
         preferred_time: requestData.preferred_time,
-        consultation_type: requestData.consultation_type,
-        request_type: 'consultation'
+        status: 'pending'
       }])
       .select()
       .single();
@@ -63,15 +92,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     // If preferred date and time are provided, also create an appointment
     if (requestData.preferred_date && requestData.preferred_time) {
-      const appointmentDateTime = new Date(`${requestData.preferred_date}T${requestData.preferred_time}:00`);
-      
       const { data: appointment, error: appointmentError } = await supabase
         .from('appointments')
         .insert([{
           contact_request_id: contactRequest.id,
-          appointment_date: requestData.preferred_date,
-          appointment_time: appointmentDateTime.toISOString(),
-          appointment_type: requestData.consultation_type || 'online',
+          scheduled_date: requestData.preferred_date,
+          scheduled_time: requestData.preferred_time,
+          meeting_type: requestData.consultation_type || 'online',
           status: 'pending'
         }])
         .select()
@@ -102,17 +129,17 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in submit-consultation function:', error);
     
     // Handle validation errors with more specific status code
-    const isValidationError = error.name === 'ZodError';
+    const isValidationError = error instanceof Error && error.name === 'ZodError';
+    const errorMessage = error instanceof Error ? error.message : 'Ein Fehler ist aufgetreten';
     
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: isValidationError ? 'Invalid input data' : (error.message || 'Ein Fehler ist aufgetreten'),
-        details: isValidationError ? error.errors : undefined
+        error: isValidationError ? 'Ungültige Eingabedaten' : errorMessage,
       }),
       {
         status: isValidationError ? 400 : 500,

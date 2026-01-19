@@ -29,7 +29,6 @@ export default function Unsubscribe() {
       return;
     }
 
-    // Decode email from token or param
     if (emailParam) {
       try {
         const decodedEmail = atob(emailParam);
@@ -58,7 +57,6 @@ export default function Unsubscribe() {
     setIsProcessing(true);
 
     try {
-      // Update subscriber status to 'unsubscribed'
       const { data: subscriber, error: fetchError } = await supabase
         .from('email_subscribers')
         .select('id, first_name')
@@ -79,7 +77,6 @@ export default function Unsubscribe() {
 
       if (updateError) throw updateError;
 
-      // Log the unsubscribe event
       await supabase
         .from('email_events')
         .insert({
@@ -92,58 +89,55 @@ export default function Unsubscribe() {
           }
         });
 
-      // Send unsubscribe confirmation email
       try {
         await supabase.functions.invoke('send-smtp-email', {
           body: {
             emailData: {
               to: email,
               subject: 'Abmeldung bestätigt - Unicum Tech',
-              html: `
-                <!DOCTYPE html>
-                <html lang="de">
-                <head><meta charset="UTF-8"></head>
-                <body style="margin: 0; padding: 0; background-color: #f4f4f7; font-family: 'Segoe UI', sans-serif;">
-                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f7;">
-                    <tr>
-                      <td align="center" style="padding: 40px 20px;">
-                        <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden;">
-                          <tr>
-                            <td style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 40px; text-align: center;">
-                              <h1 style="margin: 0; font-size: 28px; font-weight: 800;">
-                                <span style="color: #4ecdc4;">Unicum</span><span style="color: #ffffff;">Tech</span>
-                              </h1>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 40px;">
-                              <h2 style="margin: 0 0 20px 0; color: #1e3a5f;">Abmeldung bestätigt</h2>
-                              <p style="color: #4a5568; font-size: 16px; line-height: 1.7;">
-                                Ihre Abmeldung von unserem Newsletter wurde erfolgreich verarbeitet. 
-                                Sie werden keine weiteren Marketing-E-Mails von uns erhalten.
-                              </p>
-                              <p style="color: #4a5568; font-size: 16px; line-height: 1.7; margin-top: 20px;">
-                                Falls Sie Ihre Meinung ändern, können Sie sich jederzeit wieder anmelden.
-                              </p>
-                              <p style="margin: 30px 0 0 0; color: #1e3a5f;">
-                                Mit freundlichen Grüßen,<br><strong>Das Unicum Tech Team</strong>
-                              </p>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td style="background-color: #1e3a5f; padding: 20px; text-align: center;">
-                              <p style="margin: 0; font-size: 12px; color: #8ec5fc;">
-                                © ${new Date().getFullYear()} Unicum Tech. Alle Rechte vorbehalten.
-                              </p>
-                            </td>
-                          </tr>
-                        </table>
-                      </td>
-                    </tr>
-                  </table>
-                </body>
-                </html>
-              `
+              html: `<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"></head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f7; font-family: 'Segoe UI', sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f7;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden;">
+          <tr>
+            <td style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 40px; text-align: center;">
+              <h1 style="margin: 0; font-size: 28px; font-weight: 800;">
+                <span style="color: #4ecdc4;">Unicum</span><span style="color: #ffffff;">Tech</span>
+              </h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px;">
+              <h2 style="margin: 0 0 20px 0; color: #1e3a5f;">Abmeldung bestätigt</h2>
+              <p style="color: #4a5568; font-size: 16px; line-height: 1.7;">
+                Ihre Abmeldung von unserem Newsletter wurde erfolgreich verarbeitet. 
+                Sie werden keine weiteren Marketing-E-Mails von uns erhalten.
+              </p>
+              <p style="color: #4a5568; font-size: 16px; line-height: 1.7; margin-top: 20px;">
+                Falls Sie Ihre Meinung ändern, können Sie sich jederzeit wieder anmelden.
+              </p>
+              <p style="margin: 30px 0 0 0; color: #1e3a5f;">
+                Mit freundlichen Grüßen,<br><strong>Das Unicum Tech Team</strong>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #1e3a5f; padding: 20px; text-align: center;">
+              <p style="margin: 0; font-size: 12px; color: #8ec5fc;">
+                © ${new Date().getFullYear()} Unicum Tech. Alle Rechte vorbehalten.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
             }
           }
         });
@@ -159,12 +153,13 @@ export default function Unsubscribe() {
         description: "Sie wurden von unserem Newsletter abgemeldet.",
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Unsubscribe error:', error);
       setStatus('error');
+      const errorMessage = error instanceof Error ? error.message : "Ein Fehler ist aufgetreten.";
       toast({
         title: "Fehler",
-        description: error.message || "Ein Fehler ist aufgetreten.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {

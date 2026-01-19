@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CheckCircle, XCircle, Loader2, Mail, ArrowLeft, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { WebsiteLayout } from '@/components/WebsiteLayout';
+import { Footer } from '@/components/Footer';
 
 export default function Unsubscribe() {
   const [searchParams] = useSearchParams();
@@ -215,8 +215,8 @@ export default function Unsubscribe() {
   ];
 
   return (
-    <WebsiteLayout>
-      <div className="min-h-[60vh] flex items-center justify-center py-12 px-4">
+    <div className="min-h-screen bg-background">
+      <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
         <Card className="w-full max-w-md">
           {status === 'loading' && (
             <CardContent className="flex flex-col items-center justify-center py-12">
@@ -376,6 +376,7 @@ export default function Unsubscribe() {
           )}
         </Card>
       </div>
-    </WebsiteLayout>
+      <Footer />
+    </div>
   );
 }

@@ -13,6 +13,7 @@ import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
 import Imprint from "./pages/Imprint";
 import Privacy from "./pages/Privacy";
+import Unsubscribe from "./pages/Unsubscribe";
 import CookieConsent from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ function App() {
             <Route path="/admin/*" element={<Admin />} />
             <Route path="/imprint" element={<Imprint />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/unsubscribe" element={<Unsubscribe />} />
             <Route path="*" element={<Index />} />
           </Routes>
           <Toaster />

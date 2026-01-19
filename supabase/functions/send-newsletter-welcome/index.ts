@@ -12,8 +12,23 @@ interface NewsletterWelcomeRequest {
   lastName?: string;
 }
 
+// Einheitliche Farben
+const colors = {
+  primaryDark: '#1e3a5f',
+  primaryMid: '#2d5a87',
+  accent: '#4ecdc4',
+  accentHover: '#44a08d',
+  textDark: '#1e3a5f',
+  textBody: '#4a5568',
+  textSubtitle: '#8ec5fc',
+  textFooter: '#6b8eb8',
+  bgPage: '#f4f4f7',
+  bgCard: '#ffffff',
+  bgHighlight: '#f0f9ff',
+  bgHighlightEnd: '#e0f2fe',
+};
+
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -29,128 +44,104 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Sending newsletter welcome email to:', email);
 
     const displayName = firstName || 'Kunde';
+    const currentYear = new Date().getFullYear();
+    const websiteUrl = 'https://unicumtech.de';
+    
+    // Generiere Abmelde-Link mit Base64-kodierter E-Mail
+    const unsubscribeToken = btoa(email);
+    const unsubscribeUrl = `${websiteUrl}/unsubscribe?email=${unsubscribeToken}`;
 
-    // Create HTML welcome email
-    const emailHTML = `
-<!DOCTYPE html>
+    // Einheitliches Template Design
+    const emailHTML = `<!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Willkommen beim Unicum Tech Newsletter!</title>
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
-        .content { background: #f9f9f9; padding: 30px; }
-        .welcome-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
-        .benefits { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .benefit-item { display: flex; align-items: center; margin: 10px 0; }
-        .footer { background: #333; color: white; padding: 20px; border-radius: 0 0 8px 8px; text-align: center; }
-        .emoji { font-size: 24px; margin-right: 10px; }
-        .highlight { background: #dbeafe; padding: 15px; border-radius: 8px; margin: 15px 0; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Willkommen bei Unicum Tech!</title>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🎉 Herzlich Willkommen!</h1>
-            <p>Schön, dass Sie Teil der Unicum Tech Community sind!</p>
-        </div>
-        
-        <div class="content">
-            <div class="welcome-box">
-                <h2>Hallo ${displayName}!</h2>
-                <p style="font-size: 18px; margin: 20px 0;">
-                    Vielen Dank für Ihre Anmeldung zu unserem Newsletter. 
-                    Sie sind jetzt Teil unserer exklusiven Community und erhalten regelmäßig:
-                </p>
-            </div>
-            
-            <div class="benefits">
-                <h3>🎯 Das erwartet Sie:</h3>
-                <div class="benefit-item">
-                    <span class="emoji">💡</span>
-                    <div>
-                        <strong>Digitale Trends & Insights</strong><br>
-                        Neueste Entwicklungen in Webdesign, CRM und IT
-                    </div>
-                </div>
-                <div class="benefit-item">
-                    <span class="emoji">🛠️</span>
-                    <div>
-                        <strong>Praktische Tipps & Tutorials</strong><br>
-                        Konkrete Hilfestellungen für Ihren digitalen Erfolg
-                    </div>
-                </div>
-                <div class="benefit-item">
-                    <span class="emoji">🎁</span>
-                    <div>
-                        <strong>Exklusive Angebote</strong><br>
-                        Besondere Konditionen nur für Newsletter-Abonnenten
-                    </div>
-                </div>
-                <div class="benefit-item">
-                    <span class="emoji">📈</span>
-                    <div>
-                        <strong>Case Studies & Erfolgsgeschichten</strong><br>
-                        Echte Projekte und deren Erfolgsfaktoren
-                    </div>
-                </div>
-                <div class="benefit-item">
-                    <span class="emoji">📅</span>
-                    <div>
-                        <strong>Event-Einladungen</strong><br>
-                        Webinare, Workshops und Networking-Events
-                    </div>
-                </div>
-            </div>
-            
-            <div class="highlight">
-                <h4>🚀 Bereit für den digitalen Durchbruch?</h4>
-                <p>
-                    Falls Sie bereits konkrete Pläne für ein digitales Projekt haben, 
-                    vereinbaren Sie gerne einen kostenlosen Beratungstermin mit uns. 
-                    Als Newsletter-Abonnent erhalten Sie <strong>10% Rabatt</strong> 
-                    auf alle unsere Services!
-                </p>
-                <p style="text-align: center; margin-top: 20px;">
-                    <a href="https://unicumtech.de/contact" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-                        🎯 Kostenlose Beratung anfragen
-                    </a>
-                </p>
-            </div>
-            
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <h4>📞 Haben Sie Fragen?</h4>
-                <p>Unser Team steht Ihnen gerne zur Verfügung:</p>
-                <ul style="margin: 10px 0;">
-                    <li>📧 E-Mail: info@unicumtech.de</li>
-                    <li>📱 Telefon: +49 (0) 441 XXX XXX</li>
-                    <li>🕒 Geschäftszeiten: Mo-Fr 9:00 - 18:00 Uhr</li>
-                </ul>
-            </div>
-            
-            <p style="text-align: center; margin-top: 30px;">
-                Freuen Sie sich auf spannende Inhalte!<br>
-                <strong>Ihr Unicum Tech Team</strong>
-            </p>
-        </div>
-        
-        <div class="footer">
-            <p><strong>Unicum Tech</strong><br>
-            Ihre Full-Service Digitalagentur in Oldenburg<br>
-            Webdesign • CRM-Systeme • IT-Services • Print Design</p>
-            
-            <p style="font-size: 12px; margin-top: 15px; opacity: 0.8;">
-                Sie können sich jederzeit <a href="#" style="color: #87CEEB;">hier abmelden</a>.
-            </p>
-        </div>
-    </div>
+<body style="margin: 0; padding: 0; background-color: ${colors.bgPage}; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: ${colors.bgPage};">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: ${colors.bgCard}; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, ${colors.primaryDark} 0%, ${colors.primaryMid} 50%, ${colors.primaryDark} 100%); padding: 40px; text-align: center;">
+              <h1 style="margin: 0; font-size: 32px; font-weight: 800;">
+                <span style="color: ${colors.accent};">Unicum</span><span style="color: #ffffff;">Tech</span>
+              </h1>
+              <p style="margin: 15px 0 0 0; font-size: 14px; color: ${colors.textSubtitle}; text-transform: uppercase; letter-spacing: 2px;">Willkommen in der Community</p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px;">
+              <h2 style="margin: 0 0 20px 0; color: ${colors.textDark}; font-size: 24px;">🎉 Hallo ${displayName}!</h2>
+              
+              <p style="margin: 0 0 20px 0; color: ${colors.textBody}; font-size: 16px; line-height: 1.7;">
+                Vielen Dank für Ihre Anmeldung zu unserem Newsletter! Sie sind jetzt Teil unserer exklusiven Community und erhalten regelmäßig Updates zu:
+              </p>
+              
+              <!-- Benefits Box -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, ${colors.bgHighlight} 0%, ${colors.bgHighlightEnd} 100%); border-radius: 8px; margin: 25px 0;">
+                <tr>
+                  <td style="padding: 25px; border-left: 4px solid ${colors.accent};">
+                    <h3 style="margin: 0 0 15px 0; color: ${colors.textDark}; font-size: 18px;">🎯 Das erwartet Sie:</h3>
+                    <p style="margin: 0; color: ${colors.textBody}; font-size: 15px; line-height: 1.8;">
+                      • <strong>Digitale Trends & Insights</strong> – Neueste Entwicklungen<br>
+                      • <strong>Praktische Tipps & Tutorials</strong> – Für Ihren Erfolg<br>
+                      • <strong>Exklusive Angebote</strong> – Nur für Newsletter-Abonnenten<br>
+                      • <strong>Case Studies</strong> – Echte Erfolgsgeschichten
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="text-align: center; margin: 30px 0;">
+                <a href="${websiteUrl}/services" style="display: inline-block; background: linear-gradient(135deg, ${colors.accent} 0%, ${colors.accentHover} 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Unsere Services entdecken →</a>
+              </p>
+              
+              <p style="margin: 25px 0 0 0; color: ${colors.textBody}; font-size: 16px; line-height: 1.7;">
+                Freuen Sie sich auf spannende Inhalte!
+              </p>
+              
+              <p style="margin: 20px 0 0 0; color: ${colors.textDark}; font-size: 16px;">
+                Mit freundlichen Grüßen,<br>
+                <strong>Das Unicum Tech Team</strong>
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: ${colors.primaryDark}; padding: 30px 40px; text-align: center;">
+              <p style="margin: 0 0 15px 0; font-size: 18px; font-weight: 700;">
+                <span style="color: ${colors.accent};">Unicum</span><span style="color: #ffffff;">Tech</span>
+              </p>
+              <p style="margin: 0 0 15px 0; font-size: 13px; color: ${colors.textSubtitle};">Digital Solutions by Melyou</p>
+              <p style="margin: 0 0 10px 0; font-size: 12px; color: ${colors.textFooter};">
+                Web-Entwicklung • Mobile Apps • Branding • IT-Lösungen
+              </p>
+              <p style="margin: 0; font-size: 12px; color: ${colors.textFooter};">
+                <a href="${websiteUrl}" style="color: ${colors.accent}; text-decoration: none;">Website</a> | 
+                <a href="${websiteUrl}/contact" style="color: ${colors.accent}; text-decoration: none;">Kontakt</a> | 
+                <a href="${unsubscribeUrl}" style="color: ${colors.accent}; text-decoration: none;">Abmelden</a>
+              </p>
+              <p style="margin: 15px 0 0 0; font-size: 11px; color: ${colors.textFooter};">
+                © ${currentYear} Unicum Tech. Alle Rechte vorbehalten.
+              </p>
+            </td>
+          </tr>
+          
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 
-    // Send welcome email via SMTP
     const emailData = {
       to: email,
       subject: `🎉 Willkommen bei Unicum Tech, ${displayName}!`,

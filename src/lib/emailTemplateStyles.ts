@@ -1,6 +1,10 @@
 // Einheitliches E-Mail Template Design System für Unicum Tech
 // Alle Templates verwenden diese konsistenten Styles
 
+// Website URL für alle E-Mail Templates
+export const WEBSITE_URL = 'https://digital-oldenburg-hub.onrender.com';
+export const COMPANY_NAME = 'Unicum Tech';
+
 export const emailColors = {
   // Primary Brand Colors
   primaryDark: '#1e3a5f',      // Header/Footer Hintergrund
@@ -32,6 +36,12 @@ export const emailColors = {
 export const emailFonts = {
   primary: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
 } as const;
+
+// Hilfsfunktion um Unsubscribe-URL zu generieren
+export const getUnsubscribeUrl = (email: string): string => {
+  const token = btoa(email);
+  return `${WEBSITE_URL}/unsubscribe?email=${token}`;
+};
 
 // Einheitlicher E-Mail Header
 export const getEmailHeader = (subtitle?: string): string => `

@@ -45,11 +45,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     const displayName = firstName || 'Kunde';
     const currentYear = new Date().getFullYear();
-    const websiteUrl = 'https://unicumtech.de';
+    const websiteUrl = 'https://digital-oldenburg-hub.onrender.com';
     
     // Generiere Abmelde-Link mit Base64-kodierter E-Mail
     const unsubscribeToken = btoa(email);
     const unsubscribeUrl = `${websiteUrl}/unsubscribe?email=${unsubscribeToken}`;
+    const deleteDataUrl = `${websiteUrl}/unsubscribe?email=${unsubscribeToken}&action=delete`;
 
     // Einheitliches Template Design
     const emailHTML = `<!DOCTYPE html>

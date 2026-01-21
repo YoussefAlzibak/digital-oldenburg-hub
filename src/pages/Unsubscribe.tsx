@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { CheckCircle, XCircle, Loader2, Mail, ArrowLeft, MessageSquare } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { CheckCircle, XCircle, Loader2, Mail, ArrowLeft, MessageSquare, Trash2, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Footer } from '@/components/Footer';
@@ -18,15 +19,24 @@ export default function Unsubscribe() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackReason, setFeedbackReason] = useState<string>('');
   const [feedbackComment, setFeedbackComment] = useState<string>('');
+  const [deleteData, setDeleteData] = useState(false);
+  const [actionType, setActionType] = useState<'unsubscribe' | 'delete'>('unsubscribe');
   const { toast } = useToast();
 
   const token = searchParams.get('token');
   const emailParam = searchParams.get('email');
+  const actionParam = searchParams.get('action');
 
   useEffect(() => {
     if (!token && !emailParam) {
       setStatus('invalid');
       return;
+    }
+
+    // Check if delete action is requested
+    if (actionParam === 'delete') {
+      setDeleteData(true);
+      setActionType('delete');
     }
 
     if (emailParam) {
@@ -46,7 +56,7 @@ export default function Unsubscribe() {
         setStatus('invalid');
       }
     }
-  }, [token, emailParam]);
+  }, [token, emailParam, actionParam]);
 
   const handleUnsubscribe = async () => {
     if (!email) {
@@ -67,35 +77,127 @@ export default function Unsubscribe() {
         throw new Error('Abonnent nicht gefunden');
       }
 
-      const { error: updateError } = await supabase
-        .from('email_subscribers')
-        .update({ 
-          status: 'unsubscribed',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', subscriber.id);
+      if (deleteData) {
+        // Delete all data related to this subscriber
+        // First delete from email_list_subscribers
+        await supabase
+          .from('email_list_subscribers')
+          .delete()
+          .eq('subscriber_id', subscriber.id);
 
-      if (updateError) throw updateError;
+        // Delete from email_queue
+        await supabase
+          .from('email_queue')
+          .delete()
+          .eq('subscriber_id', subscriber.id);
 
-      await supabase
-        .from('email_events')
-        .insert({
-          subscriber_id: subscriber.id,
-          event_type: 'unsubscribed',
-          event_data: { 
-            reason: feedbackReason || 'not_provided',
-            comment: feedbackComment || null,
-            unsubscribed_at: new Date().toISOString()
-          }
-        });
+        // Delete from email_events
+        await supabase
+          .from('email_events')
+          .delete()
+          .eq('subscriber_id', subscriber.id);
 
-      try {
-        await supabase.functions.invoke('send-smtp-email', {
-          body: {
-            emailData: {
-              to: email,
-              subject: 'Abmeldung bestätigt - Unicum Tech',
-              html: `<!DOCTYPE html>
+        // Finally delete the subscriber
+        const { error: deleteError } = await supabase
+          .from('email_subscribers')
+          .delete()
+          .eq('id', subscriber.id);
+
+        if (deleteError) throw deleteError;
+
+        // Send confirmation email
+        try {
+          await supabase.functions.invoke('send-smtp-email', {
+            body: {
+              emailData: {
+                to: email,
+                subject: 'Ihre Daten wurden gelöscht - Unicum Tech',
+                html: `<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"></head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f7; font-family: 'Segoe UI', sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f7;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden;">
+          <tr>
+            <td style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); padding: 40px; text-align: center;">
+              <h1 style="margin: 0; font-size: 28px; font-weight: 800;">
+                <span style="color: #4ecdc4;">Unicum</span><span style="color: #ffffff;">Tech</span>
+              </h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px;">
+              <h2 style="margin: 0 0 20px 0; color: #1e3a5f;">Datenlöschung bestätigt</h2>
+              <p style="color: #4a5568; font-size: 16px; line-height: 1.7;">
+                Wie von Ihnen gewünscht, wurden alle Ihre personenbezogenen Daten aus unserem System vollständig gelöscht.
+              </p>
+              <p style="color: #4a5568; font-size: 16px; line-height: 1.7; margin-top: 20px;">
+                Dies umfasst:
+              </p>
+              <ul style="color: #4a5568; font-size: 16px; line-height: 1.7;">
+                <li>Ihre E-Mail-Adresse</li>
+                <li>Alle persönlichen Informationen</li>
+                <li>Ihr Newsletter-Abonnement</li>
+                <li>Zugehörige Ereignisdaten</li>
+              </ul>
+              <p style="margin: 30px 0 0 0; color: #1e3a5f;">
+                Mit freundlichen Grüßen,<br><strong>Das Unicum Tech Team</strong>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #1e3a5f; padding: 20px; text-align: center;">
+              <p style="margin: 0; font-size: 12px; color: #8ec5fc;">
+                © ${new Date().getFullYear()} Unicum Tech. Alle Rechte vorbehalten.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+              }
+            }
+          });
+        } catch (emailErr) {
+          console.error('Error sending deletion confirmation:', emailErr);
+        }
+
+      } else {
+        // Just unsubscribe
+        const { error: updateError } = await supabase
+          .from('email_subscribers')
+          .update({ 
+            status: 'unsubscribed',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', subscriber.id);
+
+        if (updateError) throw updateError;
+
+        await supabase
+          .from('email_events')
+          .insert({
+            subscriber_id: subscriber.id,
+            event_type: 'unsubscribed',
+            event_data: { 
+              reason: feedbackReason || 'not_provided',
+              comment: feedbackComment || null,
+              unsubscribed_at: new Date().toISOString()
+            }
+          });
+
+        try {
+          await supabase.functions.invoke('send-smtp-email', {
+            body: {
+              emailData: {
+                to: email,
+                subject: 'Abmeldung bestätigt - Unicum Tech',
+                html: `<!DOCTYPE html>
 <html lang="de">
 <head><meta charset="UTF-8"></head>
 <body style="margin: 0; padding: 0; background-color: #f4f4f7; font-family: 'Segoe UI', sans-serif;">
@@ -120,6 +222,10 @@ export default function Unsubscribe() {
               <p style="color: #4a5568; font-size: 16px; line-height: 1.7; margin-top: 20px;">
                 Falls Sie Ihre Meinung ändern, können Sie sich jederzeit wieder anmelden.
               </p>
+              <p style="color: #4a5568; font-size: 16px; line-height: 1.7; margin-top: 20px;">
+                <strong>Hinweis:</strong> Möchten Sie auch Ihre Daten löschen lassen? 
+                <a href="https://digital-oldenburg-hub.onrender.com/unsubscribe?email=${btoa(email)}&action=delete" style="color: #4ecdc4;">Hier klicken</a>
+              </p>
               <p style="margin: 30px 0 0 0; color: #1e3a5f;">
                 Mit freundlichen Grüßen,<br><strong>Das Unicum Tech Team</strong>
               </p>
@@ -138,19 +244,24 @@ export default function Unsubscribe() {
   </table>
 </body>
 </html>`
+              }
             }
-          }
-        });
-      } catch (emailErr) {
-        console.error('Error sending unsubscribe confirmation:', emailErr);
+          });
+        } catch (emailErr) {
+          console.error('Error sending unsubscribe confirmation:', emailErr);
+        }
       }
 
       setStatus('success');
-      setShowFeedback(true);
+      if (!deleteData) {
+        setShowFeedback(true);
+      }
 
       toast({
-        title: "Erfolgreich abgemeldet",
-        description: "Sie wurden von unserem Newsletter abgemeldet.",
+        title: deleteData ? "Daten gelöscht" : "Erfolgreich abgemeldet",
+        description: deleteData 
+          ? "Alle Ihre Daten wurden vollständig gelöscht." 
+          : "Sie wurden von unserem Newsletter abgemeldet.",
       });
 
     } catch (error: unknown) {
@@ -246,11 +357,19 @@ export default function Unsubscribe() {
             <>
               <CardHeader className="text-center">
                 <div className="mx-auto mb-4 w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center">
-                  <Mail className="w-8 h-8 text-orange-500" />
+                  {actionType === 'delete' ? (
+                    <Trash2 className="w-8 h-8 text-orange-500" />
+                  ) : (
+                    <Mail className="w-8 h-8 text-orange-500" />
+                  )}
                 </div>
-                <CardTitle>Newsletter abmelden</CardTitle>
+                <CardTitle>
+                  {actionType === 'delete' ? 'Daten löschen' : 'Newsletter abmelden'}
+                </CardTitle>
                 <CardDescription>
-                  Möchten Sie sich wirklich von unserem Newsletter abmelden?
+                  {actionType === 'delete' 
+                    ? 'Möchten Sie wirklich alle Ihre Daten löschen lassen?' 
+                    : 'Möchten Sie sich wirklich von unserem Newsletter abmelden?'}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -258,6 +377,38 @@ export default function Unsubscribe() {
                   <p className="text-sm text-muted-foreground">E-Mail-Adresse:</p>
                   <p className="font-medium">{email}</p>
                 </div>
+
+                {actionType !== 'delete' && (
+                  <div className="flex items-start space-x-3 p-4 border rounded-lg bg-muted/50">
+                    <Checkbox 
+                      id="delete-data" 
+                      checked={deleteData}
+                      onCheckedChange={(checked) => setDeleteData(checked === true)}
+                    />
+                    <div className="space-y-1">
+                      <Label htmlFor="delete-data" className="cursor-pointer font-medium">
+                        Meine Daten vollständig löschen
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Löscht alle Ihre gespeicherten Daten unwiderruflich (gemäß DSGVO)
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {(deleteData || actionType === 'delete') && (
+                  <div className="p-4 bg-destructive/10 rounded-lg border border-destructive/20">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="w-5 h-5 text-destructive mt-0.5" />
+                      <div className="text-sm">
+                        <p className="font-medium text-destructive">Achtung: Unwiderruflich</p>
+                        <p className="text-muted-foreground mt-1">
+                          Alle Ihre Daten werden permanent gelöscht und können nicht wiederhergestellt werden.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 
                 <div className="flex flex-col gap-3">
                   <Button 
@@ -270,6 +421,11 @@ export default function Unsubscribe() {
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         Wird verarbeitet...
+                      </>
+                    ) : (deleteData || actionType === 'delete') ? (
+                      <>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Ja, alle Daten löschen
                       </>
                     ) : (
                       'Ja, abmelden'
@@ -292,13 +448,17 @@ export default function Unsubscribe() {
                 <div className="mx-auto mb-4 w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center">
                   <CheckCircle className="w-8 h-8 text-green-500" />
                 </div>
-                <CardTitle>Erfolgreich abgemeldet</CardTitle>
+                <CardTitle>
+                  {deleteData ? 'Daten gelöscht' : 'Erfolgreich abgemeldet'}
+                </CardTitle>
                 <CardDescription>
-                  Sie wurden von unserem Newsletter abgemeldet und erhalten keine weiteren E-Mails mehr.
+                  {deleteData 
+                    ? 'Alle Ihre Daten wurden vollständig aus unserem System gelöscht.'
+                    : 'Sie wurden von unserem Newsletter abgemeldet und erhalten keine weiteren E-Mails mehr.'}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {showFeedback && (
+                {showFeedback && !deleteData && (
                   <div className="border rounded-lg p-4 space-y-4">
                     <div className="flex items-center gap-2">
                       <MessageSquare className="w-5 h-5 text-primary" />
@@ -354,7 +514,7 @@ export default function Unsubscribe() {
                 </div>
                 <CardTitle>Fehler aufgetreten</CardTitle>
                 <CardDescription>
-                  Bei der Abmeldung ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.
+                  Bei der Verarbeitung ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-3">

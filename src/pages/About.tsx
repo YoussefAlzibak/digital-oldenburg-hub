@@ -31,12 +31,6 @@ const About = () => {
     }
   ];
 
-  const stats = [
-    { number: "150+", label: "Erfolgreiche Projekte" },
-    { number: "50+", label: "Zufriedene Kunden" },
-    { number: "5+", label: "Jahre Erfahrung" },
-    { number: "24/7", label: "Support verfügbar" }
-  ];
 
 
   return (
@@ -128,32 +122,6 @@ const About = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-muted/30 relative overflow-hidden">
-        <div className="container mx-auto px-6 relative z-10">
-          <ScrollReveal animation="fade-up">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Unsere Erfolge in Zahlen</h2>
-              <p className="text-xl text-muted-foreground">Was wir bisher erreicht haben</p>
-            </div>
-          </ScrollReveal>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <ScrollReveal key={index} animation="scale-in" delay={index * 100}>
-                <div className="glass-card p-6 text-center group hover:scale-105 transition-all">
-                  <div className="text-4xl md:text-5xl font-bold text-primary mb-2">
-                    {stat.number}
-                  </div>
-                  <div className="text-muted-foreground font-medium">
-                    {stat.label}
-                  </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Values Section */}
       <section className="py-20">

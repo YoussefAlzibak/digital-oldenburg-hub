@@ -127,15 +127,31 @@ const handler = async (req: Request): Promise<Response> => {
         
         // Calculate appointment datetime
         const appointmentDate = triggerRequest.triggerData?.appointment_date;
-        const appointmentTime = triggerRequest.triggerData?.appointment_time;
+        let appointmentTime = triggerRequest.triggerData?.appointment_time;
         
         if (!appointmentDate || !appointmentTime) {
           console.error('Missing appointment date or time for appointment automation');
           continue;
         }
         
+        // Normalize time format - ensure it's HH:MM:SS
+        if (appointmentTime && !appointmentTime.includes(':')) {
+          appointmentTime = `${appointmentTime}:00:00`;
+        } else if (appointmentTime && appointmentTime.split(':').length === 2) {
+          // Format is HH:MM, append :00 for seconds
+          appointmentTime = `${appointmentTime}:00`;
+        }
+        // If it already has seconds (HH:MM:SS), use as-is
+        
         // Parse appointment datetime
-        const appointmentDateTime = new Date(`${appointmentDate}T${appointmentTime}:00`);
+        const appointmentDateTime = new Date(`${appointmentDate}T${appointmentTime}`);
+        
+        // Validate the date
+        if (isNaN(appointmentDateTime.getTime())) {
+          console.error('Invalid appointment datetime:', { appointmentDate, appointmentTime });
+          continue;
+        }
+        
         console.log('Appointment datetime:', appointmentDateTime.toISOString());
         
         if (!automation.email_automation_steps || automation.email_automation_steps.length === 0) {

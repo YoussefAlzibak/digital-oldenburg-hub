@@ -29,20 +29,20 @@ export default function ConsultationRequestForm() {
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase
-        .from('contact_requests')
-        .insert([{
+      // Use edge function for better cross-browser compatibility
+      const { data, error } = await supabase.functions.invoke('submit-consultation', {
+        body: {
           name: formData.name,
           email: formData.email,
-          phone: formData.phone || null,
-          company: formData.company || null,
-          service_type: formData.service,
-          message: formData.message || null,
-          preferred_date: formData.preferred_date || null,
-          preferred_time: formData.preferred_time || null
-        }])
-        .select('id')
-        .single();
+          phone: formData.phone || undefined,
+          company: formData.company || undefined,
+          service: formData.service || undefined,
+          message: formData.message || undefined,
+          preferred_date: formData.preferred_date || undefined,
+          preferred_time: formData.preferred_time || undefined,
+          consultation_type: formData.consultation_type
+        }
+      });
 
       if (error) throw error;
 
@@ -55,15 +55,13 @@ export default function ConsultationRequestForm() {
       try {
         await supabase.functions.invoke('trigger-contact-automation', {
           body: {
-            contactRequestId: data.id,
+            contactRequestId: data?.id,
             email: formData.email,
             name: formData.name,
             serviceType: formData.service
           }
         });
-        console.log('Contact form automation triggered successfully');
       } catch (automationError) {
-        console.error('Contact form automation error:', automationError);
         // Don't show error to user as the main request was successful
       }
 
@@ -72,7 +70,7 @@ export default function ConsultationRequestForm() {
         await supabase.functions.invoke('send-contact-confirmation', {
           body: {
             contactRequest: {
-              id: data.id,
+              id: data?.id,
               name: formData.name,
               email: formData.email,
               phone: formData.phone,
@@ -84,9 +82,7 @@ export default function ConsultationRequestForm() {
             }
           }
         });
-        console.log('Contact confirmation email sent successfully');
       } catch (emailError) {
-        console.error('Contact confirmation email error:', emailError);
         // Don't show error to user as the main request was successful
       }
 

@@ -50,7 +50,6 @@ export default function Requests() {
           table: 'contact_requests'
         },
         () => {
-          console.log('Contact request updated, reloading data...');
           loadData();
         }
       )

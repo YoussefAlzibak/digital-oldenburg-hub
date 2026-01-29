@@ -74,10 +74,9 @@ export default function NewsletterSignup() {
             source: 'website_newsletter'
           }
         });
-        console.log('Newsletter automation triggered successfully');
-      } catch (automationError) {
-        console.error('Newsletter automation error:', automationError);
-        // Don't show error to user as the main signup was successful
+        // Automation triggered successfully
+      } catch {
+        // Silently handle - main signup was successful
       }
 
       // Send welcome email immediately  
@@ -88,10 +87,9 @@ export default function NewsletterSignup() {
             firstName: firstName
           }
         });
-        console.log('Newsletter welcome email sent successfully');
-      } catch (emailError) {
-        console.error('Newsletter welcome email error:', emailError);
-        // Don't show error to user as the main signup was successful
+        // Welcome email sent successfully
+      } catch {
+        // Silently handle - main signup was successful
       }
 
     } catch (error: any) {

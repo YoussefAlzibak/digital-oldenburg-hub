@@ -81,6 +81,9 @@ const Portfolio = () => {
             src={heroPortfolio} 
             alt="Portfolio Projects" 
             className="w-full h-full object-cover"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
         </div>
@@ -146,6 +149,8 @@ const Portfolio = () => {
                       src={project.image} 
                       alt={project.title}
                       className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
@@ -203,6 +208,8 @@ const Portfolio = () => {
                       src={project.image} 
                       alt={project.title}
                       className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <Badge className="absolute top-3 right-3 bg-primary/90 text-primary-foreground text-xs">
                       {project.category}

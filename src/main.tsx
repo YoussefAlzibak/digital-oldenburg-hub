@@ -1,4 +1,4 @@
-// Build v19 - optimized image components
+// Build v20 - remove fetchPriority for compatibility
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';

@@ -1,4 +1,4 @@
-// Build v20 - remove fetchPriority for compatibility
+// Build v21 - force clean rebuild
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';

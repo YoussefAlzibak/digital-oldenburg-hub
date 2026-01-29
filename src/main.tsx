@@ -1,4 +1,4 @@
-// Build v16 - force rebuild
+// Build v17 - image optimization complete
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';

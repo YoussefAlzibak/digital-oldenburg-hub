@@ -1,4 +1,4 @@
-// Build v17 - image optimization complete
+// Build v18 - cleanup unused component
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';

@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { HeroImage } from "@/components/Picture";
 import { ArrowRight, Mail, Phone, MapPin, Clock, Calendar, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import ConsultationRequestForm from "@/components/ConsultationRequestForm";
@@ -43,13 +44,10 @@ const Contact = () => {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
-          <img 
+          <HeroImage 
             src={heroContact} 
             alt="Contact Us" 
             className="w-full h-full object-cover"
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
         </div>

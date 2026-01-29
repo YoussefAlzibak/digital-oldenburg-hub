@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { HeroImage, CardImage } from "@/components/Picture";
 import { 
   Shield,
   Award,
@@ -131,13 +132,10 @@ export default function Services() {
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
           {/* Image Background */}
           <div className="absolute inset-0 z-0">
-            <img 
+            <HeroImage 
               src={heroServices} 
               alt="Digital Services" 
               className="w-full h-full object-cover"
-              loading="eager"
-              decoding="async"
-              fetchPriority="high"
             />
             <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
           </div>
@@ -207,12 +205,10 @@ export default function Services() {
                 <ScrollReveal key={index} animation="fade-up" delay={index * 100}>
                   <Card className="glass-card group hover:scale-105 transition-all duration-300 overflow-hidden touch-manipulation">
                     <div className="relative overflow-hidden h-36 sm:h-48">
-                      <img 
+                      <CardImage 
                         src={service.image} 
                         alt={service.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        loading="lazy"
-                        decoding="async"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     </div>

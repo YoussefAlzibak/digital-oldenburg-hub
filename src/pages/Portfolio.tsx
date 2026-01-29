@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { HeroImage, CardImage } from "@/components/Picture";
 import { ArrowRight, ExternalLink, Github } from "lucide-react";
 import { Link } from "react-router-dom";
 import portfolioCorporate from "@/assets/portfolio-corporate.webp";
@@ -77,13 +78,10 @@ const Portfolio = () => {
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img 
+          <HeroImage 
             src={heroPortfolio} 
             alt="Portfolio Projects" 
             className="w-full h-full object-cover"
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
         </div>
@@ -145,12 +143,10 @@ const Portfolio = () => {
               <ScrollReveal key={project.id} animation="fade-up" delay={index * 150}>
                 <Card className="glass-card group hover:scale-105 transition-all duration-500 overflow-hidden">
                   <div className="relative overflow-hidden">
-                    <img 
+                    <CardImage 
                       src={project.image} 
                       alt={project.title}
                       className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
-                      loading="lazy"
-                      decoding="async"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
@@ -204,12 +200,10 @@ const Portfolio = () => {
               <ScrollReveal key={project.id} animation="fade-up" delay={index * 100}>
                 <Card className="glass-card group hover:scale-105 transition-all duration-300 overflow-hidden">
                   <div className="relative overflow-hidden">
-                    <img 
+                    <CardImage 
                       src={project.image} 
                       alt={project.title}
                       className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                      loading="lazy"
-                      decoding="async"
                     />
                     <Badge className="absolute top-3 right-3 bg-primary/90 text-primary-foreground text-xs">
                       {project.category}

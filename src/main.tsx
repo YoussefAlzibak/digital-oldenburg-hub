@@ -1,4 +1,4 @@
-// Build trigger v14 - platform rebuild
+// Build v15 - code cleanup
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';

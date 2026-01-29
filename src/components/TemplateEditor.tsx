@@ -513,7 +513,6 @@ export default function TemplateEditor({ template, isOpen, onClose, onSave }: Te
 
     try {
       setIsSubmitting(true);
-      console.log('Saving template:', template ? 'update' : 'create', formData);
 
       if (template) {
         // Update existing template
@@ -531,10 +530,8 @@ export default function TemplateEditor({ template, isOpen, onClose, onSave }: Te
           .select();
 
         if (error) {
-          console.error('Update error:', error);
           throw error;
         }
-        console.log('Update successful:', data);
       } else {
         // Create new template
         const { data, error } = await supabase
@@ -550,10 +547,8 @@ export default function TemplateEditor({ template, isOpen, onClose, onSave }: Te
           .select();
 
         if (error) {
-          console.error('Insert error:', error);
           throw error;
         }
-        console.log('Insert successful:', data);
       }
 
       toast({

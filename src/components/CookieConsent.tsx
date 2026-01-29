@@ -67,8 +67,7 @@ export default function CookieConsent() {
       settings: cookieSettings
     }));
     
-    // Here you would typically integrate with your analytics tools
-    console.log('Cookie settings saved:', cookieSettings);
+    // Cookie settings saved - integrate with analytics tools as needed
   };
 
   const updateSetting = (key: keyof CookieSettings, value: boolean) => {

@@ -541,7 +541,7 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
                 .update({ total_recipients: subscriberIds.length })
                 .eq('id', campaignId);
 
-              console.log(`${subscriberIds.length} E-Mails in Warteschlange eingetragen`);
+              // Emails queued successfully
             }
           }
         } catch (queueError) {

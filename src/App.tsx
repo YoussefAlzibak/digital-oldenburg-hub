@@ -1,4 +1,4 @@
-// App v2 - rebuild trigger
+// App v3 - force clean rebuild
 import React, { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { BrowserRouter, Routes, Route } from "react-router-dom";

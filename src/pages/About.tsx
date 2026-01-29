@@ -42,6 +42,9 @@ const About = () => {
             src={heroAbout} 
             alt="Team Collaboration" 
             className="w-full h-full object-cover"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
         </div>
@@ -114,6 +117,8 @@ const About = () => {
                     src={heroAbout} 
                     alt="Unser Team"
                     className="rounded-2xl w-full h-96 object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
               </div>

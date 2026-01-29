@@ -47,6 +47,9 @@ const Contact = () => {
             src={heroContact} 
             alt="Contact Us" 
             className="w-full h-full object-cover"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
         </div>

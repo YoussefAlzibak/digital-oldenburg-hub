@@ -1,4 +1,4 @@
-// Build v21 - force clean rebuild
+// Build v22 - clean cache rebuild
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';

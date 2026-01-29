@@ -60,7 +60,6 @@ export function Picture({
         alt={alt}
         loading={effectiveLoading}
         decoding={priority ? 'sync' : 'async'}
-        fetchPriority={priority ? 'high' : 'auto'}
         onLoad={handleLoad}
         onError={handleError}
         className={cn(
@@ -93,7 +92,6 @@ export function HeroImage({
       alt={alt}
       loading="eager"
       decoding="async"
-      fetchPriority="high"
       className={className}
     />
   );

@@ -22,6 +22,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { WebsiteLayout } from "@/components/WebsiteLayout";
 import { CustomerReviews } from "@/components/CustomerReviews";
 import NewsletterSignup from "@/components/NewsletterSignup";
+import { HeroImage, CardImage } from "@/components/Picture";
 
 // Import generated images
 import webdesignService from "@/assets/webdesign-service.webp";
@@ -188,13 +189,10 @@ const Index = () => {
               <ScrollReveal animation="scale-in" delay={200}>
                 <div className="relative hidden lg:block">
                   <div className="glass-card p-2 rounded-3xl">
-                    <img 
+                    <HeroImage 
                       src={heroImage}
                       alt="Digital Solutions" 
                       className="w-full h-auto rounded-2xl"
-                      loading="eager"
-                      decoding="async"
-                      fetchPriority="high"
                     />
                   </div>
                   {/* Floating elements */}
@@ -233,12 +231,10 @@ const Index = () => {
               <ScrollReveal key={index} animation="fade-up" delay={index * 100}>
                 <Card className="glass-card h-full group hover:scale-105 transition-all duration-300 overflow-hidden touch-manipulation">
                   <div className="relative overflow-hidden">
-                    <img 
+                    <CardImage 
                       src={service.image} 
                       alt={service.title}
                       className="w-full h-36 sm:h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                      loading="lazy"
-                      decoding="async"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <service.icon className="absolute top-3 sm:top-4 left-3 sm:left-4 h-6 w-6 sm:h-8 sm:w-8 text-white drop-shadow-lg" />
@@ -329,12 +325,10 @@ const Index = () => {
               <ScrollReveal key={index} animation="fade-up" delay={index * 150}>
                 <Card className="glass-card group hover:scale-105 transition-all duration-300 overflow-hidden touch-manipulation">
                   <div className="relative overflow-hidden">
-                    <img 
+                    <CardImage 
                       src={project.image} 
                       alt={project.title}
                       className="w-full h-36 sm:h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                      loading="lazy"
-                      decoding="async"
                     />
                     <Badge className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-primary/90 text-primary-foreground text-[10px] sm:text-xs px-2 py-0.5">
                       {project.category}

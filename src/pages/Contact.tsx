@@ -9,7 +9,6 @@ import { WebsiteLayout } from "@/components/WebsiteLayout";
 import heroContact from "@/assets/hero-contact.webp";
 
 const Contact = () => {
-
   const contactInfo = [
     {
       icon: <Mail className="h-6 w-6" />,

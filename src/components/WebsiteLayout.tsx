@@ -34,7 +34,6 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
                 className="h-12 sm:h-14 md:h-16 w-auto object-contain"
                 loading="eager"
                 decoding="sync"
-                fetchPriority="high"
               />
               <div className="logo-text">
                 <div className="flex items-baseline">

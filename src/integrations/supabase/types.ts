@@ -10,46 +10,70 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
       appointments: {
         Row: {
+          client_confirmed: boolean | null
+          consultant_confirmed: boolean | null
+          consultant_notes: string | null
           contact_request_id: string | null
-          created_at: string | null
-          duration_minutes: number | null
+          created_at: string
+          duration_minutes: number
+          google_calendar_synced: boolean | null
           google_event_id: string | null
           id: string
-          notes: string | null
+          last_synced_at: string | null
+          meeting_link: string | null
+          meeting_type: string
           scheduled_date: string
           scheduled_time: string
-          status: string | null
-          updated_at: string | null
+          status: string
+          sync_conflict: boolean | null
+          sync_error: string | null
+          updated_at: string
         }
         Insert: {
+          client_confirmed?: boolean | null
+          consultant_confirmed?: boolean | null
+          consultant_notes?: string | null
           contact_request_id?: string | null
-          created_at?: string | null
-          duration_minutes?: number | null
+          created_at?: string
+          duration_minutes?: number
+          google_calendar_synced?: boolean | null
           google_event_id?: string | null
           id?: string
-          notes?: string | null
+          last_synced_at?: string | null
+          meeting_link?: string | null
+          meeting_type?: string
           scheduled_date: string
           scheduled_time: string
-          status?: string | null
-          updated_at?: string | null
+          status?: string
+          sync_conflict?: boolean | null
+          sync_error?: string | null
+          updated_at?: string
         }
         Update: {
+          client_confirmed?: boolean | null
+          consultant_confirmed?: boolean | null
+          consultant_notes?: string | null
           contact_request_id?: string | null
-          created_at?: string | null
-          duration_minutes?: number | null
+          created_at?: string
+          duration_minutes?: number
+          google_calendar_synced?: boolean | null
           google_event_id?: string | null
           id?: string
-          notes?: string | null
+          last_synced_at?: string | null
+          meeting_link?: string | null
+          meeting_type?: string
           scheduled_date?: string
           scheduled_time?: string
-          status?: string | null
-          updated_at?: string | null
+          status?: string
+          sync_conflict?: boolean | null
+          sync_error?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -61,223 +85,271 @@ export type Database = {
           },
         ]
       }
-      availability_templates: {
+      automated_tasks: {
         Row: {
-          created_at: string | null
-          description: string | null
+          created_at: string
+          error_message: string | null
           id: string
-          is_active: boolean | null
-          name: string
-          schedule: Json
-          updated_at: string | null
+          max_retries: number
+          processed_at: string | null
+          retry_count: number
+          scheduled_for: string
+          status: string
+          task_data: Json
+          task_type: string
         }
         Insert: {
-          created_at?: string | null
-          description?: string | null
+          created_at?: string
+          error_message?: string | null
           id?: string
-          is_active?: boolean | null
-          name: string
-          schedule?: Json
-          updated_at?: string | null
+          max_retries?: number
+          processed_at?: string | null
+          retry_count?: number
+          scheduled_for?: string
+          status?: string
+          task_data: Json
+          task_type: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          max_retries?: number
+          processed_at?: string | null
+          retry_count?: number
+          scheduled_for?: string
+          status?: string
+          task_data?: Json
+          task_type?: string
+        }
+        Relationships: []
+      }
+      availability_templates: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          schedule: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
           description?: string | null
           id?: string
-          is_active?: boolean | null
+          is_active?: boolean
+          name: string
+          schedule?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
           name?: string
           schedule?: Json
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
       calendar_blocked_dates: {
         Row: {
-          blocked_date: string
-          created_at: string | null
+          created_at: string
+          date: string
+          description: string | null
           id: string
-          is_recurring: boolean | null
-          reason: string | null
-          recurrence_pattern: string | null
+          is_recurring: boolean
+          name: string
+          type: string
         }
         Insert: {
-          blocked_date: string
-          created_at?: string | null
+          created_at?: string
+          date: string
+          description?: string | null
           id?: string
-          is_recurring?: boolean | null
-          reason?: string | null
-          recurrence_pattern?: string | null
+          is_recurring?: boolean
+          name: string
+          type?: string
         }
         Update: {
-          blocked_date?: string
-          created_at?: string | null
+          created_at?: string
+          date?: string
+          description?: string | null
           id?: string
-          is_recurring?: boolean | null
-          reason?: string | null
-          recurrence_pattern?: string | null
+          is_recurring?: boolean
+          name?: string
+          type?: string
         }
         Relationships: []
       }
-      campaign_analytics: {
-        Row: {
-          campaign_id: string | null
-          created_at: string | null
-          event_data: Json | null
-          event_type: string
-          id: string
-          subscriber_id: string | null
-        }
-        Insert: {
-          campaign_id?: string | null
-          created_at?: string | null
-          event_data?: Json | null
-          event_type: string
-          id?: string
-          subscriber_id?: string | null
-        }
-        Update: {
-          campaign_id?: string | null
-          created_at?: string | null
-          event_data?: Json | null
-          event_type?: string
-          id?: string
-          subscriber_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "campaign_analytics_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
-            referencedRelation: "email_campaigns"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "campaign_analytics_subscriber_id_fkey"
-            columns: ["subscriber_id"]
-            isOneToOne: false
-            referencedRelation: "newsletter_subscribers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       contact_requests: {
         Row: {
-          budget: string | null
+          budget_range: string | null
           company: string | null
-          created_at: string | null
+          created_at: string
           email: string
           id: string
           message: string | null
           name: string
           phone: string | null
-          service_type: string | null
-          status: string | null
-          timeline: string | null
-          updated_at: string | null
+          preferred_date: string | null
+          preferred_time: string | null
+          service_type: string
+          status: string
+          updated_at: string
         }
         Insert: {
-          budget?: string | null
+          budget_range?: string | null
           company?: string | null
-          created_at?: string | null
+          created_at?: string
           email: string
           id?: string
           message?: string | null
           name: string
           phone?: string | null
-          service_type?: string | null
-          status?: string | null
-          timeline?: string | null
-          updated_at?: string | null
+          preferred_date?: string | null
+          preferred_time?: string | null
+          service_type: string
+          status?: string
+          updated_at?: string
         }
         Update: {
-          budget?: string | null
+          budget_range?: string | null
           company?: string | null
-          created_at?: string | null
+          created_at?: string
           email?: string
           id?: string
           message?: string | null
           name?: string
           phone?: string | null
-          service_type?: string | null
-          status?: string | null
-          timeline?: string | null
-          updated_at?: string | null
+          preferred_date?: string | null
+          preferred_time?: string | null
+          service_type?: string
+          status?: string
+          updated_at?: string
         }
         Relationships: []
+      }
+      customer_review_emails: {
+        Row: {
+          created_at: string
+          customer_email: string
+          id: string
+          review_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_email: string
+          id?: string
+          review_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string
+          id?: string
+          review_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_review_emails_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "customer_reviews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_review_emails_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "public_customer_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       customer_reviews: {
         Row: {
           company: string | null
-          created_at: string | null
-          email: string | null
+          created_at: string
+          customer_email: string | null
+          customer_name: string
           id: string
-          is_approved: boolean | null
-          is_featured: boolean | null
-          name: string
-          rating: number | null
+          is_approved: boolean
+          is_featured: boolean
+          is_public: boolean
+          rating: number
+          review_date: string
           review_text: string
-          service_type: string | null
+          service_type: string
+          updated_at: string
         }
         Insert: {
           company?: string | null
-          created_at?: string | null
-          email?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_name: string
           id?: string
-          is_approved?: boolean | null
-          is_featured?: boolean | null
-          name: string
-          rating?: number | null
+          is_approved?: boolean
+          is_featured?: boolean
+          is_public?: boolean
+          rating: number
+          review_date?: string
           review_text: string
-          service_type?: string | null
+          service_type: string
+          updated_at?: string
         }
         Update: {
           company?: string | null
-          created_at?: string | null
-          email?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string
           id?: string
-          is_approved?: boolean | null
-          is_featured?: boolean | null
-          name?: string
-          rating?: number | null
+          is_approved?: boolean
+          is_featured?: boolean
+          is_public?: boolean
+          rating?: number
+          review_date?: string
           review_text?: string
-          service_type?: string | null
+          service_type?: string
+          updated_at?: string
         }
         Relationships: []
       }
       email_automation_steps: {
         Row: {
-          automation_id: string | null
-          created_at: string | null
+          automation_id: string
+          created_at: string
           delay_minutes: number | null
-          html_content: string | null
+          html_content: string
           id: string
-          is_active: boolean | null
+          is_active: boolean
           step_number: number
-          subject: string | null
+          subject: string
           template_id: string | null
           text_content: string | null
         }
         Insert: {
-          automation_id?: string | null
-          created_at?: string | null
+          automation_id: string
+          created_at?: string
           delay_minutes?: number | null
-          html_content?: string | null
+          html_content: string
           id?: string
-          is_active?: boolean | null
+          is_active?: boolean
           step_number: number
-          subject?: string | null
+          subject: string
           template_id?: string | null
           text_content?: string | null
         }
         Update: {
-          automation_id?: string | null
-          created_at?: string | null
+          automation_id?: string
+          created_at?: string
           delay_minutes?: number | null
-          html_content?: string | null
+          html_content?: string
           id?: string
-          is_active?: boolean | null
+          is_active?: boolean
           step_number?: number
-          subject?: string | null
+          subject?: string
           template_id?: string | null
           text_content?: string | null
         }
@@ -300,246 +372,476 @@ export type Database = {
       }
       email_automations: {
         Row: {
-          created_at: string | null
+          created_at: string
           description: string | null
           id: string
-          is_active: boolean | null
+          is_active: boolean
           name: string
           trigger_config: Json | null
           trigger_type: string
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           description?: string | null
           id?: string
-          is_active?: boolean | null
+          is_active?: boolean
           name: string
           trigger_config?: Json | null
           trigger_type: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           description?: string | null
           id?: string
-          is_active?: boolean | null
+          is_active?: boolean
           name?: string
           trigger_config?: Json | null
           trigger_type?: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
       email_campaigns: {
         Row: {
-          created_at: string | null
+          bounced_count: number | null
+          clicked_count: number | null
+          created_at: string
+          delivered_count: number | null
           html_content: string
           id: string
+          list_id: string | null
           name: string
-          recipient_count: number | null
+          opened_count: number | null
           scheduled_at: string | null
           sent_at: string | null
-          status: string | null
+          status: string
           subject: string
-          target_tags: string[] | null
+          template_id: string | null
           text_content: string | null
-          updated_at: string | null
+          total_recipients: number | null
+          unsubscribed_count: number | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          bounced_count?: number | null
+          clicked_count?: number | null
+          created_at?: string
+          delivered_count?: number | null
           html_content: string
           id?: string
+          list_id?: string | null
           name: string
-          recipient_count?: number | null
+          opened_count?: number | null
           scheduled_at?: string | null
           sent_at?: string | null
-          status?: string | null
+          status?: string
           subject: string
-          target_tags?: string[] | null
+          template_id?: string | null
           text_content?: string | null
-          updated_at?: string | null
+          total_recipients?: number | null
+          unsubscribed_count?: number | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          bounced_count?: number | null
+          clicked_count?: number | null
+          created_at?: string
+          delivered_count?: number | null
           html_content?: string
           id?: string
+          list_id?: string | null
           name?: string
-          recipient_count?: number | null
+          opened_count?: number | null
           scheduled_at?: string | null
           sent_at?: string | null
-          status?: string | null
+          status?: string
           subject?: string
-          target_tags?: string[] | null
+          template_id?: string | null
           text_content?: string | null
-          updated_at?: string | null
+          total_recipients?: number | null
+          unsubscribed_count?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_campaigns_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "email_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_campaigns_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_events: {
+        Row: {
+          automation_id: string | null
+          campaign_id: string | null
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          subscriber_id: string
+        }
+        Insert: {
+          automation_id?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          subscriber_id: string
+        }
+        Update: {
+          automation_id?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          subscriber_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_events_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "email_automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_events_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "email_subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_list_subscribers: {
+        Row: {
+          id: string
+          list_id: string
+          subscribed_at: string
+          subscriber_id: string
+        }
+        Insert: {
+          id?: string
+          list_id: string
+          subscribed_at?: string
+          subscriber_id: string
+        }
+        Update: {
+          id?: string
+          list_id?: string
+          subscribed_at?: string
+          subscriber_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_list_subscribers_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "email_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_list_subscribers_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "email_subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_lists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
       email_queue: {
         Row: {
-          attempts: number | null
-          created_at: string | null
+          automation_id: string | null
+          automation_step_id: string | null
+          campaign_id: string | null
+          created_at: string
+          error_message: string | null
           html_content: string
           id: string
-          last_error: string | null
-          max_attempts: number | null
-          priority: number | null
-          scheduled_for: string | null
+          retry_count: number | null
+          scheduled_at: string
           sent_at: string | null
-          status: string | null
+          status: string
           subject: string
+          subscriber_id: string
           text_content: string | null
-          to_email: string
-          to_name: string | null
         }
         Insert: {
-          attempts?: number | null
-          created_at?: string | null
+          automation_id?: string | null
+          automation_step_id?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          error_message?: string | null
           html_content: string
           id?: string
-          last_error?: string | null
-          max_attempts?: number | null
-          priority?: number | null
-          scheduled_for?: string | null
+          retry_count?: number | null
+          scheduled_at?: string
           sent_at?: string | null
-          status?: string | null
+          status?: string
           subject: string
+          subscriber_id: string
           text_content?: string | null
-          to_email: string
-          to_name?: string | null
         }
         Update: {
-          attempts?: number | null
-          created_at?: string | null
+          automation_id?: string | null
+          automation_step_id?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          error_message?: string | null
           html_content?: string
           id?: string
-          last_error?: string | null
-          max_attempts?: number | null
-          priority?: number | null
-          scheduled_for?: string | null
+          retry_count?: number | null
+          scheduled_at?: string
           sent_at?: string | null
-          status?: string | null
+          status?: string
           subject?: string
+          subscriber_id?: string
           text_content?: string | null
-          to_email?: string
-          to_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_queue_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "email_automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_queue_automation_step_id_fkey"
+            columns: ["automation_step_id"]
+            isOneToOne: false
+            referencedRelation: "email_automation_steps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_queue_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_queue_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "email_subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_subscribers: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          source: string | null
+          status: string
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
         }
         Relationships: []
       }
       email_templates: {
         Row: {
-          created_at: string | null
+          created_at: string
           html_content: string
           id: string
-          is_active: boolean | null
+          is_active: boolean
           name: string
           subject: string
-          template_type: string | null
+          template_type: string
           text_content: string | null
-          updated_at: string | null
-          variables: Json | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           html_content: string
           id?: string
-          is_active?: boolean | null
+          is_active?: boolean
           name: string
           subject: string
-          template_type?: string | null
+          template_type?: string
           text_content?: string | null
-          updated_at?: string | null
-          variables?: Json | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           html_content?: string
           id?: string
-          is_active?: boolean | null
+          is_active?: boolean
           name?: string
           subject?: string
-          template_type?: string | null
+          template_type?: string
           text_content?: string | null
-          updated_at?: string | null
-          variables?: Json | null
+          updated_at?: string
         }
         Relationships: []
       }
       google_calendar_settings: {
         Row: {
-          buffer_minutes: number | null
-          calendar_id: string | null
-          created_at: string | null
+          auto_sync: boolean
+          buffer_minutes: number
+          calendar_id: string
+          client_id: string
+          created_at: string
           id: string
-          is_active: boolean | null
-          slot_duration_minutes: number | null
-          sync_enabled: boolean | null
-          updated_at: string | null
-          working_days: number[] | null
-          working_hours_end: string | null
-          working_hours_start: string | null
+          is_active: boolean
+          updated_at: string
+          working_days: string[]
+          working_hours_end: string
+          working_hours_start: string
         }
         Insert: {
-          buffer_minutes?: number | null
-          calendar_id?: string | null
-          created_at?: string | null
+          auto_sync?: boolean
+          buffer_minutes?: number
+          calendar_id?: string
+          client_id: string
+          created_at?: string
           id?: string
-          is_active?: boolean | null
-          slot_duration_minutes?: number | null
-          sync_enabled?: boolean | null
-          updated_at?: string | null
-          working_days?: number[] | null
-          working_hours_end?: string | null
-          working_hours_start?: string | null
+          is_active?: boolean
+          updated_at?: string
+          working_days?: string[]
+          working_hours_end?: string
+          working_hours_start?: string
         }
         Update: {
-          buffer_minutes?: number | null
-          calendar_id?: string | null
-          created_at?: string | null
+          auto_sync?: boolean
+          buffer_minutes?: number
+          calendar_id?: string
+          client_id?: string
+          created_at?: string
           id?: string
-          is_active?: boolean | null
-          slot_duration_minutes?: number | null
-          sync_enabled?: boolean | null
-          updated_at?: string | null
-          working_days?: number[] | null
-          working_hours_end?: string | null
-          working_hours_start?: string | null
+          is_active?: boolean
+          updated_at?: string
+          working_days?: string[]
+          working_hours_end?: string
+          working_hours_start?: string
         }
         Relationships: []
       }
       google_calendar_sync_log: {
         Row: {
+          appointment_id: string | null
           created_at: string | null
           error_message: string | null
+          google_event_id: string | null
           id: string
           status: string
           sync_data: Json | null
           sync_type: string
         }
         Insert: {
+          appointment_id?: string | null
           created_at?: string | null
           error_message?: string | null
+          google_event_id?: string | null
           id?: string
           status: string
           sync_data?: Json | null
           sync_type: string
         }
         Update: {
+          appointment_id?: string | null
           created_at?: string | null
           error_message?: string | null
+          google_event_id?: string | null
           id?: string
           status?: string
           sync_data?: Json | null
           sync_type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "google_calendar_sync_log_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       google_oauth_tokens: {
         Row: {
           access_token: string
           created_at: string | null
-          expires_at: string
+          expires_at: string | null
           id: string
           refresh_token: string | null
           scope: string | null
@@ -550,7 +852,7 @@ export type Database = {
         Insert: {
           access_token: string
           created_at?: string | null
-          expires_at: string
+          expires_at?: string | null
           id?: string
           refresh_token?: string | null
           scope?: string | null
@@ -561,7 +863,7 @@ export type Database = {
         Update: {
           access_token?: string
           created_at?: string | null
-          expires_at?: string
+          expires_at?: string | null
           id?: string
           refresh_token?: string | null
           scope?: string | null
@@ -571,84 +873,92 @@ export type Database = {
         }
         Relationships: []
       }
-      newsletter_subscribers: {
+      profiles: {
         Row: {
-          created_at: string | null
-          email: string
-          first_name: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
           id: string
-          last_name: string | null
-          source: string | null
-          status: string | null
-          subscribed_at: string | null
-          tags: string[] | null
-          unsubscribed_at: string | null
+          is_admin: boolean
+          role: string
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
-          email: string
-          first_name?: string | null
-          id?: string
-          last_name?: string | null
-          source?: string | null
-          status?: string | null
-          subscribed_at?: string | null
-          tags?: string[] | null
-          unsubscribed_at?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          is_admin?: boolean
+          role?: string
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
-          email?: string
-          first_name?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
           id?: string
-          last_name?: string | null
-          source?: string | null
-          status?: string | null
-          subscribed_at?: string | null
-          tags?: string[] | null
-          unsubscribed_at?: string | null
+          is_admin?: boolean
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rate_limits: {
+        Row: {
+          count: number | null
+          created_at: string | null
+          id: string
+          key: string
+          window_start: string | null
+        }
+        Insert: {
+          count?: number | null
+          created_at?: string | null
+          id?: string
+          key: string
+          window_start?: string | null
+        }
+        Update: {
+          count?: number | null
+          created_at?: string | null
+          id?: string
+          key?: string
+          window_start?: string | null
         }
         Relationships: []
       }
       renewal_reminders: {
         Row: {
-          appointment_id: string | null
-          created_at: string | null
+          appointment_id: string
+          created_at: string
           error_message: string | null
           id: string
           reminder_date: string
           renewal_setting_id: string | null
           sent_at: string | null
-          status: string | null
+          status: string
         }
         Insert: {
-          appointment_id?: string | null
-          created_at?: string | null
+          appointment_id: string
+          created_at?: string
           error_message?: string | null
           id?: string
           reminder_date: string
           renewal_setting_id?: string | null
           sent_at?: string | null
-          status?: string | null
+          status?: string
         }
         Update: {
-          appointment_id?: string | null
-          created_at?: string | null
+          appointment_id?: string
+          created_at?: string
           error_message?: string | null
           id?: string
           reminder_date?: string
           renewal_setting_id?: string | null
           sent_at?: string | null
-          status?: string | null
+          status?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "renewal_reminders_appointment_id_fkey"
-            columns: ["appointment_id"]
-            isOneToOne: false
-            referencedRelation: "appointments"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "renewal_reminders_renewal_setting_id_fkey"
             columns: ["renewal_setting_id"]
@@ -660,108 +970,103 @@ export type Database = {
       }
       renewal_settings: {
         Row: {
-          advance_notice_days: number | null
-          appointment_id: string | null
-          created_at: string | null
+          advance_notice_days: number
+          appointment_id: string
+          created_at: string
           frequency: string
           id: string
-          is_active: boolean | null
-          max_renewals: number | null
+          is_active: boolean
+          max_renewals: number
           next_renewal_date: string | null
           renewal_type: string
-          renewals_count: number | null
-          updated_at: string | null
+          renewals_count: number
+          updated_at: string
         }
         Insert: {
-          advance_notice_days?: number | null
-          appointment_id?: string | null
-          created_at?: string | null
+          advance_notice_days?: number
+          appointment_id: string
+          created_at?: string
           frequency: string
           id?: string
-          is_active?: boolean | null
-          max_renewals?: number | null
+          is_active?: boolean
+          max_renewals?: number
           next_renewal_date?: string | null
           renewal_type: string
-          renewals_count?: number | null
-          updated_at?: string | null
+          renewals_count?: number
+          updated_at?: string
         }
         Update: {
-          advance_notice_days?: number | null
-          appointment_id?: string | null
-          created_at?: string | null
+          advance_notice_days?: number
+          appointment_id?: string
+          created_at?: string
           frequency?: string
           id?: string
-          is_active?: boolean | null
-          max_renewals?: number | null
+          is_active?: boolean
+          max_renewals?: number
           next_renewal_date?: string | null
           renewal_type?: string
-          renewals_count?: number | null
-          updated_at?: string | null
+          renewals_count?: number
+          updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "renewal_settings_appointment_id_fkey"
-            columns: ["appointment_id"]
-            isOneToOne: false
-            referencedRelation: "appointments"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       smtp_settings: {
         Row: {
-          created_at: string | null
-          encryption: string | null
+          created_at: string
           from_email: string
-          from_name: string | null
+          from_name: string
           host: string
           id: string
-          is_active: boolean | null
-          port: number | null
-          updated_at: string | null
+          is_active: boolean
+          password: string | null
+          port: number
+          secure: boolean
+          updated_at: string
           username: string
         }
         Insert: {
-          created_at?: string | null
-          encryption?: string | null
+          created_at?: string
           from_email: string
-          from_name?: string | null
+          from_name?: string
           host: string
           id?: string
-          is_active?: boolean | null
-          port?: number | null
-          updated_at?: string | null
+          is_active?: boolean
+          password?: string | null
+          port?: number
+          secure?: boolean
+          updated_at?: string
           username: string
         }
         Update: {
-          created_at?: string | null
-          encryption?: string | null
+          created_at?: string
           from_email?: string
-          from_name?: string | null
+          from_name?: string
           host?: string
           id?: string
-          is_active?: boolean | null
-          port?: number | null
-          updated_at?: string | null
+          is_active?: boolean
+          password?: string | null
+          port?: number
+          secure?: boolean
+          updated_at?: string
           username?: string
         }
         Relationships: []
       }
       user_roles: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
@@ -770,9 +1075,78 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_customer_reviews: {
+        Row: {
+          company: string | null
+          created_at: string | null
+          customer_name: string | null
+          id: string | null
+          is_approved: boolean | null
+          is_featured: boolean | null
+          is_public: boolean | null
+          rating: number | null
+          review_date: string | null
+          review_text: string | null
+          service_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string | null
+          customer_name?: string | null
+          id?: string | null
+          is_approved?: boolean | null
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          rating?: number | null
+          review_date?: string | null
+          review_text?: string | null
+          service_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string | null
+          customer_name?: string | null
+          id?: string | null
+          is_approved?: boolean | null
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          rating?: number | null
+          review_date?: string | null
+          review_text?: string | null
+          service_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      check_rate_limit: {
+        Args: {
+          p_key: string
+          p_max_requests?: number
+          p_window_minutes?: number
+        }
+        Returns: boolean
+      }
+      cleanup_rate_limits: { Args: never; Returns: undefined }
+      get_google_calendar_settings: {
+        Args: never
+        Returns: {
+          auto_sync: boolean
+          buffer_minutes: number
+          calendar_id: string
+          client_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          updated_at: string
+          working_days: string[]
+          working_hours_end: string
+          working_hours_start: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -780,7 +1154,20 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: { Args: { user_id: string }; Returns: boolean }
       process_renewal_tasks: { Args: never; Returns: number }
+      save_google_calendar_settings: {
+        Args: {
+          p_auto_sync: boolean
+          p_buffer_minutes: number
+          p_calendar_id: string
+          p_client_id: string
+          p_working_days: string[]
+          p_working_hours_end: string
+          p_working_hours_start: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

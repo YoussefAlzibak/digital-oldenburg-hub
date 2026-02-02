@@ -154,6 +154,30 @@ export type Database = {
         }
         Relationships: []
       }
+      available_tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       calendar_blocked_dates: {
         Row: {
           created_at: string
@@ -1072,6 +1096,81 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      workflow_actions: {
+        Row: {
+          action_config: Json | null
+          action_type: string
+          automation_id: string
+          branch_type: string | null
+          condition_field: string | null
+          condition_operator: string | null
+          condition_value: string | null
+          created_at: string
+          delay_minutes: number | null
+          html_content: string | null
+          id: string
+          is_active: boolean | null
+          parent_action_id: string | null
+          step_number: number
+          subject: string | null
+          text_content: string | null
+          updated_at: string
+        }
+        Insert: {
+          action_config?: Json | null
+          action_type?: string
+          automation_id: string
+          branch_type?: string | null
+          condition_field?: string | null
+          condition_operator?: string | null
+          condition_value?: string | null
+          created_at?: string
+          delay_minutes?: number | null
+          html_content?: string | null
+          id?: string
+          is_active?: boolean | null
+          parent_action_id?: string | null
+          step_number?: number
+          subject?: string | null
+          text_content?: string | null
+          updated_at?: string
+        }
+        Update: {
+          action_config?: Json | null
+          action_type?: string
+          automation_id?: string
+          branch_type?: string | null
+          condition_field?: string | null
+          condition_operator?: string | null
+          condition_value?: string | null
+          created_at?: string
+          delay_minutes?: number | null
+          html_content?: string | null
+          id?: string
+          is_active?: boolean | null
+          parent_action_id?: string | null
+          step_number?: number
+          subject?: string | null
+          text_content?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_actions_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "email_automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_actions_parent_action_id_fkey"
+            columns: ["parent_action_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_actions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

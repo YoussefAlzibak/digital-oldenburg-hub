@@ -1,4 +1,4 @@
-// App v5 - new trigger types
+// App v6 - extended workflow actions (webhook, add_to_list, change_status)
 import React, { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { BrowserRouter, Routes, Route } from "react-router-dom";

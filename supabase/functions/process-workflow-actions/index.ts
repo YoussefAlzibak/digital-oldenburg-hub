@@ -269,6 +269,18 @@ async function processActionsRecursive(
         console.log(`Delay action: +${actionDelay} minutes (total: ${currentDelay})`);
         break;
 
+      case 'webhook':
+        await processWebhookAction(supabase, action, subscriber, triggerData);
+        break;
+
+      case 'add_to_list':
+        await processAddToListAction(supabase, action, subscriber);
+        break;
+
+      case 'change_status':
+        await processChangeStatusAction(supabase, action, subscriber);
+        break;
+
       case 'condition':
         const conditionMet = evaluateCondition(action, subscriber, triggerData);
         console.log(`Condition "${action.condition_field} ${action.condition_operator} ${action.condition_value}": ${conditionMet}`);
@@ -404,6 +416,152 @@ async function processRemoveTagAction(
   subscriber.tags = newTags;
   console.log(`Tags removed: ${tagsToRemove.join(', ')} from subscriber ${subscriber.email}`);
   return true;
+}
+
+async function processWebhookAction(
+  supabase: any,
+  action: WorkflowAction,
+  subscriber: Subscriber,
+  triggerData: Record<string, any>
+): Promise<boolean> {
+  const config = action.action_config as Record<string, any> | null;
+  const webhookUrl = config?.webhook_url;
+  const method = config?.webhook_method || 'POST';
+
+  if (!webhookUrl) {
+    console.warn('Webhook action has no URL configured');
+    return false;
+  }
+
+  try {
+    const payload = {
+      timestamp: new Date().toISOString(),
+      subscriber: {
+        id: subscriber.id,
+        email: subscriber.email,
+        first_name: subscriber.first_name,
+        last_name: subscriber.last_name,
+        company: subscriber.company,
+        phone: subscriber.phone,
+        tags: subscriber.tags,
+        source: subscriber.source,
+        status: subscriber.status
+      },
+      trigger_data: triggerData
+    };
+
+    console.log(`Calling webhook: ${method} ${webhookUrl}`);
+
+    const fetchOptions: RequestInit = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'UniculTech-Workflow/1.0'
+      }
+    };
+
+    if (method === 'POST') {
+      fetchOptions.body = JSON.stringify(payload);
+    }
+
+    const response = await fetch(webhookUrl, fetchOptions);
+    
+    if (!response.ok) {
+      console.error(`Webhook failed with status ${response.status}`);
+      return false;
+    }
+
+    console.log(`Webhook called successfully: ${webhookUrl}`);
+    return true;
+  } catch (error: any) {
+    console.error('Error calling webhook:', error);
+    return false;
+  }
+}
+
+async function processAddToListAction(
+  supabase: any,
+  action: WorkflowAction,
+  subscriber: Subscriber
+): Promise<boolean> {
+  const config = action.action_config as Record<string, any> | null;
+  const listId = config?.list_id;
+
+  if (!listId) {
+    console.warn('Add to list action has no list_id configured');
+    return false;
+  }
+
+  try {
+    // Check if already in list
+    const { data: existing } = await supabase
+      .from('email_list_subscribers')
+      .select('id')
+      .eq('list_id', listId)
+      .eq('subscriber_id', subscriber.id)
+      .maybeSingle();
+
+    if (existing) {
+      console.log(`Subscriber ${subscriber.email} already in list ${listId}`);
+      return true;
+    }
+
+    // Add to list
+    const { error } = await supabase
+      .from('email_list_subscribers')
+      .insert({
+        list_id: listId,
+        subscriber_id: subscriber.id
+      });
+
+    if (error) {
+      console.error('Error adding subscriber to list:', error);
+      return false;
+    }
+
+    console.log(`Subscriber ${subscriber.email} added to list ${listId}`);
+    return true;
+  } catch (error: any) {
+    console.error('Error in add to list action:', error);
+    return false;
+  }
+}
+
+async function processChangeStatusAction(
+  supabase: any,
+  action: WorkflowAction,
+  subscriber: Subscriber
+): Promise<boolean> {
+  const config = action.action_config as Record<string, any> | null;
+  const newStatus = config?.new_status;
+
+  if (!newStatus) {
+    console.warn('Change status action has no new_status configured');
+    return false;
+  }
+
+  try {
+    const { error } = await supabase
+      .from('email_subscribers')
+      .update({ 
+        status: newStatus,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', subscriber.id);
+
+    if (error) {
+      console.error('Error changing subscriber status:', error);
+      return false;
+    }
+
+    // Update local subscriber object
+    subscriber.status = newStatus;
+    console.log(`Subscriber ${subscriber.email} status changed to ${newStatus}`);
+    return true;
+  } catch (error: any) {
+    console.error('Error in change status action:', error);
+    return false;
+  }
 }
 
 function evaluateCondition(

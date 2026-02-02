@@ -18,12 +18,15 @@ import {
   ChevronDown,
   ChevronRight,
   ArrowRight,
-  X
+  X,
+  Webhook,
+  ListPlus,
+  UserCog
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 
-export type ActionType = 'email' | 'condition' | 'add_tag' | 'remove_tag' | 'delay';
+export type ActionType = 'email' | 'condition' | 'add_tag' | 'remove_tag' | 'delay' | 'webhook' | 'add_to_list' | 'change_status';
 
 export interface WorkflowAction {
   id?: string;
@@ -44,6 +47,14 @@ export interface WorkflowAction {
   action_config?: {
     tag_name?: string;
     tags?: string[];
+    // Webhook fields
+    webhook_url?: string;
+    webhook_method?: 'GET' | 'POST';
+    webhook_headers?: Record<string, string>;
+    // List fields
+    list_id?: string;
+    // Status fields
+    new_status?: 'active' | 'unsubscribed' | 'bounced';
   };
   is_active?: boolean;
   // Nested actions for conditions
@@ -58,6 +69,12 @@ interface AvailableTag {
   description: string | null;
 }
 
+interface EmailList {
+  id: string;
+  name: string;
+  description: string | null;
+}
+
 interface WorkflowActionBuilderProps {
   actions: WorkflowAction[];
   onChange: (actions: WorkflowAction[]) => void;
@@ -66,10 +83,12 @@ interface WorkflowActionBuilderProps {
 
 export default function WorkflowActionBuilder({ actions, onChange, templates = [] }: WorkflowActionBuilderProps) {
   const [availableTags, setAvailableTags] = useState<AvailableTag[]>([]);
+  const [emailLists, setEmailLists] = useState<EmailList[]>([]);
   const [expandedConditions, setExpandedConditions] = useState<Set<number>>(new Set([0]));
 
   useEffect(() => {
     loadTags();
+    loadEmailLists();
   }, []);
 
   const loadTags = async () => {
@@ -83,6 +102,21 @@ export default function WorkflowActionBuilder({ actions, onChange, templates = [
       setAvailableTags(data || []);
     } catch (error) {
       console.error('Error loading tags:', error);
+    }
+  };
+
+  const loadEmailLists = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('email_lists')
+        .select('id, name, description')
+        .eq('is_active', true)
+        .order('name');
+      
+      if (error) throw error;
+      setEmailLists(data || []);
+    } catch (error) {
+      console.error('Error loading email lists:', error);
     }
   };
 
@@ -182,6 +216,9 @@ export default function WorkflowActionBuilder({ actions, onChange, templates = [
       case 'add_tag': return <Tag className="h-4 w-4 text-green-500" />;
       case 'remove_tag': return <Tag className="h-4 w-4 text-red-500" />;
       case 'delay': return <Clock className="h-4 w-4" />;
+      case 'webhook': return <Webhook className="h-4 w-4 text-blue-500" />;
+      case 'add_to_list': return <ListPlus className="h-4 w-4 text-indigo-500" />;
+      case 'change_status': return <UserCog className="h-4 w-4 text-orange-500" />;
     }
   };
 
@@ -192,8 +229,17 @@ export default function WorkflowActionBuilder({ actions, onChange, templates = [
       case 'add_tag': return 'Tag hinzufügen';
       case 'remove_tag': return 'Tag entfernen';
       case 'delay': return 'Verzögerung';
+      case 'webhook': return 'Webhook aufrufen';
+      case 'add_to_list': return 'Zu Liste hinzufügen';
+      case 'change_status': return 'Status ändern';
     }
   };
+
+  const statusOptions = [
+    { value: 'active', label: 'Aktiv' },
+    { value: 'unsubscribed', label: 'Abgemeldet' },
+    { value: 'bounced', label: 'Bounce' }
+  ];
 
   const conditionFields = [
     { value: 'tags', label: 'Tags' },
@@ -563,6 +609,118 @@ export default function WorkflowActionBuilder({ actions, onChange, templates = [
               </Select>
             </div>
           )}
+
+          {/* Webhook Action */}
+          {action.action_type === 'webhook' && (
+            <div className="space-y-3">
+              <div>
+                <Label>Webhook URL (Zapier/n8n/etc.)</Label>
+                <Input
+                  value={action.action_config?.webhook_url || ''}
+                  onChange={(e) => {
+                    const newConfig = { ...action.action_config, webhook_url: e.target.value };
+                    if (isNested && parentIndex !== undefined && branchType) {
+                      updateBranchAction(parentIndex, branchType, index, { action_config: newConfig });
+                    } else {
+                      updateAction(index, { action_config: newConfig });
+                    }
+                  }}
+                  placeholder="https://hooks.zapier.com/... oder https://n8n.example.com/webhook/..."
+                />
+              </div>
+              <div>
+                <Label>HTTP Methode</Label>
+                <Select
+                  value={action.action_config?.webhook_method || 'POST'}
+                  onValueChange={(value) => {
+                    const newConfig = { ...action.action_config, webhook_method: value as 'GET' | 'POST' };
+                    if (isNested && parentIndex !== undefined && branchType) {
+                      updateBranchAction(parentIndex, branchType, index, { action_config: newConfig });
+                    } else {
+                      updateAction(index, { action_config: newConfig });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="POST">POST</SelectItem>
+                    <SelectItem value="GET">GET</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Subscriber-Daten werden automatisch als JSON gesendet (email, first_name, last_name, tags, etc.)
+              </p>
+            </div>
+          )}
+
+          {/* Add to List Action */}
+          {action.action_type === 'add_to_list' && (
+            <div>
+              <Label>E-Mail-Liste auswählen</Label>
+              <Select
+                value={action.action_config?.list_id || ''}
+                onValueChange={(value) => {
+                  const newConfig = { ...action.action_config, list_id: value };
+                  if (isNested && parentIndex !== undefined && branchType) {
+                    updateBranchAction(parentIndex, branchType, index, { action_config: newConfig });
+                  } else {
+                    updateAction(index, { action_config: newConfig });
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Liste auswählen..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {emailLists.map(list => (
+                    <SelectItem key={list.id} value={list.id}>
+                      <div className="flex flex-col">
+                        <span>{list.name}</span>
+                        {list.description && (
+                          <span className="text-xs text-muted-foreground">{list.description}</span>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Change Status Action */}
+          {action.action_type === 'change_status' && (
+            <div>
+              <Label>Neuer Status</Label>
+              <Select
+                value={action.action_config?.new_status || 'active'}
+                onValueChange={(value) => {
+                  const newConfig = { ...action.action_config, new_status: value as 'active' | 'unsubscribed' | 'bounced' };
+                  if (isNested && parentIndex !== undefined && branchType) {
+                    updateBranchAction(parentIndex, branchType, index, { action_config: newConfig });
+                  } else {
+                    updateAction(index, { action_config: newConfig });
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {statusOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Ändert den Abo-Status des Subscribers
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     );
@@ -605,6 +763,18 @@ export default function WorkflowActionBuilder({ actions, onChange, templates = [
         <Button onClick={() => addAction('delay')} variant="outline" size="sm">
           <Clock className="h-4 w-4 mr-2" />
           Verzögerung
+        </Button>
+        <Button onClick={() => addAction('webhook')} variant="outline" size="sm" className="border-blue-500/50">
+          <Webhook className="h-4 w-4 mr-2" />
+          Webhook
+        </Button>
+        <Button onClick={() => addAction('add_to_list')} variant="outline" size="sm" className="border-indigo-500/50">
+          <ListPlus className="h-4 w-4 mr-2" />
+          Zu Liste
+        </Button>
+        <Button onClick={() => addAction('change_status')} variant="outline" size="sm" className="border-orange-500/50">
+          <UserCog className="h-4 w-4 mr-2" />
+          Status
         </Button>
       </div>
 

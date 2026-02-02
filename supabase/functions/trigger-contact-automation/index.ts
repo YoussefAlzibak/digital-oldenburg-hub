@@ -59,7 +59,32 @@ const handler = async (req: Request): Promise<Response> => {
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
 
-    // Trigger automation processing
+    // Trigger workflow actions processing (new system)
+    const { error: workflowError } = await supabase.functions.invoke('process-workflow-actions', {
+      body: {
+        triggerType: 'contact_form',
+        subscriberEmail: email,
+        triggerData: {
+          first_name: firstName,
+          last_name: lastName,
+          email: email,
+          company: contactRequest.company || '',
+          phone: contactRequest.phone || '',
+          service_type: contactRequest.service_type || contactData.serviceType || '',
+          budget_range: contactRequest.budget_range || '',
+          message: contactRequest.message || '',
+          preferred_date: contactRequest.preferred_date || '',
+          preferred_time: contactRequest.preferred_time || '',
+          company_name: 'Unicum Tech'
+        }
+      }
+    });
+
+    if (workflowError) {
+      console.error('Workflow actions error:', workflowError);
+    }
+
+    // Also trigger legacy automation processing for backwards compatibility
     const { error: automationError } = await supabase.functions.invoke('process-automations', {
       body: {
         triggerType: 'contact_form',

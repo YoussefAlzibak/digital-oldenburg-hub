@@ -71,7 +71,32 @@ const handler = async (req: Request): Promise<Response> => {
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
 
-    // Trigger automation processing
+    // Trigger workflow actions processing (new system)
+    const { error: workflowError } = await supabase.functions.invoke('process-workflow-actions', {
+      body: {
+        triggerType: 'appointment_booked',
+        subscriberEmail: email,
+        triggerData: {
+          first_name: firstName,
+          last_name: lastName,
+          email: email,
+          company: contactRequest?.company || '',
+          phone: contactRequest?.phone || '',
+          service_type: contactRequest?.service_type || appointmentData.serviceType || '',
+          appointment_date: appointment.scheduled_date,
+          appointment_time: appointment.scheduled_time,
+          meeting_type: appointment.meeting_type,
+          meeting_link: appointment.meeting_link || '',
+          company_name: 'Unicum Tech'
+        }
+      }
+    });
+
+    if (workflowError) {
+      console.error('Workflow actions error:', workflowError);
+    }
+
+    // Also trigger legacy automation processing for backwards compatibility
     const { error: automationError } = await supabase.functions.invoke('process-automations', {
       body: {
         triggerType: 'appointment_booked',

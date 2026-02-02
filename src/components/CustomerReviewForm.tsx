@@ -1,4 +1,4 @@
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,19 +11,39 @@ import { useToast } from "@/hooks/use-toast";
 
 interface CustomerReviewFormProps {
   onClose?: () => void;
+  onSuccess?: () => void;
+  prefillData?: {
+    customer_name?: string;
+    customer_email?: string;
+    company?: string;
+    service_type?: string;
+  } | null;
 }
 
-export const CustomerReviewForm = ({ onClose }: CustomerReviewFormProps) => {
+export const CustomerReviewForm = ({ onClose, onSuccess, prefillData }: CustomerReviewFormProps) => {
   const [formData, setFormData] = useState({
-    customer_name: "",
-    customer_email: "",
-    company: "",
-    service_type: "",
+    customer_name: prefillData?.customer_name || "",
+    customer_email: prefillData?.customer_email || "",
+    company: prefillData?.company || "",
+    service_type: prefillData?.service_type || "",
     rating: 0,
     review_text: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  
+  // Update form when prefillData changes
+  useEffect(() => {
+    if (prefillData) {
+      setFormData(prev => ({
+        ...prev,
+        customer_name: prefillData.customer_name || prev.customer_name,
+        customer_email: prefillData.customer_email || prev.customer_email,
+        company: prefillData.company || prev.company,
+        service_type: prefillData.service_type || prev.service_type,
+      }));
+    }
+  }, [prefillData]);
 
   const services = [
     "Webdesign",
@@ -73,6 +93,7 @@ export const CustomerReviewForm = ({ onClose }: CustomerReviewFormProps) => {
         review_text: ""
       });
 
+      onSuccess?.();
       onClose?.();
     } catch (error) {
       console.error("Fehler beim Einreichen der Bewertung:", error);

@@ -14,6 +14,7 @@ import CalendarSettings from "@/pages/dashboard/CalendarSettings";
 import Automations from "@/pages/dashboard/Automations";
 import Reviews from "@/pages/dashboard/Reviews";
 import Templates from "@/pages/dashboard/Templates";
+import WorkflowBuilder from "@/pages/dashboard/WorkflowBuilder";
 
 export default function AdminRoutes() {
   return (
@@ -36,6 +37,7 @@ export default function AdminRoutes() {
         <Route path="/email-marketing" element={<EmailMarketing />} />
         <Route path="/campaigns" element={<Campaigns />} />
         <Route path="/automations" element={<Automations />} />
+        <Route path="/workflow-builder" element={<WorkflowBuilder />} />
         <Route path="/templates" element={<Templates />} />
         
         {/* Settings */}

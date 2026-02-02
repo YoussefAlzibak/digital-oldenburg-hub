@@ -78,6 +78,10 @@ const handler = async (req: Request): Promise<Response> => {
       console.error('Error updating appointment status:', updateError);
     }
 
+    // Build review URL with parameters
+    const siteUrl = 'https://id-preview--106d7df2-0ee4-473f-8d9a-e02157575ed1.lovable.app';
+    const reviewUrl = `${siteUrl}/review?appointment=${completedData.appointmentId}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name || '')}`;
+
     // Trigger workflow actions processing
     const { error: workflowError } = await supabase.functions.invoke('process-workflow-actions', {
       body: {
@@ -97,7 +101,8 @@ const handler = async (req: Request): Promise<Response> => {
           completed_date: new Date().toISOString().split('T')[0],
           rating: completedData.rating,
           feedback: completedData.feedback || '',
-          company_name: 'Unicum Tech'
+          company_name: 'Unicum Tech',
+          review_url: reviewUrl
         }
       }
     });
@@ -125,7 +130,8 @@ const handler = async (req: Request): Promise<Response> => {
           completed_date: new Date().toISOString().split('T')[0],
           rating: completedData.rating,
           feedback: completedData.feedback || '',
-          company_name: 'Unicum Tech'
+          company_name: 'Unicum Tech',
+          review_url: reviewUrl
         }
       }
     });

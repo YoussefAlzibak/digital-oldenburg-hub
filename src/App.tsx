@@ -21,6 +21,7 @@ const Auth = lazy(() => import("./pages/Auth"));
 const Imprint = lazy(() => import("./pages/Imprint"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
+const Review = lazy(() => import("./pages/Review"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,6 +61,7 @@ function App() {
               <Route path="/imprint" element={<Imprint />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
+              <Route path="/review" element={<Review />} />
               <Route path="*" element={<Index />} />
             </Routes>
           </Suspense>

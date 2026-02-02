@@ -7,10 +7,25 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Save, Play, Pause } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Save, Play, Pause, X, Clock, Tag } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import WorkflowActionBuilder, { WorkflowAction } from "@/components/WorkflowActionBuilder";
+
+interface TriggerConfig {
+  filter_tags?: string[];
+  filter_source?: string;
+  tag_name?: string;
+  schedule_time?: string;
+  [key: string]: string | string[] | undefined;
+}
+
+interface AvailableTag {
+  id: string;
+  name: string;
+  color: string;
+}
 
 export default function WorkflowBuilderPage() {
   const navigate = useNavigate();
@@ -25,12 +40,34 @@ export default function WorkflowBuilderPage() {
   const [actions, setActions] = useState<WorkflowAction[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  
+  // Trigger config state
+  const [triggerConfig, setTriggerConfig] = useState<TriggerConfig>({});
+  const [availableTags, setAvailableTags] = useState<AvailableTag[]>([]);
+
+  useEffect(() => {
+    loadTags();
+  }, []);
 
   useEffect(() => {
     if (automationId) {
       loadAutomation();
     }
   }, [automationId]);
+
+  const loadTags = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('available_tags')
+        .select('id, name, color')
+        .order('name');
+      
+      if (error) throw error;
+      setAvailableTags(data || []);
+    } catch (error) {
+      console.error('Error loading tags:', error);
+    }
+  };
 
   const loadAutomation = async () => {
     if (!automationId) return;
@@ -49,6 +86,11 @@ export default function WorkflowBuilderPage() {
       setDescription(automation.description || "");
       setTriggerType(automation.trigger_type);
       setIsActive(automation.is_active);
+      
+      // Load trigger config
+      if (automation.trigger_config) {
+        setTriggerConfig(automation.trigger_config as TriggerConfig);
+      }
 
       // Load workflow actions
       const { data: workflowActions, error: actionsError } = await supabase
@@ -111,6 +153,7 @@ export default function WorkflowBuilderPage() {
             name,
             description,
             trigger_type: triggerType,
+            trigger_config: triggerConfig as { [key: string]: string | string[] | undefined },
             is_active: isActive,
             updated_at: new Date().toISOString()
           })
@@ -126,12 +169,13 @@ export default function WorkflowBuilderPage() {
       } else {
         const { data, error } = await supabase
           .from("email_automations")
-          .insert({
+          .insert([{
             name,
             description,
             trigger_type: triggerType,
+            trigger_config: triggerConfig as { [key: string]: string | string[] | undefined },
             is_active: isActive
-          })
+          }])
           .select()
           .single();
 
@@ -297,6 +341,122 @@ export default function WorkflowBuilderPage() {
               </Select>
             </div>
           </div>
+          
+          {/* Trigger-specific configuration */}
+          {(triggerType === 'scheduled' || triggerType === 'tag_added' || triggerType === 'tag_removed') && (
+            <div className="space-y-4 pt-4 border-t">
+              {/* Tag filter for scheduled */}
+              {triggerType === 'scheduled' && (
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Tag className="h-4 w-4" />
+                    Filter: Nur Subscriber mit diesen Tags
+                  </Label>
+                  <Select
+                    value=""
+                    onValueChange={(value) => {
+                      const currentTags = triggerConfig.filter_tags || [];
+                      if (!currentTags.includes(value)) {
+                        setTriggerConfig({
+                          ...triggerConfig,
+                          filter_tags: [...currentTags, value]
+                        });
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Tag hinzufügen..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableTags
+                        .filter(tag => !(triggerConfig.filter_tags || []).includes(tag.name))
+                        .map(tag => (
+                          <SelectItem key={tag.id} value={tag.name}>
+                            <div className="flex items-center gap-2">
+                              <div 
+                                className="w-3 h-3 rounded-full" 
+                                style={{ backgroundColor: tag.color }}
+                              />
+                              {tag.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  {/* Selected filter tags */}
+                  <div className="flex flex-wrap gap-2">
+                    {(triggerConfig.filter_tags || []).map(tagName => {
+                      const tagInfo = availableTags.find(t => t.name === tagName);
+                      return (
+                        <Badge 
+                          key={tagName} 
+                          variant="secondary"
+                          className="flex items-center gap-1"
+                        >
+                          <div 
+                            className="w-2 h-2 rounded-full" 
+                            style={{ backgroundColor: tagInfo?.color || '#888' }}
+                          />
+                          {tagName}
+                          <button
+                            onClick={() => {
+                              const newTags = (triggerConfig.filter_tags || []).filter(t => t !== tagName);
+                              setTriggerConfig({
+                                ...triggerConfig,
+                                filter_tags: newTags
+                              });
+                            }}
+                            className="ml-1 hover:text-destructive"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+                    <Clock className="h-4 w-4" />
+                    <span>Dieser Workflow wird täglich um 9:00 Uhr für alle passenden Subscriber ausgeführt.</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Tag selection for tag_added/tag_removed */}
+              {(triggerType === 'tag_added' || triggerType === 'tag_removed') && (
+                <div className="space-y-2">
+                  <Label>Bei welchem Tag soll der Workflow ausgelöst werden?</Label>
+                  <Select
+                    value={triggerConfig.tag_name || ''}
+                    onValueChange={(value) => setTriggerConfig({ ...triggerConfig, tag_name: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Tag auswählen..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Alle Tags</SelectItem>
+                      {availableTags.map(tag => (
+                        <SelectItem key={tag.id} value={tag.name}>
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-3 h-3 rounded-full" 
+                              style={{ backgroundColor: tag.color }}
+                            />
+                            {tag.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Leer lassen = Workflow wird bei jedem {triggerType === 'tag_added' ? 'hinzugefügten' : 'entfernten'} Tag ausgelöst
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="description">Beschreibung</Label>
             <Textarea

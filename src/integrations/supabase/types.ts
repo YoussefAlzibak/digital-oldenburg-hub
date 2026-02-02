@@ -124,6 +124,50 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_schedules: {
+        Row: {
+          automation_id: string
+          created_at: string
+          cron_expression: string
+          id: string
+          is_active: boolean
+          last_run_at: string | null
+          next_run_at: string | null
+          timezone: string
+          updated_at: string
+        }
+        Insert: {
+          automation_id: string
+          created_at?: string
+          cron_expression?: string
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          next_run_at?: string | null
+          timezone?: string
+          updated_at?: string
+        }
+        Update: {
+          automation_id?: string
+          created_at?: string
+          cron_expression?: string
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          next_run_at?: string | null
+          timezone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_schedules_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: true
+            referencedRelation: "email_automations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       availability_templates: {
         Row: {
           created_at: string

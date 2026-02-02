@@ -26,11 +26,13 @@ import {
   ChevronRight,
   Send,
   BarChart3,
-  ArrowUpRight
+  ArrowUpRight,
+  Tag
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AutomationScheduler from '@/components/AutomationScheduler';
+import TagManager from '@/components/TagManager';
 import { format, formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
 
@@ -568,6 +570,10 @@ export default function Automations() {
               <Mail className="h-4 w-4" />
               E-Mail-Verlauf ({emailQueue.length})
             </TabsTrigger>
+            <TabsTrigger value="tags" className="flex items-center gap-2">
+              <Tag className="h-4 w-4" />
+              Tags
+            </TabsTrigger>
             <TabsTrigger value="analysis" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Analyse
@@ -867,6 +873,11 @@ export default function Automations() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Tags Tab */}
+          <TabsContent value="tags" className="space-y-4">
+            <TagManager />
           </TabsContent>
         </Tabs>
       </div>

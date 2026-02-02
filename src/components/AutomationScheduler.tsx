@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Calendar as CalendarUI } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Zap, 
   Calendar as CalendarIcon, 
@@ -18,7 +19,8 @@ import {
   Plus, 
   Trash2, 
   Settings,
-  Users
+  Users,
+  GitBranch
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -26,6 +28,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import AppointmentReminderConfig from './AppointmentReminderConfig';
+import WorkflowActionBuilder, { WorkflowAction } from './WorkflowActionBuilder';
 
 interface EmailAutomation {
   id: string;
@@ -73,10 +76,12 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
     is_active: true
   });
   const [steps, setSteps] = useState<Partial<AutomationStep>[]>([]);
+  const [workflowActions, setWorkflowActions] = useState<WorkflowAction[]>([]);
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState('09:00');
+  const [editorMode, setEditorMode] = useState<'simple' | 'advanced'>('simple');
   
   const { toast } = useToast();
 
@@ -153,6 +158,8 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
       text_content: '',
       is_active: true
     }]);
+    setWorkflowActions([]);
+    setEditorMode('simple');
     setSelectedDate(undefined);
     setSelectedTime('09:00');
   };
@@ -546,7 +553,37 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
             </CardContent>
           </Card>
 
-          {/* Automation Steps */}
+          {/* Editor Mode Selection */}
+          <Card className="border-primary/20">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <GitBranch className="h-5 w-5 text-primary" />
+                    Workflow-Editor
+                  </CardTitle>
+                  <CardDescription>
+                    Wählen Sie zwischen einfachen E-Mail-Schritten oder dem erweiterten Workflow-Builder
+                  </CardDescription>
+                </div>
+                <Tabs value={editorMode} onValueChange={(v) => setEditorMode(v as 'simple' | 'advanced')}>
+                  <TabsList>
+                    <TabsTrigger value="simple" className="flex items-center gap-1">
+                      <Mail className="h-4 w-4" />
+                      Einfach
+                    </TabsTrigger>
+                    <TabsTrigger value="advanced" className="flex items-center gap-1">
+                      <GitBranch className="h-4 w-4" />
+                      Erweitert (If/Else)
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+            </CardHeader>
+          </Card>
+
+          {/* Simple Mode: Email Steps */}
+          {editorMode === 'simple' && (
           <Card className="border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
@@ -664,6 +701,31 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
               ))}
             </CardContent>
           </Card>
+          )}
+
+          {/* Advanced Mode: Workflow Builder with If/Else */}
+          {editorMode === 'advanced' && (
+          <Card className="border-purple-500/20">
+            <CardHeader>
+              <div>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <GitBranch className="h-5 w-5 text-purple-500" />
+                  🔀 Erweiterter Workflow-Builder
+                </CardTitle>
+                <CardDescription>
+                  Nutzen Sie If/Else-Bedingungen, Tags und komplexe Logik für Ihre Automatisierung
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <WorkflowActionBuilder
+                actions={workflowActions}
+                onChange={setWorkflowActions}
+                templates={templates.map(t => ({ id: t.id, name: t.name, subject: t.subject }))}
+              />
+            </CardContent>
+          </Card>
+          )}
 
           {/* Actions */}
           <div className="flex justify-end gap-2">

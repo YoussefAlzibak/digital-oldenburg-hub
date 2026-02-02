@@ -49,7 +49,28 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Trigger automation processing
+    // Trigger workflow actions processing (new system)
+    const { error: workflowError } = await supabase.functions.invoke('process-workflow-actions', {
+      body: {
+        triggerType: 'newsletter_signup',
+        subscriberEmail: subscriptionData.email,
+        subscriberId: subscriber.id,
+        triggerData: {
+          first_name: subscriptionData.first_name,
+          last_name: subscriptionData.last_name,
+          company: subscriptionData.company,
+          phone: subscriptionData.phone,
+          source: subscriptionData.source,
+          company_name: 'Unicum Tech'
+        }
+      }
+    });
+
+    if (workflowError) {
+      console.error('Workflow actions error:', workflowError);
+    }
+
+    // Also trigger legacy automation processing for backwards compatibility
     const { error: automationError } = await supabase.functions.invoke('process-automations', {
       body: {
         triggerType: 'subscription',

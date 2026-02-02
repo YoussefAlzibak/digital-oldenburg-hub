@@ -14,7 +14,8 @@ import {
   LogOut,
   Send,
   Star,
-  FileText
+  FileText,
+  GitBranch
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -48,6 +49,7 @@ const emailItems = [
   { title: "Kampagnen", url: "/admin/campaigns", icon: Send },
   { title: "Templates", url: "/admin/templates", icon: FileText },
   { title: "Automatisierungen", url: "/admin/automations", icon: RotateCcw },
+  { title: "Workflow-Builder", url: "/admin/workflow-builder", icon: GitBranch },
   { title: "Verlängerungen", url: "/admin/renewals", icon: Calendar },
 ];
 

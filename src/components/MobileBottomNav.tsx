@@ -26,6 +26,7 @@ const mainNavItems = [
 const moreItems = [
   { title: "Marketing", url: "/admin/email-marketing", icon: Mail },
   { title: "Abonnenten", url: "/admin/subscribers", icon: UserCheck },
+  { title: "Workflow-Builder", url: "/admin/workflow-builder", icon: BarChart3 },
   { title: "Verlängerungen", url: "/admin/renewals", icon: RotateCcw },
   { title: "E-Mail Einstellungen", url: "/admin/email-settings", icon: Settings },
   { title: "Kalender Einstellungen", url: "/admin/calendar-settings", icon: Calendar },

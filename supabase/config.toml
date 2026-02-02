@@ -2,3 +2,12 @@ project_id = "kgwanyretbrxwtwduljg"
 
 [functions.process-workflow-actions]
 verify_jwt = false
+
+[functions.trigger-scheduled-automation]
+verify_jwt = false
+
+[functions.trigger-tag-automation]
+verify_jwt = false
+
+[functions.trigger-appointment-completed]
+verify_jwt = false

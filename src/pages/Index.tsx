@@ -340,64 +340,85 @@ const Index = () => {
             </ScrollReveal>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-8 sm:mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
             {projects.map((project, index) => (
               <ScrollReveal key={index} animation="fade-up" delay={index * 150}>
                 {project.link ? (
-                  <a href={project.link} target="_blank" rel="noopener noreferrer" className="block">
-                    <Card className="glass-card group hover:scale-105 transition-all duration-300 overflow-hidden touch-manipulation cursor-pointer">
-                      <div className="relative overflow-hidden">
+                  <a href={project.link} target="_blank" rel="noopener noreferrer" className="block h-full">
+                    <Card className="glass-card group hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 overflow-hidden touch-manipulation cursor-pointer h-full border-2 border-transparent hover:border-primary/30">
+                      <div className="relative overflow-hidden aspect-[16/10]">
                         <CardImage 
                           src={project.image} 
                           alt={project.title}
-                          className="w-full h-36 sm:h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                         />
-                        <Badge className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-primary/90 text-primary-foreground text-[10px] sm:text-xs px-2 py-0.5">
+                        {/* Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+                        
+                        {/* Category Badge */}
+                        <Badge className="absolute top-3 sm:top-4 left-3 sm:left-4 bg-white/95 text-primary text-[10px] sm:text-xs px-2.5 py-1 font-semibold shadow-lg">
                           {project.category}
                         </Badge>
+                        
+                        {/* External Link Icon */}
+                        <div className="absolute top-3 sm:top-4 right-3 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                          <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                        </div>
+                        
+                        {/* Bottom Content Overlay */}
+                        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
+                          <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-secondary transition-colors drop-shadow-lg">
+                            {project.title}
+                          </h3>
+                          
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                            {project.tags.map((tag) => (
+                              <Badge 
+                                key={tag} 
+                                className="bg-white/20 backdrop-blur-sm text-white border-white/30 text-[10px] sm:text-xs px-2 py-0.5 font-medium"
+                              >
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
                       </div>
+                    </Card>
+                  </a>
+                ) : (
+                  <Card className="glass-card group hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 overflow-hidden touch-manipulation h-full border-2 border-transparent hover:border-primary/30">
+                    <div className="relative overflow-hidden aspect-[16/10]">
+                      <CardImage 
+                        src={project.image} 
+                        alt={project.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
                       
-                      <CardContent className="p-3 sm:p-4">
-                        <h3 className="text-sm sm:text-base md:text-lg font-bold mb-2 sm:mb-3 group-hover:text-primary transition-colors">
+                      {/* Category Badge */}
+                      <Badge className="absolute top-3 sm:top-4 left-3 sm:left-4 bg-white/95 text-primary text-[10px] sm:text-xs px-2.5 py-1 font-semibold shadow-lg">
+                        {project.category}
+                      </Badge>
+                      
+                      {/* Bottom Content Overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
+                        <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-secondary transition-colors drop-shadow-lg">
                           {project.title}
                         </h3>
                         
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
                           {project.tags.map((tag) => (
-                            <Badge key={tag} variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                            <Badge 
+                              key={tag} 
+                              className="bg-white/20 backdrop-blur-sm text-white border-white/30 text-[10px] sm:text-xs px-2 py-0.5 font-medium"
+                            >
                               {tag}
                             </Badge>
                           ))}
                         </div>
-                      </CardContent>
-                    </Card>
-                  </a>
-                ) : (
-                  <Card className="glass-card group hover:scale-105 transition-all duration-300 overflow-hidden touch-manipulation">
-                    <div className="relative overflow-hidden">
-                      <CardImage 
-                        src={project.image} 
-                        alt={project.title}
-                        className="w-full h-36 sm:h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <Badge className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-primary/90 text-primary-foreground text-[10px] sm:text-xs px-2 py-0.5">
-                        {project.category}
-                      </Badge>
-                    </div>
-                    
-                    <CardContent className="p-3 sm:p-4">
-                      <h3 className="text-sm sm:text-base md:text-lg font-bold mb-2 sm:mb-3 group-hover:text-primary transition-colors">
-                        {project.title}
-                      </h3>
-                      
-                      <div className="flex flex-wrap gap-1">
-                        {project.tags.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
-                            {tag}
-                          </Badge>
-                        ))}
                       </div>
-                    </CardContent>
+                    </div>
                   </Card>
                 )}
               </ScrollReveal>

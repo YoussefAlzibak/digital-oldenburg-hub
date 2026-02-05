@@ -33,6 +33,7 @@ import portfolioCorporate from "@/assets/portfolio-corporate.webp";
 import portfolioEcommerce from "@/assets/portfolio-ecommerce.webp";
 import portfolioSaas from "@/assets/portfolio-saas.webp";
 import heroImage from "@/assets/hero-image.webp";
+import portfolioProfileforge from "@/assets/portfolio-profileforge.webp";
 
 const Index = () => {
   

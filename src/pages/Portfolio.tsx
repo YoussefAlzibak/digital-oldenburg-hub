@@ -59,11 +59,11 @@ const Portfolio = () => {
       id: 5,
       title: "Nouh Hausservice",
       category: "Service",
-      description: "Professionelle Hausservice & Reinigungsdienstleistungen in Oldenburg",
+      description: "Professioneller Hausservice von A bis Z: Trockenbau, Reinigung, Umzüge, Gartenarbeit und Entrümpelung",
       image: portfolioNouhHausservice,
-      tags: ["React", "Service", "Reinigung"],
+      tags: ["React", "Service", "Hausservice"],
       featured: true,
-      link: undefined
+      link: "https://nouh-hausservice.de"
     }
   ];
 

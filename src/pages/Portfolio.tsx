@@ -237,7 +237,7 @@ const Portfolio = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.map((project, index) => (
               <ScrollReveal key={project.id} animation="fade-up" delay={index * 100}>
-                <Card className="glass-card group hover:scale-105 transition-all duration-300 overflow-hidden">
+                <Card className="glass-card interactive-card group overflow-hidden">
                   <div className="relative overflow-hidden">
                     <CardImage 
                       src={project.image} 

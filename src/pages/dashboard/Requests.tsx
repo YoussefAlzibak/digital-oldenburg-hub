@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Mail, Phone, Calendar, Eye, CheckCircle, XCircle, Trash2 } from 'lucide-react';
+import { Mail, Phone, Calendar, Eye, CheckCircle, Trash2, CalendarCheck, Link as LinkIcon } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +16,15 @@ import {
 } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
+
+interface Appointment {
+  id: string;
+  scheduled_date: string;
+  scheduled_time: string;
+  status: string;
+  meeting_type: string;
+}
 
 interface ContactRequest {
   id: string;
@@ -29,6 +38,7 @@ interface ContactRequest {
   preferred_time?: string;
   status: string;
   created_at: string;
+  appointments?: Appointment[];
 }
 
 export default function Requests() {
@@ -64,9 +74,19 @@ export default function Requests() {
     try {
       setLoading(true);
       
+      // Load contact requests with linked appointments
       const { data, error } = await supabase
         .from('contact_requests')
-        .select('*')
+        .select(`
+          *,
+          appointments (
+            id,
+            scheduled_date,
+            scheduled_time,
+            status,
+            meeting_type
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -223,7 +243,20 @@ export default function Requests() {
                 {request.preferred_date && (
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    {formatDate(request.preferred_date)} {request.preferred_time}
+                    Wunschtermin: {formatDate(request.preferred_date)} {request.preferred_time}
+                  </div>
+                )}
+                {request.appointments && request.appointments.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <CalendarCheck className="h-4 w-4 text-primary" />
+                    <span className="text-primary font-medium">
+                      Termin: {formatDate(request.appointments[0].scheduled_date)} {request.appointments[0].scheduled_time}
+                    </span>
+                    <Badge variant="outline" className="ml-1">
+                      {request.appointments[0].status === 'scheduled' ? 'Bestätigt' : 
+                       request.appointments[0].status === 'pending' ? 'Ausstehend' : 
+                       request.appointments[0].status}
+                    </Badge>
                   </div>
                 )}
                 <div className="text-muted-foreground">
@@ -237,7 +270,7 @@ export default function Requests() {
                 </div>
               )}
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -246,6 +279,18 @@ export default function Requests() {
                   <Eye className="h-4 w-4 mr-2" />
                   Details
                 </Button>
+                {request.appointments && request.appointments.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    asChild
+                  >
+                    <Link to="/dashboard/appointments">
+                      <CalendarCheck className="h-4 w-4 mr-2" />
+                      Zum Termin
+                    </Link>
+                  </Button>
+                )}
                 {request.status === 'pending' && (
                   <Button
                     size="sm"

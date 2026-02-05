@@ -113,7 +113,7 @@ export default function FormEmailSettings() {
                     <span className="font-medium">{expected.name}</span>
                     {status.exists ? (
                       status.active ? (
-                        <Badge variant="default" className="bg-green-500">Aktiv</Badge>
+                        <Badge variant="default">Aktiv</Badge>
                       ) : (
                         <Badge variant="secondary">Inaktiv</Badge>
                       )

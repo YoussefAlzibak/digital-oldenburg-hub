@@ -121,11 +121,16 @@ export function WebsiteLayout({ children }: WebsiteLayoutProps) {
 
       {/* Main Content */}
       <main className="pt-20 sm:pt-20 md:pt-24 w-full overflow-x-hidden">
-        {children}
+        <PageTransition>
+          {children}
+        </PageTransition>
       </main>
 
       {/* Footer */}
       <Footer />
+
+      {/* Scroll to Top Button */}
+      <ScrollToTopButton />
 
       {/* Mobile Navigation */}
       <WebsiteMobileNav />

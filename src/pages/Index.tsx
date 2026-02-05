@@ -68,7 +68,7 @@ const Index = () => {
     }
   ];
 
-  const projects = [
+  const projects: { title: string; category: string; image: string; tags: string[]; link?: string }[] = [
     {
       title: "CV & Health Platform",
       category: "SaaS",

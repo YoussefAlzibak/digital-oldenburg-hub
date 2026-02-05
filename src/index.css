@@ -823,9 +823,7 @@ All colors MUST be HSL.
   /* Focus visible ring for accessibility */
   .focus-ring:focus-visible {
     outline: none;
-    ring: 2px;
-    ring-offset: 2px;
-    ring-color: hsl(var(--brand-primary));
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--brand-primary));
   }
 
   /* Smooth page transitions */

@@ -122,7 +122,7 @@ const Contact = () => {
                       </Link>
                     </Button>
                     <Button variant="outline" size="lg" className="w-full justify-start" asChild>
-                      <a href="tel:+4944118160647">
+                      <a href="tel:+4917066668089">
                         <Phone className="h-5 w-5 mr-3" />
                         Sofort anrufen
                       </a>

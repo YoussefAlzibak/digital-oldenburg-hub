@@ -190,8 +190,8 @@ export default function ConsultationRequestForm() {
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
+    <Card className="w-full max-w-2xl mx-auto overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <CardHeader className="animate-in fade-in slide-in-from-left-4 duration-500 delay-100">
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5" />
           Kostenlose Beratung anfragen
@@ -202,7 +202,7 @@ export default function ConsultationRequestForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150">
             <div className="space-y-2">
               <Label htmlFor="name" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
@@ -213,6 +213,7 @@ export default function ConsultationRequestForm() {
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
                 required
+                className="transition-all duration-200 focus:scale-[1.02]"
               />
             </div>
             <div className="space-y-2">
@@ -221,11 +222,12 @@ export default function ConsultationRequestForm() {
                 id="company"
                 value={formData.company}
                 onChange={(e) => handleChange('company', e.target.value)}
+                className="transition-all duration-200 focus:scale-[1.02]"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200">
             <div className="space-y-2">
               <Label htmlFor="email" className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
@@ -237,6 +239,7 @@ export default function ConsultationRequestForm() {
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
                 required
+                className="transition-all duration-200 focus:scale-[1.02]"
               />
             </div>
             <div className="space-y-2">
@@ -249,14 +252,15 @@ export default function ConsultationRequestForm() {
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
+                className="transition-all duration-200 focus:scale-[1.02]"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-250">
             <Label htmlFor="service">Service-Bereich</Label>
             <Select value={formData.service} onValueChange={(value) => handleChange('service', value)}>
-              <SelectTrigger>
+              <SelectTrigger className="transition-all duration-200 focus:scale-[1.02]">
                 <SelectValue placeholder="Wählen Sie einen Service-Bereich" />
               </SelectTrigger>
               <SelectContent>
@@ -269,7 +273,7 @@ export default function ConsultationRequestForm() {
             </Select>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300">
             <div className="space-y-2">
               <Label htmlFor="preferred_date">Wunschtermin</Label>
               <Input
@@ -278,6 +282,7 @@ export default function ConsultationRequestForm() {
                 min={today}
                 value={formData.preferred_date}
                 onChange={(e) => handleChange('preferred_date', e.target.value)}
+                className="transition-all duration-200 focus:scale-[1.02]"
               />
             </div>
             <div className="space-y-2">
@@ -286,7 +291,7 @@ export default function ConsultationRequestForm() {
                 Uhrzeit
               </Label>
               <Select value={formData.preferred_time} onValueChange={(value) => handleChange('preferred_time', value)}>
-                <SelectTrigger>
+                <SelectTrigger className="transition-all duration-200 focus:scale-[1.02]">
                   <SelectValue placeholder="Wählen Sie eine Uhrzeit" />
                 </SelectTrigger>
                 <SelectContent>
@@ -301,10 +306,10 @@ export default function ConsultationRequestForm() {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-[350ms]">
             <Label htmlFor="consultation_type">Beratungsart</Label>
             <Select value={formData.consultation_type} onValueChange={(value) => handleChange('consultation_type', value)}>
-              <SelectTrigger>
+              <SelectTrigger className="transition-all duration-200 focus:scale-[1.02]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -316,7 +321,7 @@ export default function ConsultationRequestForm() {
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-[400ms]">
             <Label htmlFor="message">Nachricht</Label>
             <Textarea
               id="message"
@@ -324,11 +329,23 @@ export default function ConsultationRequestForm() {
               placeholder="Beschreiben Sie kurz Ihr Anliegen oder Ihre Anforderungen..."
               value={formData.message}
               onChange={(e) => handleChange('message', e.target.value)}
+              className="transition-all duration-200 focus:scale-[1.01]"
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Wird gesendet...' : 'Beratungstermin anfragen'}
+          <Button 
+            type="submit" 
+            className="w-full animate-in fade-in slide-in-from-bottom-2 duration-500 delay-[450ms] transition-all hover:scale-[1.02] active:scale-[0.98]" 
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <span className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                Wird gesendet...
+              </span>
+            ) : (
+              'Beratungstermin anfragen'
+            )}
           </Button>
         </form>
       </CardContent>

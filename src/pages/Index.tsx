@@ -31,6 +31,10 @@ import itService from "@/assets/it-service.webp";
 import printService from "@/assets/print-service.webp";
 import heroImage from "@/assets/hero-image.webp";
 import portfolioProfileforge from "@/assets/portfolio-profileforge.webp";
+import portfolioNailsalon from "@/assets/portfolio-nailsalon.webp";
+import portfolioDiamondfinish from "@/assets/portfolio-diamondfinish.webp";
+import portfolioProfach from "@/assets/portfolio-profach.webp";
+import portfolioNouhHausservice from "@/assets/portfolio-nouh-hausservice.webp";
 
 const Index = () => {
   
@@ -72,6 +76,34 @@ const Index = () => {
       image: portfolioProfileforge,
       tags: ["React", "TypeScript", "KI"],
       link: "https://profile-forge-share-1.onrender.com"
+    },
+    {
+      title: "Nail Salon Hub",
+      category: "Beauty",
+      image: portfolioNailsalon,
+      tags: ["React", "Booking", "Beauty"],
+      link: "https://nail-salon-hub.onrender.com"
+    },
+    {
+      title: "Diamond Finish",
+      category: "Automotive",
+      image: portfolioDiamondfinish,
+      tags: ["React", "Automotive"],
+      link: "https://diamond-finish.de"
+    },
+    {
+      title: "ProFach International",
+      category: "Business",
+      image: portfolioProfach,
+      tags: ["React", "Business"],
+      link: "https://profach-international.com"
+    },
+    {
+      title: "Nouh Hausservice",
+      category: "Service",
+      image: portfolioNouhHausservice,
+      tags: ["React", "Service"],
+      link: undefined
     }
   ];
 

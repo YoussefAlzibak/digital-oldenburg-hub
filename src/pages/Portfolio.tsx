@@ -6,6 +6,10 @@ import { HeroImage, CardImage } from "@/components/Picture";
 import { ArrowRight, ExternalLink, Github } from "lucide-react";
 import { Link } from "react-router-dom";
 import portfolioProfileforge from "@/assets/portfolio-profileforge.webp";
+import portfolioNailsalon from "@/assets/portfolio-nailsalon.webp";
+import portfolioDiamondfinish from "@/assets/portfolio-diamondfinish.webp";
+import portfolioProfach from "@/assets/portfolio-profach.webp";
+import portfolioNouhHausservice from "@/assets/portfolio-nouh-hausservice.webp";
 import heroPortfolio from "@/assets/hero-portfolio.webp";
 import { WebsiteLayout } from "@/components/WebsiteLayout";
 
@@ -20,6 +24,46 @@ const Portfolio = () => {
       tags: ["React", "TypeScript", "KI", "DSGVO"],
       featured: true,
       link: "https://profile-forge-share-1.onrender.com"
+    },
+    {
+      id: 2,
+      title: "Nail Salon Hub",
+      category: "Beauty",
+      description: "Luxuriöses Nagelstudio mit Online-Buchungssystem und Treueprogramm für erstklassige Maniküre und Pediküre",
+      image: portfolioNailsalon,
+      tags: ["React", "Booking", "Beauty"],
+      featured: true,
+      link: "https://nail-salon-hub.onrender.com"
+    },
+    {
+      id: 3,
+      title: "Diamond Finish",
+      category: "Automotive",
+      description: "Premium Fahrzeugaufbereitung mit professioneller Lackpflege, Keramikversiegelung und Smart Repair",
+      image: portfolioDiamondfinish,
+      tags: ["React", "Automotive", "Premium"],
+      featured: true,
+      link: "https://diamond-finish.de"
+    },
+    {
+      id: 4,
+      title: "ProFach International",
+      category: "Business",
+      description: "Internationale Personalvermittlung und Unternehmensberatung mit globalem Netzwerk",
+      image: portfolioProfach,
+      tags: ["React", "Business", "International"],
+      featured: true,
+      link: "https://profach-international.com"
+    },
+    {
+      id: 5,
+      title: "Nouh Hausservice",
+      category: "Service",
+      description: "Professionelle Hausservice & Reinigungsdienstleistungen in Oldenburg",
+      image: portfolioNouhHausservice,
+      tags: ["React", "Service", "Reinigung"],
+      featured: true,
+      link: undefined
     }
   ];
 

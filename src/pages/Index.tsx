@@ -70,6 +70,13 @@ const Index = () => {
 
   const projects = [
     {
+      title: "CV & Health Platform",
+      category: "SaaS",
+      image: portfolioProfileforge,
+      tags: ["React", "TypeScript", "KI"],
+      link: "https://profile-forge-share-1.onrender.com"
+    },
+    {
       title: "Corporate Website",
       category: "Webdesign",
       image: portfolioCorporate,

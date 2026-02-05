@@ -16,7 +16,8 @@ import {
   Sparkles,
   TrendingUp,
   Award,
-  Monitor
+  Monitor,
+  ExternalLink
 } from "lucide-react";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { WebsiteLayout } from "@/components/WebsiteLayout";

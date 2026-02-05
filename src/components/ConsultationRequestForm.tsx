@@ -48,10 +48,14 @@ export default function ConsultationRequestForm() {
 
       if (error) throw error;
 
-      toast({
-        title: "Beratungsanfrage gesendet!",
-        description: "Wir melden uns innerhalb von 24 Stunden bei Ihnen zurück.",
+      // Save submitted data for success message
+      const hasAppointment = !!(formData.preferred_date && formData.preferred_time);
+      setSubmittedData({
+        name: formData.name,
+        email: formData.email,
+        hasAppointment
       });
+      setIsSuccess(true);
 
       // Trigger contact form automation
       try {
@@ -108,6 +112,11 @@ export default function ConsultationRequestForm() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleReset = () => {
+    setIsSuccess(false);
+    setSubmittedData(null);
   };
 
   const handleChange = (name: string, value: string) => {

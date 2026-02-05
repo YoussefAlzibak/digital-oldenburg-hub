@@ -29,9 +29,6 @@ import webdesignService from "@/assets/webdesign-service.webp";
 import crmService from "@/assets/crm-service.webp";
 import itService from "@/assets/it-service.webp";
 import printService from "@/assets/print-service.webp";
-import portfolioCorporate from "@/assets/portfolio-corporate.webp";
-import portfolioEcommerce from "@/assets/portfolio-ecommerce.webp";
-import portfolioSaas from "@/assets/portfolio-saas.webp";
 import heroImage from "@/assets/hero-image.webp";
 import portfolioProfileforge from "@/assets/portfolio-profileforge.webp";
 

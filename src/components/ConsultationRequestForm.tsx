@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, User, Mail, Phone } from 'lucide-react';
+import { Calendar, Clock, User, Mail, Phone, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -22,6 +22,8 @@ export default function ConsultationRequestForm() {
     consultation_type: 'online'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [submittedData, setSubmittedData] = useState<{ name: string; email: string; hasAppointment: boolean } | null>(null);
   const { toast } = useToast();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -46,10 +48,14 @@ export default function ConsultationRequestForm() {
 
       if (error) throw error;
 
-      toast({
-        title: "Beratungsanfrage gesendet!",
-        description: "Wir melden uns innerhalb von 24 Stunden bei Ihnen zurück.",
+      // Save submitted data for success message
+      const hasAppointment = !!(formData.preferred_date && formData.preferred_time);
+      setSubmittedData({
+        name: formData.name,
+        email: formData.email,
+        hasAppointment
       });
+      setIsSuccess(true);
 
       // Trigger contact form automation
       try {
@@ -108,11 +114,80 @@ export default function ConsultationRequestForm() {
     }
   };
 
+  const handleReset = () => {
+    setIsSuccess(false);
+    setSubmittedData(null);
+  };
+
   const handleChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const today = new Date().toISOString().split('T')[0];
+
+  // Success state - show beautiful confirmation
+  if (isSuccess && submittedData) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto overflow-hidden">
+        <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background p-8 text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/20 mb-6 animate-in zoom-in duration-300">
+            <CheckCircle2 className="h-10 w-10 text-primary" />
+          </div>
+          
+          <h2 className="text-2xl md:text-3xl font-bold mb-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            Vielen Dank, {submittedData.name.split(' ')[0]}!
+          </h2>
+          
+          <p className="text-lg text-muted-foreground mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+            Ihre Beratungsanfrage wurde erfolgreich übermittelt.
+          </p>
+          
+          <div className="bg-card rounded-xl p-6 mb-6 text-left space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+            <div className="flex items-start gap-3">
+              <Mail className="h-5 w-5 text-primary mt-0.5" />
+              <div>
+                <p className="font-medium">Bestätigung gesendet</p>
+                <p className="text-sm text-muted-foreground">
+                  Eine E-Mail wurde an <span className="font-medium">{submittedData.email}</span> gesendet
+                </p>
+              </div>
+            </div>
+            
+            {submittedData.hasAppointment && (
+              <div className="flex items-start gap-3">
+                <Calendar className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <p className="font-medium">Terminwunsch erhalten</p>
+                  <p className="text-sm text-muted-foreground">
+                    Wir bestätigen Ihren Wunschtermin innerhalb von 24 Stunden
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            <div className="flex items-start gap-3">
+              <Clock className="h-5 w-5 text-primary mt-0.5" />
+              <div>
+                <p className="font-medium">Schnelle Antwort garantiert</p>
+                <p className="text-sm text-muted-foreground">
+                  Wir melden uns innerhalb von 24 Stunden bei Ihnen
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <Button 
+            variant="outline" 
+            onClick={handleReset}
+            className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Neue Anfrage stellen
+          </Button>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full max-w-2xl mx-auto">

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Mail, Phone, Calendar, Eye, CheckCircle, XCircle, Trash2 } from 'lucide-react';
+import { Mail, Phone, Calendar, Eye, CheckCircle, Trash2, CalendarCheck, Link as LinkIcon } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +16,15 @@ import {
 } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
+
+interface Appointment {
+  id: string;
+  scheduled_date: string;
+  scheduled_time: string;
+  status: string;
+  meeting_type: string;
+}
 
 interface ContactRequest {
   id: string;
@@ -29,6 +38,7 @@ interface ContactRequest {
   preferred_time?: string;
   status: string;
   created_at: string;
+  appointments?: Appointment[];
 }
 
 export default function Requests() {

@@ -28,8 +28,69 @@ interface EmailRequest {
   appointmentType: string;
 }
 
+const meetingTypeLabels: { [key: string]: string } = {
+  online: 'Online Video-Call',
+  phone: 'Telefonberatung',
+  office: 'Vor Ort in unserem Büro',
+  client: 'Vor Ort beim Kunden'
+};
+
+// Fallback-Template
+const getFallbackTemplate = (customer: CustomerData, formattedDate: string, time: string, meetingTypeLabel: string): string => {
+  return `<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminbestätigung - Unicum Tech</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f7;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f7; padding: 40px 20px;">
+      <tr>
+        <td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden;">
+            <tr>
+              <td style="padding: 40px;">
+                <h2 style="color: #1e3a5f; margin: 0 0 20px 0;">🎉 Terminbestätigung</h2>
+                <p style="color: #4a5568; line-height: 1.7;">Liebe/r ${customer.name},</p>
+                <p style="color: #4a5568; line-height: 1.7;">
+                  Vielen Dank für Ihre Terminanfrage bei Unicum Tech.
+                </p>
+                <p style="color: #4a5568; line-height: 1.7;"><strong>Datum:</strong> ${formattedDate}</p>
+                <p style="color: #4a5568; line-height: 1.7;"><strong>Uhrzeit:</strong> ${time} Uhr</p>
+                <p style="color: #4a5568; line-height: 1.7;"><strong>Art:</strong> ${meetingTypeLabel}</p>
+                <p style="color: #1e3a5f; margin-top: 30px;">
+                  Mit freundlichen Grüßen,<br>
+                  <strong>Das Unicum Tech Team</strong>
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="background-color: #1e3a5f; padding: 20px; text-align: center;">
+                <p style="margin: 0; font-size: 11px; color: #6b8eb8;">
+                  © ${new Date().getFullYear()} Unicum Tech. Alle Rechte vorbehalten.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+</body>
+</html>`;
+};
+
+// Personalisiere Template-Inhalt
+const personalizeContent = (content: string, data: Record<string, string>): string => {
+  let result = content;
+  for (const [key, value] of Object.entries(data)) {
+    const regex = new RegExp(`{{${key}}}`, 'g');
+    result = result.replace(regex, value || '');
+  }
+  return result;
+};
+
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -41,15 +102,7 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
     const { appointment, customer, appointmentType }: EmailRequest = await req.json();
-    
-    console.log('Sending appointment confirmation for:', {
-      appointmentId: appointment.id,
-      customerEmail: customer.email,
-      date: appointment.scheduled_date,
-      time: appointment.scheduled_time
-    });
 
-    // Format date and time for German locale
     const appointmentDate = new Date(appointment.scheduled_date);
     const formattedDate = appointmentDate.toLocaleDateString('de-DE', {
       weekday: 'long',
@@ -58,118 +111,49 @@ const handler = async (req: Request): Promise<Response> => {
       day: 'numeric'
     });
 
-    const meetingTypeLabels: { [key: string]: string } = {
-      online: 'Online Video-Call',
-      phone: 'Telefonberatung',
-      office: 'Vor Ort in unserem Büro',
-      client: 'Vor Ort beim Kunden'
-    };
-
     const meetingTypeLabel = meetingTypeLabels[appointmentType] || appointmentType;
+    const websiteUrl = 'https://digital-oldenburg-hub.onrender.com';
+    const currentYear = new Date().getFullYear();
 
-    // Create a simple HTML email
-    const emailHTML = `
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminbestätigung - Unicum Tech</title>
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; }
-        .content { background: #f9f9f9; padding: 20px; }
-        .appointment-details { background: white; padding: 15px; border-radius: 8px; margin: 15px 0; }
-        .detail-row { display: flex; justify-content: space-between; margin: 8px 0; }
-        .footer { background: #333; color: white; padding: 15px; border-radius: 0 0 8px 8px; text-align: center; }
-        .status-badge { background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 12px; font-size: 12px; }
-        .button { background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 10px 0; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🎉 Terminbestätigung</h1>
-            <p>Ihre Beratungsanfrage wurde erfolgreich eingegangen!</p>
-        </div>
-        
-        <div class="content">
-            <p>Liebe/r ${customer.name},</p>
-            
-            <p>vielen Dank für Ihre Terminanfrage bei Unicum Tech. Wir haben Ihren Terminwunsch erhalten und werden ihn in Kürze prüfen und bestätigen.</p>
-            
-            <div class="appointment-details">
-                <h3>📅 Ihre Termindetails</h3>
-                <div class="detail-row">
-                    <strong>Datum:</strong>
-                    <span>${formattedDate}</span>
-                </div>
-                <div class="detail-row">
-                    <strong>Uhrzeit:</strong>
-                    <span>${appointment.scheduled_time} Uhr</span>
-                </div>
-                <div class="detail-row">
-                    <strong>Art der Beratung:</strong>
-                    <span>${meetingTypeLabel}</span>
-                </div>
-                <div class="detail-row">
-                    <strong>Status:</strong>
-                    <span class="status-badge">Wird geprüft</span>
-                </div>
-                ${customer.company ? `
-                <div class="detail-row">
-                    <strong>Unternehmen:</strong>
-                    <span>${customer.company}</span>
-                </div>
-                ` : ''}
-                ${customer.message ? `
-                <div class="detail-row">
-                    <strong>Ihre Nachricht:</strong>
-                </div>
-                <p style="background: #f3f4f6; padding: 10px; border-radius: 4px; margin-top: 5px;">${customer.message}</p>
-                ` : ''}
-            </div>
-            
-            <h3>📞 Nächste Schritte</h3>
-            <ul>
-                <li><strong>Terminprüfung:</strong> Wir prüfen die Verfügbarkeit und melden uns innerhalb von 24 Stunden</li>
-                <li><strong>Bestätigung:</strong> Sie erhalten eine finale Bestätigung per E-Mail oder Telefon</li>
-                <li><strong>Zugangsdaten:</strong> Bei Online-Terminen senden wir Ihnen rechtzeitig die Zugangsdaten</li>
-                <li><strong>Vorbereitung:</strong> Bereiten Sie gerne Fragen zu Ihrem Projekt vor</li>
-            </ul>
-            
-            <div style="background: #dbeafe; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                <h4>💡 Kostenlose Beratung</h4>
-                <p>Diese Beratung ist für Sie völlig kostenlos und unverbindlich. Wir nehmen uns gerne Zeit für Ihre Fragen und zeigen Ihnen Lösungsmöglichkeiten auf.</p>
-            </div>
-            
-            <p><strong>Haben Sie noch Fragen?</strong><br>
-            Kontaktieren Sie uns gerne unter:</p>
-            <ul>
-                <li>📧 E-Mail: info@unicumtech.de</li>
-                <li>📱 Telefon: +49 (0) 441 XXX XXX</li>
-                <li>🕒 Geschäftszeiten: Mo-Fr 9:00 - 18:00 Uhr</li>
-            </ul>
-        </div>
-        
-        <div class="footer">
-            <p><strong>Unicum Tech</strong><br>
-            Ihre Full-Service Digitalagentur in Oldenburg<br>
-            Webdesign • CRM-Systeme • IT-Services • Print Design</p>
-            
-            <p style="font-size: 12px; margin-top: 15px; opacity: 0.8;">
-                Diese E-Mail wurde automatisch generiert. Bitte antworten Sie nicht direkt auf diese E-Mail.
-            </p>
-        </div>
-    </div>
-</body>
-</html>`;
+    // Template aus Datenbank laden
+    const { data: template, error: templateError } = await supabase
+      .from('email_templates')
+      .select('*')
+      .eq('name', 'Terminbestätigung')
+      .eq('is_active', true)
+      .single();
 
-    // Send confirmation email via SMTP
+    let emailHTML: string;
+    let subject: string;
+
+    if (template && !templateError) {
+      const placeholders = {
+        first_name: customer.name,
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone || '',
+        company: customer.company || '',
+        message: customer.message || '',
+        appointment_date: formattedDate,
+        appointment_time: appointment.scheduled_time,
+        meeting_type: meetingTypeLabel,
+        meeting_link: '', // Will be filled if exists
+        service_type: '',
+        company_name: 'Unicum Tech',
+        website_url: websiteUrl,
+        current_year: currentYear.toString(),
+      };
+
+      emailHTML = personalizeContent(template.html_content, placeholders);
+      subject = personalizeContent(template.subject, placeholders);
+    } else {
+      emailHTML = getFallbackTemplate(customer, formattedDate, appointment.scheduled_time, meetingTypeLabel);
+      subject = `✅ Terminbestätigung - ${formattedDate} um ${appointment.scheduled_time} Uhr`;
+    }
+
     const emailData = {
       to: customer.email,
-      subject: `✅ Terminbestätigung - ${formattedDate} um ${appointment.scheduled_time} Uhr`,
+      subject: subject,
       html: emailHTML
     };
 
@@ -178,17 +162,15 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (emailError) {
-      console.error('Email sending error:', emailError);
-      // Don't fail the whole process if email fails
-    } else {
-      console.log('Appointment confirmation email sent successfully via SMTP');
+      // Don't fail if email fails
     }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Appointment confirmation email sent via SMTP',
-        recipient: customer.email
+        message: 'Appointment confirmation email sent',
+        recipient: customer.email,
+        usedDbTemplate: !!template
       }),
       {
         status: 200,
@@ -200,7 +182,6 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error: any) {
-    console.error('Error in send-appointment-confirmation function:', error);
     return new Response(
       JSON.stringify({ 
         success: false, 

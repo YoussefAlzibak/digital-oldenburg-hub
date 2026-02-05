@@ -1,4 +1,4 @@
-// Build v25 - explicit React import for build stability
+// Build v26 - explicit React import for build stability
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
 import App from './App.tsx';

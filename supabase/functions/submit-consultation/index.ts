@@ -114,6 +114,48 @@ const handler = async (req: Request): Promise<Response> => {
       console.log('Created appointment:', appointment);
     }
 
+    // Trigger contact form automation (Bewertungsanfrage nach Kontakt, etc.)
+    try {
+      console.log('Triggering contact automation for:', requestData.email);
+      
+      // Parse name into first and last name
+      const nameParts = (requestData.name || '').split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      
+      // Trigger the workflow actions
+      const { error: workflowError } = await supabase.functions.invoke('process-workflow-actions', {
+        body: {
+          triggerType: 'contact_form',
+          subscriberEmail: requestData.email,
+          triggerData: {
+            first_name: firstName,
+            last_name: lastName,
+            name: requestData.name,
+            email: requestData.email,
+            company: requestData.company || '',
+            phone: requestData.phone || '',
+            service_type: requestData.service || '',
+            message: requestData.message || '',
+            preferred_date: requestData.preferred_date || '',
+            preferred_time: requestData.preferred_time || '',
+            company_name: 'Unicum Tech',
+            website_url: 'https://unicum-tech.de',
+            review_url: 'https://unicum-tech.de/review'
+          }
+        }
+      });
+
+      if (workflowError) {
+        console.error('Workflow trigger error:', workflowError);
+      } else {
+        console.log('Contact automation triggered successfully');
+      }
+    } catch (automationError) {
+      console.error('Error triggering contact automation:', automationError);
+      // Don't fail the request if automation fails
+    }
+
     console.log('Successfully processed consultation request');
 
     return new Response(

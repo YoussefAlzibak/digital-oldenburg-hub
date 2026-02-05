@@ -2,14 +2,15 @@ import { Link, useLocation } from "react-router-dom";
 import { WebsiteMobileNav } from "@/components/WebsiteMobileNav";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Footer } from "@/components/Footer";
+import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { PageTransition } from "@/components/PageTransition";
 import { 
   Globe,
   Monitor,
   Users2,
   MessageCircle,
   Palette,
-  Calendar,
-  Shield
+  Calendar
 } from "lucide-react";
 import logoImage from "@/assets/logo.png";
 

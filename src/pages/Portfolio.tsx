@@ -179,7 +179,7 @@ const Portfolio = () => {
                     </Card>
                   </a>
                 ) : (
-                  <Card className="glass-card group hover:scale-105 transition-all duration-500 overflow-hidden">
+                  <Card className="glass-card interactive-card group overflow-hidden">
                     <div className="relative overflow-hidden">
                       <CardImage 
                         src={project.image} 

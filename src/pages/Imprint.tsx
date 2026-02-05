@@ -60,8 +60,8 @@ const Imprint = () => {
                   <div className="space-y-3 text-muted-foreground">
                     <div className="flex items-center gap-3">
                       <Phone className="h-4 w-4" />
-                      <a href="tel:+4944118160647" className="hover:text-primary transition-colors">
-                        0441 18160647
+                      <a href="tel:+4917066668089" className="hover:text-primary transition-colors">
+                        0170 6666809
                       </a>
                     </div>
                     <div className="flex items-center gap-3">

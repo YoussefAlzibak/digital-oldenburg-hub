@@ -757,4 +757,86 @@ All colors MUST be HSL.
     pointer-events: none;
     transform-origin: left top;
   }
+
+  /* Shimmer animation for skeleton loaders */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* Interactive card hover effects */
+  .interactive-card {
+    transition: var(--transition-smooth);
+  }
+
+  .interactive-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .interactive-card:active {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Button pulse animation for CTAs */
+  @keyframes pulse-ring {
+    0% {
+      box-shadow: 0 0 0 0 hsl(var(--brand-primary) / 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px hsl(var(--brand-primary) / 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 hsl(var(--brand-primary) / 0);
+    }
+  }
+
+  .pulse-on-hover:hover {
+    animation: pulse-ring 1.5s ease-out infinite;
+  }
+
+  /* Smooth link underline animation */
+  .animated-underline {
+    position: relative;
+  }
+
+  .animated-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: hsl(var(--brand-secondary));
+    transition: width 0.3s ease;
+  }
+
+  .animated-underline:hover::after {
+    width: 100%;
+  }
+
+  /* Focus visible ring for accessibility */
+  .focus-ring:focus-visible {
+    outline: none;
+    ring: 2px;
+    ring-offset: 2px;
+    ring-color: hsl(var(--brand-primary));
+  }
+
+  /* Smooth page transitions */
+  .page-enter {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .page-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
 }

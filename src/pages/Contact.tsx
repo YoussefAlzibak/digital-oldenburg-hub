@@ -212,12 +212,6 @@ const Contact = () => {
               <Button variant="outline" size="lg" asChild>
                 <Link to="/portfolio">Portfolio ansehen</Link>
               </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link to="/auth">
-                  <Shield className="h-4 w-4 mr-2" />
-                  Dashboard zugreifen
-                </Link>
-              </Button>
             </div>
           </div>
         </div>

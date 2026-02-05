@@ -15,7 +15,17 @@ import heroPortfolio from "@/assets/hero-portfolio.webp";
 import { WebsiteLayout } from "@/components/WebsiteLayout";
 
 const Portfolio = () => {
-  const projects = [
+  const projects: { id: number; title: string; category: string; description: string; image: string; tags: string[]; featured: boolean; link?: string }[] = [
+    {
+      id: 0,
+      title: "CV & Health Platform",
+      category: "SaaS",
+      description: "All-in-One Plattform für CV-Erstellung, Gesundheitsdaten und sicheren Notfallzugriff",
+      image: portfolioProfileforge,
+      tags: ["React", "TypeScript", "KI", "DSGVO"],
+      featured: true,
+      link: "https://profile-forge-share-1.onrender.com"
+    },
     {
       id: 1,
       title: "Corporate Website",

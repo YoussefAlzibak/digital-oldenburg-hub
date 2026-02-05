@@ -75,24 +75,6 @@ const Index = () => {
       image: portfolioProfileforge,
       tags: ["React", "TypeScript", "KI"],
       link: "https://profile-forge-share-1.onrender.com"
-    },
-    {
-      title: "Corporate Website",
-      category: "Webdesign",
-      image: portfolioCorporate,
-      tags: ["React", "TypeScript", "CMS"]
-    },
-    {
-      title: "E-Commerce Platform",
-      category: "E-Commerce", 
-      image: portfolioEcommerce,
-      tags: ["Next.js", "Stripe", "Database"]
-    },
-    {
-      title: "SaaS Dashboard",
-      category: "Web App",
-      image: portfolioSaas,
-      tags: ["React", "Charts", "API"]
     }
   ];
 

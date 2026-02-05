@@ -46,7 +46,7 @@ const Privacy = () => {
                     <p className="mt-3">
                       E-Mail: <a href="mailto:info@unicum-tech.com" className="text-primary hover:underline">info@unicum-tech.com</a>
                     </p>
-                    <p>Telefon: 0441 18160647</p>
+                    <p>Telefon: 0170 6666809</p>
                   </div>
                 </CardContent>
               </Card>

@@ -20,7 +20,7 @@ const Contact = () => {
     {
       icon: <Phone className="h-6 w-6" />,
       title: "Telefon",
-      content: "0441 18160647",
+      content: "0170 6666809",
       description: "Mo-Fr: 9:00 - 18:00 Uhr"
     },
     {
@@ -122,7 +122,7 @@ const Contact = () => {
                       </Link>
                     </Button>
                     <Button variant="outline" size="lg" className="w-full justify-start" asChild>
-                      <a href="tel:+4944118160647">
+                      <a href="tel:+4917066668089">
                         <Phone className="h-5 w-5 mr-3" />
                         Sofort anrufen
                       </a>

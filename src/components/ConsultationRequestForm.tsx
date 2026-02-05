@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, User, Mail, Phone } from 'lucide-react';
+import { Calendar, Clock, User, Mail, Phone, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -22,6 +22,8 @@ export default function ConsultationRequestForm() {
     consultation_type: 'online'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [submittedData, setSubmittedData] = useState<{ name: string; email: string; hasAppointment: boolean } | null>(null);
   const { toast } = useToast();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {

@@ -152,30 +152,72 @@ const Portfolio = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {projects.filter(p => p.featured).map((project, index) => (
               <ScrollReveal key={project.id} animation="fade-up" delay={index * 150}>
-                <Card className="glass-card group hover:scale-105 transition-all duration-500 overflow-hidden">
-                  <div className="relative overflow-hidden">
-                    <CardImage 
-                      src={project.image} 
-                      alt={project.title}
-                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      <div className="flex space-x-2">
-                        <Button size="sm" variant="outline" className="bg-background/80 backdrop-blur-sm">
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          Live Demo
-                        </Button>
-                        <Button size="sm" variant="outline" className="bg-background/80 backdrop-blur-sm">
-                          <Github className="h-4 w-4 mr-2" />
-                          Code
-                        </Button>
+                {project.link ? (
+                  <a href={project.link} target="_blank" rel="noopener noreferrer" className="block">
+                    <Card className="glass-card group hover:scale-105 transition-all duration-500 overflow-hidden cursor-pointer">
+                      <div className="relative overflow-hidden">
+                        <CardImage 
+                          src={project.image} 
+                          alt={project.title}
+                          className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <div className="flex space-x-2">
+                            <Button size="sm" variant="outline" className="bg-background/80 backdrop-blur-sm">
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              Live Demo
+                            </Button>
+                          </div>
+                        </div>
+                        <Badge className="absolute top-4 right-4 bg-primary/90 text-primary-foreground">
+                          {project.category}
+                        </Badge>
                       </div>
+                      
+                      <CardContent className="p-6">
+                        <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
+                          {project.title}
+                        </h3>
+                        <p className="text-muted-foreground mb-4">
+                          {project.description}
+                        </p>
+                        
+                        <div className="flex flex-wrap gap-2">
+                          {project.tags.map((tag) => (
+                            <Badge key={tag} variant="secondary" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </a>
+                ) : (
+                  <Card className="glass-card group hover:scale-105 transition-all duration-500 overflow-hidden">
+                    <div className="relative overflow-hidden">
+                      <CardImage 
+                        src={project.image} 
+                        alt={project.title}
+                        className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <div className="flex space-x-2">
+                          <Button size="sm" variant="outline" className="bg-background/80 backdrop-blur-sm">
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Live Demo
+                          </Button>
+                          <Button size="sm" variant="outline" className="bg-background/80 backdrop-blur-sm">
+                            <Github className="h-4 w-4 mr-2" />
+                            Code
+                          </Button>
+                        </div>
+                      </div>
+                      <Badge className="absolute top-4 right-4 bg-primary/90 text-primary-foreground">
+                        {project.category}
+                      </Badge>
                     </div>
-                    <Badge className="absolute top-4 right-4 bg-primary/90 text-primary-foreground">
-                      {project.category}
-                    </Badge>
-                  </div>
                   
                   <CardContent className="p-6">
                     <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">

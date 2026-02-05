@@ -102,8 +102,8 @@ const Index = () => {
       title: "Nouh Hausservice",
       category: "Service",
       image: portfolioNouhHausservice,
-      tags: ["React", "Service"],
-      link: undefined
+      tags: ["React", "Hausservice"],
+      link: "https://nouh-hausservice.de"
     }
   ];
 

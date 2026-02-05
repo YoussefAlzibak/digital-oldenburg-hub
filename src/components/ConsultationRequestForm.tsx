@@ -125,6 +125,70 @@ export default function ConsultationRequestForm() {
 
   const today = new Date().toISOString().split('T')[0];
 
+  // Success state - show beautiful confirmation
+  if (isSuccess && submittedData) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto overflow-hidden">
+        <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background p-8 text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/20 mb-6 animate-in zoom-in duration-300">
+            <CheckCircle2 className="h-10 w-10 text-primary" />
+          </div>
+          
+          <h2 className="text-2xl md:text-3xl font-bold mb-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            Vielen Dank, {submittedData.name.split(' ')[0]}!
+          </h2>
+          
+          <p className="text-lg text-muted-foreground mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+            Ihre Beratungsanfrage wurde erfolgreich übermittelt.
+          </p>
+          
+          <div className="bg-card rounded-xl p-6 mb-6 text-left space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+            <div className="flex items-start gap-3">
+              <Mail className="h-5 w-5 text-primary mt-0.5" />
+              <div>
+                <p className="font-medium">Bestätigung gesendet</p>
+                <p className="text-sm text-muted-foreground">
+                  Eine E-Mail wurde an <span className="font-medium">{submittedData.email}</span> gesendet
+                </p>
+              </div>
+            </div>
+            
+            {submittedData.hasAppointment && (
+              <div className="flex items-start gap-3">
+                <Calendar className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <p className="font-medium">Terminwunsch erhalten</p>
+                  <p className="text-sm text-muted-foreground">
+                    Wir bestätigen Ihren Wunschtermin innerhalb von 24 Stunden
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            <div className="flex items-start gap-3">
+              <Clock className="h-5 w-5 text-primary mt-0.5" />
+              <div>
+                <p className="font-medium">Schnelle Antwort garantiert</p>
+                <p className="text-sm text-muted-foreground">
+                  Wir melden uns innerhalb von 24 Stunden bei Ihnen
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <Button 
+            variant="outline" 
+            onClick={handleReset}
+            className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Neue Anfrage stellen
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>

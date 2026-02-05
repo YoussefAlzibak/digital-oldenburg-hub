@@ -243,7 +243,20 @@ export default function Requests() {
                 {request.preferred_date && (
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    {formatDate(request.preferred_date)} {request.preferred_time}
+                    Wunschtermin: {formatDate(request.preferred_date)} {request.preferred_time}
+                  </div>
+                )}
+                {request.appointments && request.appointments.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <CalendarCheck className="h-4 w-4 text-primary" />
+                    <span className="text-primary font-medium">
+                      Termin: {formatDate(request.appointments[0].scheduled_date)} {request.appointments[0].scheduled_time}
+                    </span>
+                    <Badge variant="outline" className="ml-1">
+                      {request.appointments[0].status === 'scheduled' ? 'Bestätigt' : 
+                       request.appointments[0].status === 'pending' ? 'Ausstehend' : 
+                       request.appointments[0].status}
+                    </Badge>
                   </div>
                 )}
                 <div className="text-muted-foreground">

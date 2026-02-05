@@ -139,7 +139,7 @@ const Portfolio = () => {
               <ScrollReveal key={project.id} animation="fade-up" delay={index * 150}>
                 {project.link ? (
                   <a href={project.link} target="_blank" rel="noopener noreferrer" className="block">
-                    <Card className="glass-card group hover:scale-105 transition-all duration-500 overflow-hidden cursor-pointer">
+                    <Card className="glass-card interactive-card group overflow-hidden cursor-pointer">
                       <div className="relative overflow-hidden">
                         <CardImage 
                           src={project.image} 

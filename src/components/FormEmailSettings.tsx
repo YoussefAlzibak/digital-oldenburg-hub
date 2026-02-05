@@ -1,216 +1,154 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { 
   FileText, 
-  Save, 
-  Loader2,
-  MessageSquare,
-  Calendar,
-  Users,
-  RotateCcw
+  ExternalLink,
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { Link } from 'react-router-dom';
 
-interface FormTemplate {
+interface EmailTemplate {
+  id: string;
+  name: string;
   subject: string;
-  greeting: string;
-  message: string;
-  signature: string;
+  template_type: string;
+  is_active: boolean;
 }
-
-interface FormTemplates {
-  contact: FormTemplate;
-  appointment: FormTemplate;
-  newsletter: FormTemplate;
-}
-
-const DEFAULT_TEMPLATES: FormTemplates = {
-  contact: {
-    subject: 'Vielen Dank für Ihre Anfrage - {{company}}',
-    greeting: 'Hallo {{name}},',
-    message: 'vielen Dank für Ihre Kontaktanfrage. Wir haben Ihre Nachricht erhalten und werden uns schnellstmöglich bei Ihnen melden.\n\nIhre Anfrage:\n{{message}}',
-    signature: 'Mit freundlichen Grüßen\nIhr Unicum Tech Team'
-  },
-  appointment: {
-    subject: 'Terminbestätigung: {{service}} am {{date}}',
-    greeting: 'Hallo {{name}},',
-    message: 'Ihr Termin wurde erfolgreich gebucht.\n\n📅 Datum: {{date}}\n⏰ Uhrzeit: {{time}}\n📍 Art: {{type}}\n\nBitte erscheinen Sie pünktlich oder informieren Sie uns rechtzeitig bei Verhinderung.',
-    signature: 'Mit freundlichen Grüßen\nIhr Unicum Tech Team'
-  },
-  newsletter: {
-    subject: 'Willkommen bei unserem Newsletter!',
-    greeting: 'Hallo {{name}},',
-    message: 'vielen Dank für Ihre Anmeldung zu unserem Newsletter!\n\nSie erhalten ab sofort regelmäßig Updates zu:\n• Neuigkeiten und Trends\n• Exklusive Angebote\n• Tipps und Best Practices',
-    signature: 'Mit freundlichen Grüßen\nIhr Unicum Tech Team'
-  }
-};
 
 export default function FormEmailSettings() {
-  const [templates, setTemplates] = useState<FormTemplates>(DEFAULT_TEMPLATES);
-  const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('contact');
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const updateTemplate = (form: keyof FormTemplates, field: keyof FormTemplate, value: string) => {
-    setTemplates(prev => ({
-      ...prev,
-      [form]: { ...prev[form], [field]: value }
-    }));
-  };
-
-  const resetTemplate = (form: keyof FormTemplates) => {
-    setTemplates(prev => ({
-      ...prev,
-      [form]: DEFAULT_TEMPLATES[form]
-    }));
-    toast({
-      title: "Zurückgesetzt",
-      description: "Vorlage wurde auf Standard zurückgesetzt.",
-    });
-  };
-
-  const saveTemplates = async () => {
-    setSaving(true);
+  const loadTemplates = async () => {
+    setLoading(true);
     try {
-      localStorage.setItem('formEmailTemplates', JSON.stringify(templates));
-      toast({
-        title: "Gespeichert",
-        description: "E-Mail-Vorlagen wurden aktualisiert.",
-      });
+      const { data, error } = await supabase
+        .from('email_templates')
+        .select('id, name, subject, template_type, is_active')
+        .in('name', [
+          'Newsletter Willkommen',
+          'Kontaktanfrage Bestätigung',
+          'Terminbestätigung',
+          'Newsletter Abmeldung Bestätigung'
+        ])
+        .order('name');
+
+      if (error) throw error;
+      setTemplates(data || []);
     } catch (error) {
       toast({
         title: "Fehler",
-        description: "Vorlagen konnten nicht gespeichert werden.",
+        description: "Templates konnten nicht geladen werden.",
         variant: "destructive"
       });
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
-  const renderTemplateForm = (formKey: keyof FormTemplates) => {
-    const template = templates[formKey];
-    return (
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor={`${formKey}-subject`}>Betreff</Label>
-          <Input
-            id={`${formKey}-subject`}
-            value={template.subject}
-            onChange={(e) => updateTemplate(formKey, 'subject', e.target.value)}
-            placeholder="E-Mail-Betreff"
-          />
-        </div>
-        <div>
-          <Label htmlFor={`${formKey}-greeting`}>Anrede</Label>
-          <Input
-            id={`${formKey}-greeting`}
-            value={template.greeting}
-            onChange={(e) => updateTemplate(formKey, 'greeting', e.target.value)}
-            placeholder="Hallo {{name}},"
-          />
-        </div>
-        <div>
-          <Label htmlFor={`${formKey}-message`}>Nachricht</Label>
-          <Textarea
-            id={`${formKey}-message`}
-            value={template.message}
-            onChange={(e) => updateTemplate(formKey, 'message', e.target.value)}
-            placeholder="E-Mail-Text..."
-            rows={6}
-          />
-        </div>
-        <div>
-          <Label htmlFor={`${formKey}-signature`}>Signatur</Label>
-          <Textarea
-            id={`${formKey}-signature`}
-            value={template.signature}
-            onChange={(e) => updateTemplate(formKey, 'signature', e.target.value)}
-            placeholder="Mit freundlichen Grüßen..."
-            rows={3}
-          />
-        </div>
-        
-        <div className="flex items-center justify-between pt-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => resetTemplate(formKey)}
-          >
-            <RotateCcw className="h-4 w-4 mr-2" />
-            Standard wiederherstellen
-          </Button>
-          
-          <div className="text-xs text-muted-foreground">
-            Verfügbare Variablen: <Badge variant="outline" className="ml-1">{'{{name}}'}</Badge>
-            <Badge variant="outline" className="ml-1">{'{{email}}'}</Badge>
-            <Badge variant="outline" className="ml-1">{'{{company}}'}</Badge>
-          </div>
-        </div>
-      </div>
-    );
+  useEffect(() => {
+    loadTemplates();
+  }, []);
+
+  const expectedTemplates = [
+    { name: 'Newsletter Willkommen', description: 'Automatische Willkommensmail bei Newsletter-Anmeldung' },
+    { name: 'Kontaktanfrage Bestätigung', description: 'Bestätigung nach Kontaktformular-Anfrage' },
+    { name: 'Terminbestätigung', description: 'Bestätigung nach Terminbuchung' },
+    { name: 'Newsletter Abmeldung Bestätigung', description: 'Bestätigung bei Newsletter-Abmeldung' },
+  ];
+
+  const getTemplateStatus = (name: string) => {
+    const template = templates.find(t => t.name === name);
+    if (!template) return { exists: false, active: false };
+    return { exists: true, active: template.is_active, id: template.id };
   };
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <FileText className="h-5 w-5 text-primary" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <FileText className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle>Formular-E-Mail-Vorlagen</CardTitle>
+              <CardDescription>
+                Automatische E-Mails für Formulare (aus Vorlagen-Datenbank)
+              </CardDescription>
+            </div>
           </div>
-          <div>
-            <CardTitle>Formular-E-Mail-Vorlagen</CardTitle>
-            <CardDescription>
-              Anpassen der automatischen Antwort-E-Mails
-            </CardDescription>
-          </div>
+          <Button variant="outline" size="sm" onClick={loadTemplates} disabled={loading}>
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+          </Button>
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="contact" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Kontakt</span>
-            </TabsTrigger>
-            <TabsTrigger value="appointment" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Termin</span>
-            </TabsTrigger>
-            <TabsTrigger value="newsletter" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Newsletter</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="contact" className="mt-4">
-            {renderTemplateForm('contact')}
-          </TabsContent>
-          
-          <TabsContent value="appointment" className="mt-4">
-            {renderTemplateForm('appointment')}
-          </TabsContent>
-          
-          <TabsContent value="newsletter" className="mt-4">
-            {renderTemplateForm('newsletter')}
-          </TabsContent>
-        </Tabs>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Diese Templates werden automatisch bei Formular-Aktionen verwendet. 
+          Bearbeiten Sie die Templates im <Link to="/dashboard/templates" className="text-primary hover:underline">Vorlagen-Bereich</Link>.
+        </p>
 
-        <Button onClick={saveTemplates} disabled={saving}>
-          {saving ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Save className="h-4 w-4 mr-2" />
-          )}
-          Alle Vorlagen speichern
-        </Button>
+        <div className="space-y-3">
+          {expectedTemplates.map((expected) => {
+            const status = getTemplateStatus(expected.name);
+            return (
+              <div 
+                key={expected.name} 
+                className="flex items-center justify-between p-4 border rounded-lg"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{expected.name}</span>
+                    {status.exists ? (
+                      status.active ? (
+                        <Badge variant="default" className="bg-green-500">Aktiv</Badge>
+                      ) : (
+                        <Badge variant="secondary">Inaktiv</Badge>
+                      )
+                    ) : (
+                      <Badge variant="destructive">Fehlt</Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">{expected.description}</p>
+                </div>
+                
+                {status.exists ? (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/dashboard/templates">
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Bearbeiten
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/dashboard/templates">
+                      Erstellen
+                    </Link>
+                  </Button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="pt-4 border-t">
+          <p className="text-xs text-muted-foreground">
+            💡 <strong>Tipp:</strong> Alle automatischen E-Mails verwenden jetzt die Templates aus der Datenbank. 
+            Falls ein Template fehlt, wird ein einfaches Fallback-Template verwendet.
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

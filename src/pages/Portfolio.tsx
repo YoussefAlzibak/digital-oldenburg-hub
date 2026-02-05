@@ -10,6 +10,7 @@ import portfolioEcommerce from "@/assets/portfolio-ecommerce.webp";
 import portfolioMobile from "@/assets/portfolio-mobile.webp";
 import portfolioSaas from "@/assets/portfolio-saas.webp";
 import portfolioSmarthome from "@/assets/portfolio-smarthome.webp";
+import portfolioProfileforge from "@/assets/portfolio-profileforge.webp";
 import heroPortfolio from "@/assets/hero-portfolio.webp";
 import { WebsiteLayout } from "@/components/WebsiteLayout";
 

@@ -1,8 +1,8 @@
 import { Card } from "@/components/ui/card";
-import { LucideIcon } from "lucide-react";
+import type { ElementType } from "react";
 
 interface Benefit {
-  icon: LucideIcon;
+  icon: ElementType;
   title: string;
   description: string;
 }

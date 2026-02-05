@@ -59,7 +59,7 @@ export function WebsiteMobileNav() {
 
   return (
     <nav className="sm:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-r from-primary/95 to-primary/85 backdrop-blur-lg border-t border-white/10 z-[9999] shadow-2xl">
-      <div className="flex justify-around items-center h-16 px-1 pb-safe">
+      <div className="flex justify-around items-center h-16 px-1">
         {mainNavItems.map((item) => (
           <Link
             key={item.label}

@@ -236,6 +236,7 @@ const Portfolio = () => {
                     </div>
                   </CardContent>
                 </Card>
+                )}
               </ScrollReveal>
             ))}
           </div>

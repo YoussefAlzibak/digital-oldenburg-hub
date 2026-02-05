@@ -5,11 +5,6 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { HeroImage, CardImage } from "@/components/Picture";
 import { ArrowRight, ExternalLink, Github } from "lucide-react";
 import { Link } from "react-router-dom";
-import portfolioCorporate from "@/assets/portfolio-corporate.webp";
-import portfolioEcommerce from "@/assets/portfolio-ecommerce.webp";
-import portfolioMobile from "@/assets/portfolio-mobile.webp";
-import portfolioSaas from "@/assets/portfolio-saas.webp";
-import portfolioSmarthome from "@/assets/portfolio-smarthome.webp";
 import portfolioProfileforge from "@/assets/portfolio-profileforge.webp";
 import heroPortfolio from "@/assets/hero-portfolio.webp";
 import { WebsiteLayout } from "@/components/WebsiteLayout";
@@ -17,68 +12,14 @@ import { WebsiteLayout } from "@/components/WebsiteLayout";
 const Portfolio = () => {
   const projects: { id: number; title: string; category: string; description: string; image: string; tags: string[]; featured: boolean; link?: string }[] = [
     {
-      id: 0,
+      id: 1,
       title: "CV & Health Platform",
       category: "SaaS",
-      description: "All-in-One Plattform für CV-Erstellung, Gesundheitsdaten und sicheren Notfallzugriff",
+      description: "All-in-One Plattform für CV-Erstellung, Gesundheitsdaten und sicheren Notfallzugriff mit KI-Unterstützung",
       image: portfolioProfileforge,
       tags: ["React", "TypeScript", "KI", "DSGVO"],
       featured: true,
       link: "https://profile-forge-share-1.onrender.com"
-    },
-    {
-      id: 1,
-      title: "Corporate Website",
-      category: "Webdesign",
-      description: "Moderne Unternehmenswebsite mit CMS-Anbindung und SEO-Optimierung",
-      image: portfolioCorporate,
-      tags: ["React", "TypeScript", "Tailwind CSS", "CMS"],
-      featured: true
-    },
-    {
-      id: 2,
-      title: "E-Commerce Platform",
-      category: "E-Commerce",
-      description: "Vollständige Online-Shop-Lösung mit Payment-Integration",
-      image: portfolioEcommerce,
-      tags: ["Next.js", "Stripe", "Database", "Admin Panel"],
-      featured: true
-    },
-    {
-      id: 3,
-      title: "Mobile App",
-      category: "Mobile",
-      description: "Cross-Platform App für iOS und Android",
-      image: portfolioMobile,
-      tags: ["React Native", "API Integration", "Push Notifications"],
-      featured: false
-    },
-    {
-      id: 4,
-      title: "SaaS Dashboard",
-      category: "Web App",
-      description: "Analytics Dashboard mit Echtzeit-Datenvisualisierung",
-      image: portfolioSaas,
-      tags: ["React", "Charts", "Real-time", "API"],
-      featured: true
-    },
-    {
-      id: 5,
-      title: "Smart Home App",
-      category: "IoT",
-      description: "Smart Home Steuerung mit IoT-Geräte Integration",
-      image: portfolioSmarthome,
-      tags: ["IoT", "Real-time", "Mobile App", "Cloud"],
-      featured: false
-    },
-    {
-      id: 6,
-      title: "Portfolio Website",
-      category: "Webdesign",
-      description: "Kreative Portfolio-Website für einen Fotografen",
-      image: portfolioCorporate,
-      tags: ["Design", "Photography", "Responsive", "Gallery"],
-      featured: false
     }
   ];
 

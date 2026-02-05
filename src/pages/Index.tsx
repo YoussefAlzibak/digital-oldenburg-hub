@@ -29,9 +29,6 @@ import webdesignService from "@/assets/webdesign-service.webp";
 import crmService from "@/assets/crm-service.webp";
 import itService from "@/assets/it-service.webp";
 import printService from "@/assets/print-service.webp";
-import portfolioCorporate from "@/assets/portfolio-corporate.webp";
-import portfolioEcommerce from "@/assets/portfolio-ecommerce.webp";
-import portfolioSaas from "@/assets/portfolio-saas.webp";
 import heroImage from "@/assets/hero-image.webp";
 import portfolioProfileforge from "@/assets/portfolio-profileforge.webp";
 
@@ -75,24 +72,6 @@ const Index = () => {
       image: portfolioProfileforge,
       tags: ["React", "TypeScript", "KI"],
       link: "https://profile-forge-share-1.onrender.com"
-    },
-    {
-      title: "Corporate Website",
-      category: "Webdesign",
-      image: portfolioCorporate,
-      tags: ["React", "TypeScript", "CMS"]
-    },
-    {
-      title: "E-Commerce Platform",
-      category: "E-Commerce", 
-      image: portfolioEcommerce,
-      tags: ["Next.js", "Stripe", "Database"]
-    },
-    {
-      title: "SaaS Dashboard",
-      category: "Web App",
-      image: portfolioSaas,
-      tags: ["React", "Charts", "API"]
     }
   ];
 

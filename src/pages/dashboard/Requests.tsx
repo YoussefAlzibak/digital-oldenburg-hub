@@ -74,9 +74,19 @@ export default function Requests() {
     try {
       setLoading(true);
       
+      // Load contact requests with linked appointments
       const { data, error } = await supabase
         .from('contact_requests')
-        .select('*')
+        .select(`
+          *,
+          appointments (
+            id,
+            scheduled_date,
+            scheduled_time,
+            status,
+            meeting_type
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

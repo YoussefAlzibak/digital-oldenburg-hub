@@ -1,281 +1,127 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { 
-  Globe, 
-  Users, 
-  Settings, 
-  Printer, 
   ArrowRight, 
-  Shield,
-  Zap,
   MessageCircle,
   Rocket,
-  Users2,
   Sparkles,
-  TrendingUp,
-  Award,
-  Monitor,
-  ExternalLink
+  Monitor
 } from "lucide-react";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { WebsiteLayout } from "@/components/WebsiteLayout";
 import { CustomerReviews } from "@/components/CustomerReviews";
 import NewsletterSignup from "@/components/NewsletterSignup";
-import { HeroImage, CardImage } from "@/components/Picture";
-
-// Import generated images
-import webdesignService from "@/assets/webdesign-service.webp";
-import crmService from "@/assets/crm-service.webp";
-import itService from "@/assets/it-service.webp";
-import printService from "@/assets/print-service.webp";
+import { HeroImage } from "@/components/Picture";
+import { SectionHeader } from "@/components/home/SectionHeader";
+import { ProjectCard } from "@/components/home/ProjectCard";
+import { ServiceCard } from "@/components/home/ServiceCard";
+import { BenefitCard } from "@/components/home/BenefitCard";
+import { services, projects, benefits } from "@/data/homeData";
 import heroImage from "@/assets/hero-image.webp";
-import portfolioProfileforge from "@/assets/portfolio-profileforge.webp";
-import portfolioNailsalon from "@/assets/portfolio-nailsalon.webp";
-import portfolioDiamondfinish from "@/assets/portfolio-diamondfinish.webp";
-import portfolioProfach from "@/assets/portfolio-profach.webp";
-import portfolioNouhHausservice from "@/assets/portfolio-nouh-hausservice.webp";
 
 const Index = () => {
-  
-  const services = [
-    {
-      icon: Globe,
-      title: "Webdesign & Development",
-      description: "Moderne, responsive Websites mit fokussiertem UX/UI Design.",
-      image: webdesignService,
-      link: "/services"
-    },
-    {
-      icon: Users,
-      title: "CRM & HubSpot Solutions",
-      description: "Professionelle CRM-Systeme und HubSpot-Integration für optimierte Kundenverwaltung.",
-      image: crmService,
-      link: "/services"
-    },
-    {
-      icon: Settings,
-      title: "IT-Services & Smart Home",
-      description: "Umfassende IT-Betreuung und moderne Smart Home Lösungen.",
-      image: itService,
-      link: "/services"
-    },
-    {
-      icon: Printer,
-      title: "Print Design & Branding",
-      description: "Professionelle Print-Materialien und Corporate Identity Design.",
-      image: printService,
-      link: "/services"
-    }
-  ];
-
-  const projects: { title: string; category: string; image: string; tags: string[]; link?: string }[] = [
-    {
-      title: "CV & Health Platform",
-      category: "SaaS",
-      image: portfolioProfileforge,
-      tags: ["React", "TypeScript", "KI"],
-      link: "https://profile-forge-share-1.onrender.com"
-    },
-    {
-      title: "Nail Salon Hub",
-      category: "Beauty",
-      image: portfolioNailsalon,
-      tags: ["React", "Booking", "Beauty"],
-      link: "https://nail-salon-hub.onrender.com"
-    },
-    {
-      title: "Diamond Finish",
-      category: "Automotive",
-      image: portfolioDiamondfinish,
-      tags: ["React", "Automotive"],
-      link: "https://diamond-finish.de"
-    },
-    {
-      title: "ProFach International",
-      category: "Business",
-      image: portfolioProfach,
-      tags: ["React", "Business"],
-      link: "https://profach-international.com"
-    },
-    {
-      title: "Nouh Hausservice",
-      category: "Service",
-      image: portfolioNouhHausservice,
-      tags: ["React", "Hausservice"],
-      link: "https://nouh-hausservice.de"
-    }
-  ];
-
-  const stats = [
-    { number: "150+", label: "Erfolgreiche Projekte", icon: Rocket },
-    { number: "98%", label: "Kundenzufriedenheit", icon: Award },
-    { number: "5+", label: "Jahre Erfahrung", icon: TrendingUp }
-  ];
-
-  const benefits = [
-    {
-      icon: Zap,
-      title: "Schnelle Umsetzung",
-      description: "Effiziente Prozesse für schnelle Projektumsetzung"
-    },
-    {
-      icon: Shield,
-      title: "Höchste Sicherheit",
-      description: "Modernste Sicherheitsstandards für Ihre Daten"
-    },
-    {
-      icon: Users2,
-      title: "Persönlicher Support",
-      description: "Direkter Ansprechpartner während des gesamten Projekts"
-    },
-    {
-      icon: Award,
-      title: "Beste Qualität",
-      description: "Höchste Qualitätsstandards in jedem Detail"
-    }
-  ];
-
   return (
     <WebsiteLayout>
-      {/* Hero Section with Video and Glass Effect */}
+      {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden w-full py-16 sm:py-20 md:py-0">
-        {/* Image Background */}
+        {/* Background */}
         <div className="absolute inset-0 z-0 w-full">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-10"></div>
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2djRoNHYtNGgtNHptMCA4djRoNHYtNGgtNHptLTQgOHY0aDR2LTRoLTR6bS04IDB2NGg0di00aC00em0tOC04djRoNHYtNGgtNHptMC00djRoNHYtNGgtNHptOC04djRoNHYtNGgtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20 z-0"></div>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-10" />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2djRoNHYtNGgtNHptMCA4djRoNHYtNGgtNHptLTQgOHY0aDR2LTRoLTR6bS04IDB2NGg0di00aC00em0tOC04djRoNHYtNGgtNHptMC00djRoNHYtNGgtNHptOC04djRoNHYtNGgtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20 z-0" />
           
           {/* Animated orbs */}
-          <div className="absolute top-10 sm:top-20 left-10 sm:left-20 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
-          <div className="absolute top-20 sm:top-40 right-10 sm:right-20 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute -bottom-4 sm:-bottom-8 left-20 sm:left-40 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '4s' }}></div>
+          <div className="absolute top-10 sm:top-20 left-10 sm:left-20 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" />
+          <div className="absolute top-20 sm:top-40 right-10 sm:right-20 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '2s' }} />
+          <div className="absolute -bottom-4 sm:-bottom-8 left-20 sm:left-40 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-accent rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '4s' }} />
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full max-w-7xl">
-          <div className="w-full">
-            <div className="grid lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center w-full">
-              {/* Left Content */}
-              <div className="space-y-6 sm:space-y-8">
-                <ScrollReveal animation="fade-right" delay={0}>
-                  <Badge className="bg-white/10 backdrop-blur-md border-white/20 text-white text-base sm:text-base px-5 sm:px-6 py-2 sm:py-2 inline-flex items-center">
-                    <Sparkles className="h-4 w-4 sm:h-4 sm:w-4 mr-2" />
-                    <span className="font-medium">Ihr Partner für digitale Excellence</span>
-                  </Badge>
+          <div className="grid lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center w-full">
+            {/* Left Content */}
+            <div className="space-y-6 sm:space-y-8">
+              <ScrollReveal animation="fade-right" delay={0}>
+                <Badge className="bg-white/10 backdrop-blur-md border-white/20 text-white text-base px-5 sm:px-6 py-2 inline-flex items-center">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  <span className="font-medium">Ihr Partner für digitale Excellence</span>
+                </Badge>
+              </ScrollReveal>
+              
+              <div className="space-y-2 sm:space-y-3 max-w-full">
+                <ScrollReveal animation="fade-left" delay={150}>
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white leading-[1.1] break-words">
+                    Erstkontakt
+                  </h1>
                 </ScrollReveal>
-                
-                <div className="space-y-2 sm:space-y-3 max-w-full">
-                  <ScrollReveal animation="fade-left" delay={150}>
-                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white leading-[1.1] break-words">
-                      Erstkontakt
-                    </h1>
-                  </ScrollReveal>
-                  <ScrollReveal animation="fade-right" delay={300}>
-                    <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text text-transparent leading-[1.1] break-words">
-                      Vertrauen
-                    </span>
-                  </ScrollReveal>
-                  <ScrollReveal animation="fade-left" delay={450}>
-                    <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white/90 leading-[1.1] break-words">Loyalität</span>
-                  </ScrollReveal>
-                </div>
-                
-                <ScrollReveal animation="fade-right" delay={600}>
-                  <p className="text-base sm:text-lg md:text-xl text-white/90 leading-relaxed max-w-full lg:max-w-2xl break-words">
-                    Der erste Eindruck zählt. Wir schaffen digitale Erlebnisse, die Vertrauen aufbauen und langfristige Kundenbeziehungen fördern – vom ersten Klick bis zur dauerhaften Loyalität.
-                  </p>
+                <ScrollReveal animation="fade-right" delay={300}>
+                  <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text text-transparent leading-[1.1] break-words">
+                    Vertrauen
+                  </span>
                 </ScrollReveal>
-                
-                <ScrollReveal animation="fade-left" delay={800}>
-                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                    <Button asChild size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 shadow-xl text-base sm:text-lg touch-manipulation h-12 sm:h-14 px-6 sm:px-8">
-                      <Link to="/contact" className="flex items-center justify-center gap-2">
-                        <MessageCircle className="h-5 w-5" />
-                        <span className="font-semibold">Beratungsgespräch</span>
-                        <ArrowRight className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                    <Button asChild size="lg" variant="outline" className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10 backdrop-blur-md text-base sm:text-lg touch-manipulation h-12 sm:h-14 px-6 sm:px-8">
-                      <Link to="/portfolio" className="flex items-center justify-center gap-2">
-                        <Monitor className="h-5 w-5" />
-                        <span className="font-semibold">Portfolio</span>
-                      </Link>
-                    </Button>
-                  </div>
+                <ScrollReveal animation="fade-left" delay={450}>
+                  <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white/90 leading-[1.1] break-words">
+                    Loyalität
+                  </span>
                 </ScrollReveal>
               </div>
               
-              {/* Right Visual */}
-              <ScrollReveal animation="scale-in" delay={200}>
-                <div className="relative hidden lg:block">
-                  <div className="glass-card p-2 rounded-3xl">
-                    <HeroImage 
-                      src={heroImage}
-                      alt="Digital Solutions" 
-                      className="w-full h-auto rounded-2xl"
-                    />
-                  </div>
-                  {/* Floating elements */}
-                  <div className="absolute -top-4 sm:-top-6 -right-4 sm:-right-6 w-16 sm:w-24 h-16 sm:h-24 bg-secondary rounded-2xl blur-2xl opacity-50 animate-float"></div>
-                  <div className="absolute -bottom-4 sm:-bottom-6 -left-4 sm:-left-6 w-16 sm:w-24 h-16 sm:h-24 bg-primary rounded-2xl blur-2xl opacity-50 animate-float" style={{ animationDelay: '1s' }}></div>
+              <ScrollReveal animation="fade-right" delay={600}>
+                <p className="text-base sm:text-lg md:text-xl text-white/90 leading-relaxed max-w-full lg:max-w-2xl break-words">
+                  Der erste Eindruck zählt. Wir schaffen digitale Erlebnisse, die Vertrauen aufbauen und langfristige Kundenbeziehungen fördern – vom ersten Klick bis zur dauerhaften Loyalität.
+                </p>
+              </ScrollReveal>
+              
+              <ScrollReveal animation="fade-left" delay={800}>
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  <Button asChild size="lg" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90 shadow-xl text-base sm:text-lg touch-manipulation h-12 sm:h-14 px-6 sm:px-8">
+                    <Link to="/contact" className="flex items-center justify-center gap-2">
+                      <MessageCircle className="h-5 w-5" />
+                      <span className="font-semibold">Beratungsgespräch</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline" className="w-full sm:w-auto border-white/30 text-white hover:bg-white/10 backdrop-blur-md text-base sm:text-lg touch-manipulation h-12 sm:h-14 px-6 sm:px-8">
+                    <Link to="/portfolio" className="flex items-center justify-center gap-2">
+                      <Monitor className="h-5 w-5" />
+                      <span className="font-semibold">Portfolio</span>
+                    </Link>
+                  </Button>
                 </div>
               </ScrollReveal>
             </div>
+            
+            {/* Right Visual */}
+            <ScrollReveal animation="scale-in" delay={200}>
+              <div className="relative hidden lg:block">
+                <div className="glass-card p-2 rounded-3xl">
+                  <HeroImage 
+                    src={heroImage}
+                    alt="Digital Solutions" 
+                    className="w-full h-auto rounded-2xl"
+                  />
+                </div>
+                <div className="absolute -top-4 sm:-top-6 -right-4 sm:-right-6 w-16 sm:w-24 h-16 sm:h-24 bg-secondary rounded-2xl blur-2xl opacity-50 animate-float" />
+                <div className="absolute -bottom-4 sm:-bottom-6 -left-4 sm:-left-6 w-16 sm:w-24 h-16 sm:h-24 bg-primary rounded-2xl blur-2xl opacity-50 animate-float" style={{ animationDelay: '1s' }} />
+              </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
 
       {/* Services Section */}
-      <section className="py-16 sm:py-16 md:py-20 bg-muted/30 relative w-full overflow-hidden">
-        <div className="container mx-auto px-6 sm:px-6 lg:px-8 max-w-7xl w-full">
-          <div className="text-center mb-16 sm:mb-16">
-            <ScrollReveal animation="fade-up">
-              <Badge className="mb-4 sm:mb-4 px-4 sm:px-4 py-2 sm:py-2 text-sm sm:text-sm bg-primary/10 text-primary border-primary/20 font-medium">
-                Unsere Services
-              </Badge>
-            </ScrollReveal>
-            <ScrollReveal animation="fade-left" delay={100}>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-4 px-4">
-                Was wir für Sie <span className="text-primary">tun können</span>
-              </h2>
-            </ScrollReveal>
-            <ScrollReveal animation="fade-right" delay={200}>
-              <p className="text-lg sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
-                Von Webdesign bis Smart Home - wir bieten umfassende digitale Lösungen
-              </p>
-            </ScrollReveal>
-          </div>
+      <section className="py-16 md:py-20 bg-muted/30 relative w-full overflow-hidden">
+        <div className="container mx-auto px-6 lg:px-8 max-w-7xl w-full">
+          <SectionHeader
+            badge="Unsere Services"
+            title="Was wir für Sie"
+            titleHighlight="tun können"
+            description="Von Webdesign bis Smart Home - wir bieten umfassende digitale Lösungen"
+          />
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {services.map((service, index) => (
-              <ScrollReveal key={index} animation="fade-up" delay={index * 100}>
-                <Card className="glass-card h-full group hover:scale-105 transition-all duration-300 overflow-hidden touch-manipulation">
-                  <div className="relative overflow-hidden">
-                    <CardImage 
-                      src={service.image} 
-                      alt={service.title}
-                      className="w-full h-36 sm:h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <service.icon className="absolute top-3 sm:top-4 left-3 sm:left-4 h-6 w-6 sm:h-8 sm:w-8 text-white drop-shadow-lg" />
-                  </div>
-                  
-                  <CardContent className="p-4 sm:p-6">
-                    <h3 className="text-base sm:text-lg font-bold mb-2 group-hover:text-primary transition-colors">
-                      {service.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
-                      {service.description}
-                    </p>
-                    
-                    <Button size="sm" variant="ghost" className="w-full text-primary hover:bg-primary/10 text-xs sm:text-sm touch-manipulation" asChild>
-                      <Link to={service.link}>
-                        Mehr erfahren
-                        <ArrowRight className="ml-2 h-3 w-3" />
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+              <ScrollReveal key={service.title} animation="fade-up" delay={index * 100}>
+                <ServiceCard service={service} />
               </ScrollReveal>
             ))}
           </div>
@@ -285,34 +131,17 @@ const Index = () => {
       {/* Benefits Section */}
       <section className="py-12 sm:py-16 md:py-20 relative w-full overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
-          <div className="text-center mb-12 sm:mb-16">
-            <ScrollReveal animation="fade-up">
-              <Badge className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-primary/10 text-primary border-primary/20">
-                Ihre Vorteile
-              </Badge>
-            </ScrollReveal>
-            <ScrollReveal animation="fade-right" delay={100}>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">
-                Warum <span className="text-primary">Unicum Tech</span>?
-              </h2>
-            </ScrollReveal>
-            <ScrollReveal animation="fade-left" delay={200}>
-              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-                Ihre Vorteile bei der Zusammenarbeit mit uns
-              </p>
-            </ScrollReveal>
-          </div>
+          <SectionHeader
+            badge="Ihre Vorteile"
+            title="Warum"
+            titleHighlight="Unicum Tech"
+            description="Ihre Vorteile bei der Zusammenarbeit mit uns"
+          />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {benefits.map((benefit, index) => (
-              <ScrollReveal key={index} animation="scale-in" delay={index * 100}>
-                <Card className="glass-card p-4 sm:p-6 text-center group hover:scale-105 transition-all touch-manipulation">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto rounded-full bg-gradient-to-br from-primary to-primary-dark p-3 sm:p-4 mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
-                    <benefit.icon className="w-full h-full text-white" />
-                  </div>
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1.5 sm:mb-2">{benefit.title}</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">{benefit.description}</p>
-                </Card>
+              <ScrollReveal key={benefit.title} animation="scale-in" delay={index * 100}>
+                <BenefitCard benefit={benefit} />
               </ScrollReveal>
             ))}
           </div>
@@ -322,105 +151,17 @@ const Index = () => {
       {/* Featured Projects Section */}
       <section className="py-12 sm:py-16 md:py-20 bg-muted/30 w-full overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
-          <div className="text-center mb-12 sm:mb-16">
-            <ScrollReveal animation="fade-up">
-              <Badge className="mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-primary/10 text-primary border-primary/20">
-                Unsere Projekte
-              </Badge>
-            </ScrollReveal>
-            <ScrollReveal animation="fade-left" delay={100}>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">
-                Erfolgreiche <span className="text-primary">Umsetzungen</span>
-              </h2>
-            </ScrollReveal>
-            <ScrollReveal animation="fade-right" delay={200}>
-              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-                Entdecken Sie eine Auswahl unserer besten Projekte
-              </p>
-            </ScrollReveal>
-          </div>
+          <SectionHeader
+            badge="Unsere Projekte"
+            title="Erfolgreiche"
+            titleHighlight="Umsetzungen"
+            description="Entdecken Sie eine Auswahl unserer besten Projekte"
+          />
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-12">
             {projects.map((project, index) => (
-              <ScrollReveal key={index} animation="fade-up" delay={index * 150}>
-                {project.link ? (
-                  <a href={project.link} target="_blank" rel="noopener noreferrer" className="block h-full">
-                    <Card className="glass-card group hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 overflow-hidden touch-manipulation cursor-pointer h-full border-2 border-transparent hover:border-primary/30">
-                      <div className="relative overflow-hidden aspect-[16/10]">
-                        <CardImage 
-                          src={project.image} 
-                          alt={project.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
-                        {/* Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-                        
-                        {/* Category Badge */}
-                        <Badge className="absolute top-3 sm:top-4 left-3 sm:left-4 bg-white/95 text-primary text-[10px] sm:text-xs px-2.5 py-1 font-semibold shadow-lg">
-                          {project.category}
-                        </Badge>
-                        
-                        {/* External Link Icon */}
-                        <div className="absolute top-3 sm:top-4 right-3 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                          <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-                        </div>
-                        
-                        {/* Bottom Content Overlay */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
-                          <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-secondary transition-colors drop-shadow-lg">
-                            {project.title}
-                          </h3>
-                          
-                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                            {project.tags.map((tag) => (
-                              <Badge 
-                                key={tag} 
-                                className="bg-white/20 backdrop-blur-sm text-white border-white/30 text-[10px] sm:text-xs px-2 py-0.5 font-medium"
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  </a>
-                ) : (
-                  <Card className="glass-card group hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 overflow-hidden touch-manipulation h-full border-2 border-transparent hover:border-primary/30">
-                    <div className="relative overflow-hidden aspect-[16/10]">
-                      <CardImage 
-                        src={project.image} 
-                        alt={project.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      />
-                      {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-                      
-                      {/* Category Badge */}
-                      <Badge className="absolute top-3 sm:top-4 left-3 sm:left-4 bg-white/95 text-primary text-[10px] sm:text-xs px-2.5 py-1 font-semibold shadow-lg">
-                        {project.category}
-                      </Badge>
-                      
-                      {/* Bottom Content Overlay */}
-                      <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
-                        <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-secondary transition-colors drop-shadow-lg">
-                          {project.title}
-                        </h3>
-                        
-                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                          {project.tags.map((tag) => (
-                            <Badge 
-                              key={tag} 
-                              className="bg-white/20 backdrop-blur-sm text-white border-white/30 text-[10px] sm:text-xs px-2 py-0.5 font-medium"
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                )}
+              <ScrollReveal key={project.title} animation="fade-up" delay={index * 150}>
+                <ProjectCard project={project} />
               </ScrollReveal>
             ))}
           </div>
@@ -466,8 +207,8 @@ const Index = () => {
       {/* CTA Section */}
       <section className="py-12 sm:py-16 md:py-20 relative overflow-hidden bg-gradient-to-br from-[hsl(var(--primary))] via-[hsl(230,100%,25%)] to-[hsl(var(--primary))]">
         <div className="absolute inset-0">
-          <div className="absolute top-10 sm:top-20 left-10 sm:left-20 w-64 sm:w-96 h-64 sm:h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
-          <div className="absolute bottom-10 sm:bottom-20 right-10 sm:right-20 w-64 sm:w-96 h-64 sm:h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '3s' }}></div>
+          <div className="absolute top-10 sm:top-20 left-10 sm:left-20 w-64 sm:w-96 h-64 sm:h-96 bg-secondary rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" />
+          <div className="absolute bottom-10 sm:bottom-20 right-10 sm:right-20 w-64 sm:w-96 h-64 sm:h-96 bg-primary rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '3s' }} />
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 relative z-10">

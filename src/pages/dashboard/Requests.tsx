@@ -270,7 +270,7 @@ export default function Requests() {
                 </div>
               )}
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -279,6 +279,18 @@ export default function Requests() {
                   <Eye className="h-4 w-4 mr-2" />
                   Details
                 </Button>
+                {request.appointments && request.appointments.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    asChild
+                  >
+                    <Link to="/dashboard/appointments">
+                      <CalendarCheck className="h-4 w-4 mr-2" />
+                      Zum Termin
+                    </Link>
+                  </Button>
+                )}
                 {request.status === 'pending' && (
                   <Button
                     size="sm"

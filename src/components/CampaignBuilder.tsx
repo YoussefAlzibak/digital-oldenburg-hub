@@ -29,13 +29,15 @@ import {
   Filter,
   Mail,
   UserCheck,
-  CheckCircle2
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import QuickCampaignTemplates from './QuickCampaignTemplates';
 
 interface EmailTemplate {
   id: string;
@@ -631,13 +633,31 @@ export default function CampaignBuilder({ campaign, isOpen, onClose, onSave }: C
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs defaultValue="templates" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="templates" className="flex items-center gap-1">
+              <Sparkles className="h-4 w-4" />
+              Templates
+            </TabsTrigger>
             <TabsTrigger value="content">📝 Inhalt</TabsTrigger>
             <TabsTrigger value="settings">⚙️ Einstellungen</TabsTrigger>
             <TabsTrigger value="preview">👁️ Vorschau</TabsTrigger>
             <TabsTrigger value="formulas">🧮 Formeln</TabsTrigger>
           </TabsList>
+
+          {/* Templates Tab */}
+          <TabsContent value="templates" className="space-y-4">
+            <QuickCampaignTemplates 
+              onSelectTemplate={(template) => {
+                setFormData({
+                  ...formData,
+                  name: template.name,
+                  subject: template.subject,
+                  html_content: template.htmlContent
+                });
+              }}
+            />
+          </TabsContent>
 
           {/* Content Tab */}
           <TabsContent value="content" className="space-y-4">

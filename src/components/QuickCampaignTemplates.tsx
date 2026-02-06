@@ -346,6 +346,369 @@ const quickTemplates: QuickTemplate[] = [
     </div>
   </div>
 </div>`
+  },
+  {
+    id: 'webdesign-action',
+    name: 'Webdesign Sonderaktion',
+    description: '50% Rabatt auf Webdesign-Projekte',
+    icon: Globe,
+    category: 'Services',
+    subject: '🌐 50% Rabatt auf Ihr neues Webdesign-Projekt!',
+    htmlContent: `
+<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <div style="background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #14b8a6 100%); padding: 40px 30px; text-align: center; border-radius: 12px 12px 0 0;">
+    <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0; text-transform: uppercase; letter-spacing: 2px;">Webdesign Aktion</p>
+    <h1 style="color: white; font-size: 38px; margin: 10px 0; font-weight: 800;">🌐 WEBDESIGN</h1>
+    <p style="color: white; font-size: 24px; margin: 0; font-weight: 700;">50% RABATT</p>
+  </div>
+  
+  <div style="background: white; padding: 30px; border: 1px solid #eee;">
+    <p style="font-size: 16px; line-height: 1.6; color: #333;">
+      Hallo {{first_name}},<br><br>
+      Sie planen eine neue Website oder möchten Ihre bestehende modernisieren? Jetzt ist der perfekte Zeitpunkt! 
+      Wir bieten Ihnen <strong style="color: #0ea5e9;">50% Rabatt</strong> auf alle Webdesign-Projekte.
+    </p>
+    
+    <div style="background: linear-gradient(135deg, #e0f2fe 0%, #cffafe 100%); border: 3px dashed #0ea5e9; padding: 25px; border-radius: 12px; text-align: center; margin: 25px 0;">
+      <p style="font-size: 12px; color: #0369a1; margin: 0; text-transform: uppercase; letter-spacing: 1px;">Ihr exklusiver Code:</p>
+      <p style="font-size: 32px; font-weight: 800; color: #1e3a5f; margin: 10px 0; letter-spacing: 3px;">WEBDESIGN50</p>
+    </div>
+
+    <h3 style="color: #1e3a5f; margin: 25px 0 15px 0;">✨ Was Sie erhalten:</h3>
+    
+    <ul style="color: #444; line-height: 2; padding-left: 20px;">
+      <li>🎨 Individuelles, modernes Design nach Ihren Wünschen</li>
+      <li>📱 100% responsive für alle Geräte</li>
+      <li>⚡ Optimierte Ladezeiten & Performance</li>
+      <li>🔍 SEO-Grundoptimierung inklusive</li>
+      <li>🛠️ CMS für einfache Selbstverwaltung</li>
+      <li>🔒 SSL-Zertifikat & Sicherheit</li>
+    </ul>
+
+    <div style="background: #f0fdf4; border-radius: 10px; padding: 20px; margin: 25px 0;">
+      <table style="width: 100%;">
+        <tr>
+          <td style="color: #166534;"><strong>Normale Preise:</strong></td>
+          <td style="text-align: right; color: #999; text-decoration: line-through;">ab 2.000€</td>
+        </tr>
+        <tr>
+          <td style="color: #166534; font-size: 18px;"><strong>Mit Rabatt:</strong></td>
+          <td style="text-align: right; color: #16a34a; font-size: 24px; font-weight: 800;">ab 1.000€</td>
+        </tr>
+      </table>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{{website_url}}/kontakt" style="display: inline-block; background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 30px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);">
+        🚀 Jetzt Projekt starten
+      </a>
+    </div>
+    
+    <p style="color: #666; font-size: 14px; text-align: center;">
+      Ihr {{company_name}} Team
+    </p>
+  </div>
+</div>`
+  },
+  {
+    id: 'branding-action',
+    name: 'Branding & Corporate Design',
+    description: 'Rabattaktion für Markenentwicklung',
+    icon: Palette,
+    category: 'Services',
+    subject: '🎨 Ihre neue Markenidentität - Jetzt 50% günstiger!',
+    htmlContent: `
+<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <div style="background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #d946ef 100%); padding: 40px 30px; text-align: center; border-radius: 12px 12px 0 0;">
+    <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0; text-transform: uppercase; letter-spacing: 2px;">Branding Aktion</p>
+    <h1 style="color: white; font-size: 38px; margin: 10px 0; font-weight: 800;">🎨 BRANDING</h1>
+    <p style="color: white; font-size: 24px; margin: 0; font-weight: 700;">50% RABATT</p>
+  </div>
+  
+  <div style="background: white; padding: 30px; border: 1px solid #eee;">
+    <p style="font-size: 16px; line-height: 1.6; color: #333;">
+      Hallo {{first_name}},<br><br>
+      Eine starke Marke ist der Schlüssel zum Erfolg! Entwickeln Sie mit uns Ihre einzigartige Corporate Identity 
+      – jetzt mit <strong style="color: #8b5cf6;">50% Rabatt</strong>.
+    </p>
+    
+    <div style="background: linear-gradient(135deg, #f3e8ff 0%, #fae8ff 100%); border: 3px dashed #a855f7; padding: 25px; border-radius: 12px; text-align: center; margin: 25px 0;">
+      <p style="font-size: 12px; color: #7c3aed; margin: 0; text-transform: uppercase; letter-spacing: 1px;">Ihr exklusiver Code:</p>
+      <p style="font-size: 32px; font-weight: 800; color: #1e3a5f; margin: 10px 0; letter-spacing: 3px;">BRANDING50</p>
+    </div>
+
+    <h3 style="color: #1e3a5f; margin: 25px 0 15px 0;">🎯 Unser Branding-Paket:</h3>
+    
+    <ul style="color: #444; line-height: 2; padding-left: 20px;">
+      <li>🖌️ Professionelles Logo-Design (3 Entwürfe)</li>
+      <li>🎨 Komplette Farbpalette & Typografie</li>
+      <li>📄 Visitenkarten & Briefpapier Design</li>
+      <li>📘 Brand Guidelines Dokument</li>
+      <li>📱 Social Media Vorlagen</li>
+      <li>📁 Alle Dateien in verschiedenen Formaten</li>
+    </ul>
+
+    <div style="background: #faf5ff; border-radius: 10px; padding: 20px; margin: 25px 0;">
+      <table style="width: 100%;">
+        <tr>
+          <td style="color: #7c3aed;"><strong>Normalpreis:</strong></td>
+          <td style="text-align: right; color: #999; text-decoration: line-through;">ab 1.200€</td>
+        </tr>
+        <tr>
+          <td style="color: #7c3aed; font-size: 18px;"><strong>Mit Rabatt:</strong></td>
+          <td style="text-align: right; color: #a855f7; font-size: 24px; font-weight: 800;">ab 600€</td>
+        </tr>
+      </table>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{{website_url}}/kontakt" style="display: inline-block; background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 30px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);">
+        ✨ Marke entwickeln
+      </a>
+    </div>
+  </div>
+</div>`
+  },
+  {
+    id: 'it-service-action',
+    name: 'IT-Service Sonderaktion',
+    description: '50% auf IT-Support & Smart Home',
+    icon: Monitor,
+    category: 'Services',
+    subject: '⚙️ 50% Rabatt auf IT-Services & Smart Home!',
+    htmlContent: `
+<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <div style="background: linear-gradient(135deg, #1e3a5f 0%, #334155 50%, #475569 100%); padding: 40px 30px; text-align: center; border-radius: 12px 12px 0 0;">
+    <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0; text-transform: uppercase; letter-spacing: 2px;">IT-Service Aktion</p>
+    <h1 style="color: white; font-size: 38px; margin: 10px 0; font-weight: 800;">⚙️ IT-SERVICES</h1>
+    <p style="color: #4ecdc4; font-size: 24px; margin: 0; font-weight: 700;">50% RABATT</p>
+  </div>
+  
+  <div style="background: white; padding: 30px; border: 1px solid #eee;">
+    <p style="font-size: 16px; line-height: 1.6; color: #333;">
+      Hallo {{first_name}},<br><br>
+      Optimieren Sie Ihre IT-Infrastruktur oder verwandeln Sie Ihr Zuhause in ein Smart Home 
+      – jetzt mit <strong style="color: #1e3a5f;">50% Rabatt</strong> auf alle IT-Dienstleistungen!
+    </p>
+    
+    <div style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); border: 3px dashed #1e3a5f; padding: 25px; border-radius: 12px; text-align: center; margin: 25px 0;">
+      <p style="font-size: 12px; color: #0369a1; margin: 0; text-transform: uppercase; letter-spacing: 1px;">Ihr exklusiver Code:</p>
+      <p style="font-size: 32px; font-weight: 800; color: #1e3a5f; margin: 10px 0; letter-spacing: 3px;">ITSERVICE50</p>
+    </div>
+
+    <div style="display: table; width: 100%;">
+      <div style="background: #f8fafc; border-radius: 10px; padding: 15px; margin-bottom: 12px; border-left: 4px solid #4ecdc4;">
+        <h4 style="color: #1e3a5f; margin: 0 0 5px 0;">💻 PC & Laptop Service</h4>
+        <p style="color: #666; margin: 0; font-size: 13px;">Reparatur, Wartung, Optimierung</p>
+      </div>
+      
+      <div style="background: #f8fafc; border-radius: 10px; padding: 15px; margin-bottom: 12px; border-left: 4px solid #667eea;">
+        <h4 style="color: #1e3a5f; margin: 0 0 5px 0;">🏠 Smart Home Installation</h4>
+        <p style="color: #666; margin: 0; font-size: 13px;">Beleuchtung, Heizung, Sicherheit</p>
+      </div>
+      
+      <div style="background: #f8fafc; border-radius: 10px; padding: 15px; margin-bottom: 12px; border-left: 4px solid #f59e0b;">
+        <h4 style="color: #1e3a5f; margin: 0 0 5px 0;">🔧 Netzwerk & Server</h4>
+        <p style="color: #666; margin: 0; font-size: 13px;">Einrichtung, Wartung, Sicherheit</p>
+      </div>
+      
+      <div style="background: #f8fafc; border-radius: 10px; padding: 15px; border-left: 4px solid #ec4899;">
+        <h4 style="color: #1e3a5f; margin: 0 0 5px 0;">☁️ Cloud & Backup</h4>
+        <p style="color: #666; margin: 0; font-size: 13px;">Datensicherung, Cloud-Lösungen</p>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{{website_url}}/kontakt" style="display: inline-block; background: linear-gradient(135deg, #1e3a5f 0%, #334155 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 30px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 15px rgba(30, 58, 95, 0.4);">
+        🔧 IT-Service anfragen
+      </a>
+    </div>
+  </div>
+</div>`
+  },
+  {
+    id: 'mobile-app-action',
+    name: 'Mobile App Entwicklung',
+    description: 'Rabatt auf App-Entwicklung',
+    icon: Smartphone,
+    category: 'Services',
+    subject: '📱 Ihre eigene App - 50% Rabatt auf Entwicklung!',
+    htmlContent: `
+<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <div style="background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%); padding: 40px 30px; text-align: center; border-radius: 12px 12px 0 0;">
+    <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0; text-transform: uppercase; letter-spacing: 2px;">App Entwicklung</p>
+    <h1 style="color: white; font-size: 38px; margin: 10px 0; font-weight: 800;">📱 MOBILE APPS</h1>
+    <p style="color: white; font-size: 24px; margin: 0; font-weight: 700;">50% RABATT</p>
+  </div>
+  
+  <div style="background: white; padding: 30px; border: 1px solid #eee;">
+    <p style="font-size: 16px; line-height: 1.6; color: #333;">
+      Hallo {{first_name}},<br><br>
+      Bringen Sie Ihr Business aufs Smartphone! Wir entwickeln Ihre individuelle App 
+      – jetzt mit <strong style="color: #10b981;">50% Rabatt</strong>.
+    </p>
+    
+    <div style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border: 3px dashed #10b981; padding: 25px; border-radius: 12px; text-align: center; margin: 25px 0;">
+      <p style="font-size: 12px; color: #047857; margin: 0; text-transform: uppercase; letter-spacing: 1px;">Ihr exklusiver Code:</p>
+      <p style="font-size: 32px; font-weight: 800; color: #1e3a5f; margin: 10px 0; letter-spacing: 3px;">MOBILEAPP50</p>
+    </div>
+
+    <h3 style="color: #1e3a5f; margin: 25px 0 15px 0;">📲 Was wir bieten:</h3>
+    
+    <ul style="color: #444; line-height: 2; padding-left: 20px;">
+      <li>📱 Native iOS & Android Apps</li>
+      <li>⚡ Cross-Platform Entwicklung</li>
+      <li>🎨 Individuelles UI/UX Design</li>
+      <li>🔗 Backend & API Integration</li>
+      <li>📊 Analytics & Monitoring</li>
+      <li>🛠️ Wartung & Support</li>
+    </ul>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{{website_url}}/kontakt" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 30px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">
+        📱 App-Projekt starten
+      </a>
+    </div>
+  </div>
+</div>`
+  },
+  {
+    id: 'seo-action',
+    name: 'SEO Optimierung',
+    description: 'Rabatt auf Suchmaschinenoptimierung',
+    icon: Search,
+    category: 'Services',
+    subject: '🔍 50% auf SEO - Werden Sie bei Google gefunden!',
+    htmlContent: `
+<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%); padding: 40px 30px; text-align: center; border-radius: 12px 12px 0 0;">
+    <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0; text-transform: uppercase; letter-spacing: 2px;">SEO Aktion</p>
+    <h1 style="color: white; font-size: 38px; margin: 10px 0; font-weight: 800;">🔍 SEO</h1>
+    <p style="color: white; font-size: 24px; margin: 0; font-weight: 700;">50% RABATT</p>
+  </div>
+  
+  <div style="background: white; padding: 30px; border: 1px solid #eee;">
+    <p style="font-size: 16px; line-height: 1.6; color: #333;">
+      Hallo {{first_name}},<br><br>
+      Werden Sie bei Google gefunden! Mit professioneller SEO-Optimierung steigern wir Ihre Sichtbarkeit 
+      – jetzt mit <strong style="color: #f59e0b;">50% Rabatt</strong>.
+    </p>
+    
+    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 3px dashed #f59e0b; padding: 25px; border-radius: 12px; text-align: center; margin: 25px 0;">
+      <p style="font-size: 12px; color: #92400e; margin: 0; text-transform: uppercase; letter-spacing: 1px;">Ihr exklusiver Code:</p>
+      <p style="font-size: 32px; font-weight: 800; color: #1e3a5f; margin: 10px 0; letter-spacing: 3px;">SEO50</p>
+    </div>
+
+    <h3 style="color: #1e3a5f; margin: 25px 0 15px 0;">📈 Unsere SEO-Leistungen:</h3>
+    
+    <ul style="color: #444; line-height: 2; padding-left: 20px;">
+      <li>🔍 Keyword-Analyse & Strategie</li>
+      <li>📝 OnPage-Optimierung</li>
+      <li>🔗 Technisches SEO</li>
+      <li>📊 Monatliche Reports</li>
+      <li>🏆 Local SEO für regionale Sichtbarkeit</li>
+      <li>⚡ Core Web Vitals Optimierung</li>
+    </ul>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{{website_url}}/kontakt" style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 30px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);">
+        📈 SEO-Beratung anfragen
+      </a>
+    </div>
+  </div>
+</div>`
+  },
+  {
+    id: 'email-marketing-action',
+    name: 'E-Mail Marketing Setup',
+    description: 'Rabatt auf E-Mail Marketing',
+    icon: Mail,
+    category: 'Services',
+    subject: '📧 50% auf E-Mail Marketing - Mehr Umsatz generieren!',
+    htmlContent: `
+<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <div style="background: linear-gradient(135deg, #ec4899 0%, #db2777 50%, #be185d 100%); padding: 40px 30px; text-align: center; border-radius: 12px 12px 0 0;">
+    <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0; text-transform: uppercase; letter-spacing: 2px;">E-Mail Marketing</p>
+    <h1 style="color: white; font-size: 38px; margin: 10px 0; font-weight: 800;">📧 EMAIL</h1>
+    <p style="color: white; font-size: 24px; margin: 0; font-weight: 700;">50% RABATT</p>
+  </div>
+  
+  <div style="background: white; padding: 30px; border: 1px solid #eee;">
+    <p style="font-size: 16px; line-height: 1.6; color: #333;">
+      Hallo {{first_name}},<br><br>
+      E-Mail Marketing ist der Umsatzbringer Nr. 1! Wir richten Ihr komplettes E-Mail Marketing System ein 
+      – jetzt mit <strong style="color: #ec4899;">50% Rabatt</strong>.
+    </p>
+    
+    <div style="background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); border: 3px dashed #ec4899; padding: 25px; border-radius: 12px; text-align: center; margin: 25px 0;">
+      <p style="font-size: 12px; color: #be185d; margin: 0; text-transform: uppercase; letter-spacing: 1px;">Ihr exklusiver Code:</p>
+      <p style="font-size: 32px; font-weight: 800; color: #1e3a5f; margin: 10px 0; letter-spacing: 3px;">EMAIL50</p>
+    </div>
+
+    <h3 style="color: #1e3a5f; margin: 25px 0 15px 0;">💌 Was Sie erhalten:</h3>
+    
+    <ul style="color: #444; line-height: 2; padding-left: 20px;">
+      <li>📧 Newsletter-System Einrichtung</li>
+      <li>🎨 Professionelle E-Mail Templates</li>
+      <li>🤖 Automatisierte E-Mail Sequenzen</li>
+      <li>📊 Analytics & A/B Testing</li>
+      <li>👥 Subscriber Management</li>
+      <li>📱 Mobil-optimierte Designs</li>
+    </ul>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{{website_url}}/kontakt" style="display: inline-block; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 30px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);">
+        📧 E-Mail Marketing starten
+      </a>
+    </div>
+  </div>
+</div>`
+  },
+  {
+    id: 'crm-action',
+    name: 'CRM System Setup',
+    description: 'Rabatt auf CRM-Einrichtung',
+    icon: Users,
+    category: 'Services',
+    subject: '👥 50% auf CRM-System - Kunden besser verwalten!',
+    htmlContent: `
+<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <div style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%); padding: 40px 30px; text-align: center; border-radius: 12px 12px 0 0;">
+    <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0; text-transform: uppercase; letter-spacing: 2px;">CRM Aktion</p>
+    <h1 style="color: white; font-size: 38px; margin: 10px 0; font-weight: 800;">👥 CRM SYSTEM</h1>
+    <p style="color: white; font-size: 24px; margin: 0; font-weight: 700;">50% RABATT</p>
+  </div>
+  
+  <div style="background: white; padding: 30px; border: 1px solid #eee;">
+    <p style="font-size: 16px; line-height: 1.6; color: #333;">
+      Hallo {{first_name}},<br><br>
+      Verwalten Sie Ihre Kundenbeziehungen professionell! Wir richten Ihr maßgeschneidertes CRM-System ein 
+      – jetzt mit <strong style="color: #6366f1;">50% Rabatt</strong>.
+    </p>
+    
+    <div style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border: 3px dashed #6366f1; padding: 25px; border-radius: 12px; text-align: center; margin: 25px 0;">
+      <p style="font-size: 12px; color: #4338ca; margin: 0; text-transform: uppercase; letter-spacing: 1px;">Ihr exklusiver Code:</p>
+      <p style="font-size: 32px; font-weight: 800; color: #1e3a5f; margin: 10px 0; letter-spacing: 3px;">CRM50</p>
+    </div>
+
+    <h3 style="color: #1e3a5f; margin: 25px 0 15px 0;">💼 CRM-Paket beinhaltet:</h3>
+    
+    <ul style="color: #444; line-height: 2; padding-left: 20px;">
+      <li>👥 Kundendatenbank Einrichtung</li>
+      <li>📊 Sales Pipeline Management</li>
+      <li>📧 E-Mail Integration</li>
+      <li>📅 Termin- & Aufgabenverwaltung</li>
+      <li>📈 Reports & Dashboards</li>
+      <li>🔄 Automatisierungen & Workflows</li>
+    </ul>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{{website_url}}/kontakt" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 30px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">
+        👥 CRM-Beratung anfragen
+      </a>
+    </div>
+  </div>
+</div>`
   }
 ];
 

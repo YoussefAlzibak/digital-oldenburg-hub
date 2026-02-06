@@ -257,6 +257,88 @@ const quickTemplates: QuickTemplate[] = [
     </p>
   </div>
 </div>`
+  },
+  {
+    id: 'services-discount',
+    name: '50% Rabatt auf alle Dienstleistungen',
+    description: 'Bewerben Sie alle Services mit Sonderrabatt',
+    icon: Zap,
+    category: 'Marketing',
+    subject: '🔥 50% RABATT auf alle Dienstleistungen - Nur für kurze Zeit!',
+    htmlContent: `
+<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <div style="background: linear-gradient(135deg, #dc2626 0%, #ea580c 50%, #f59e0b 100%); padding: 40px 30px; text-align: center; border-radius: 12px 12px 0 0;">
+    <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0; text-transform: uppercase; letter-spacing: 2px;">Exklusives Angebot</p>
+    <h1 style="color: white; font-size: 42px; margin: 10px 0; font-weight: 800;">50% RABATT</h1>
+    <p style="color: white; font-size: 18px; margin: 0;">auf ALLE unsere Dienstleistungen!</p>
+  </div>
+  
+  <div style="background: white; padding: 30px; border: 1px solid #eee;">
+    <p style="font-size: 16px; line-height: 1.6; color: #333;">
+      Hallo {{first_name}},<br><br>
+      wir haben ein <strong>einmaliges Angebot</strong> für Sie! Für kurze Zeit erhalten Sie <strong style="color: #dc2626;">50% Rabatt</strong> auf alle unsere professionellen Dienstleistungen.
+    </p>
+    
+    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 3px dashed #f59e0b; padding: 25px; border-radius: 12px; text-align: center; margin: 25px 0;">
+      <p style="font-size: 12px; color: #92400e; margin: 0; text-transform: uppercase; letter-spacing: 1px;">Ihr Gutscheincode:</p>
+      <p style="font-size: 32px; font-weight: 800; color: #1e3a5f; margin: 10px 0; letter-spacing: 3px;">SERVICES50</p>
+      <p style="font-size: 14px; color: #666; margin: 0;">Gültig bis: [Datum einfügen]</p>
+    </div>
+
+    <h3 style="color: #1e3a5f; margin: 30px 0 20px 0; text-align: center;">🚀 Unsere Dienstleistungen im Überblick:</h3>
+    
+    <div style="display: table; width: 100%;">
+      <div style="background: #f8fafc; border-radius: 10px; padding: 20px; margin-bottom: 15px; border-left: 4px solid #4ecdc4;">
+        <h4 style="color: #1e3a5f; margin: 0 0 8px 0;">🌐 Webdesign & Development</h4>
+        <p style="color: #666; margin: 0; font-size: 14px;">Moderne, responsive Websites mit fokussiertem UX/UI Design</p>
+        <p style="color: #dc2626; font-weight: 600; margin: 8px 0 0 0;"><s style="color: #999;">ab 2.000€</s> → <strong>ab 1.000€</strong></p>
+      </div>
+      
+      <div style="background: #f8fafc; border-radius: 10px; padding: 20px; margin-bottom: 15px; border-left: 4px solid #667eea;">
+        <h4 style="color: #1e3a5f; margin: 0 0 8px 0;">👥 CRM & HubSpot Solutions</h4>
+        <p style="color: #666; margin: 0; font-size: 14px;">Professionelle CRM-Systeme für optimierte Kundenverwaltung</p>
+        <p style="color: #dc2626; font-weight: 600; margin: 8px 0 0 0;"><s style="color: #999;">ab 1.500€</s> → <strong>ab 750€</strong></p>
+      </div>
+      
+      <div style="background: #f8fafc; border-radius: 10px; padding: 20px; margin-bottom: 15px; border-left: 4px solid #f59e0b;">
+        <h4 style="color: #1e3a5f; margin: 0 0 8px 0;">⚙️ IT-Services & Smart Home</h4>
+        <p style="color: #666; margin: 0; font-size: 14px;">Umfassende IT-Betreuung und moderne Smart Home Lösungen</p>
+        <p style="color: #dc2626; font-weight: 600; margin: 8px 0 0 0;"><s style="color: #999;">ab 800€</s> → <strong>ab 400€</strong></p>
+      </div>
+      
+      <div style="background: #f8fafc; border-radius: 10px; padding: 20px; margin-bottom: 15px; border-left: 4px solid #ec4899;">
+        <h4 style="color: #1e3a5f; margin: 0 0 8px 0;">🎨 Print Design & Branding</h4>
+        <p style="color: #666; margin: 0; font-size: 14px;">Professionelle Print-Materialien und Corporate Identity</p>
+        <p style="color: #dc2626; font-weight: 600; margin: 8px 0 0 0;"><s style="color: #999;">ab 600€</s> → <strong>ab 300€</strong></p>
+      </div>
+    </div>
+
+    <div style="background: #dcfce7; border-radius: 10px; padding: 20px; margin: 25px 0; text-align: center;">
+      <p style="color: #166534; margin: 0; font-size: 16px;">
+        ✅ <strong>Warum jetzt handeln?</strong><br>
+        <span style="font-size: 14px;">Dieses Angebot ist zeitlich begrenzt und gilt nur für Neuprojekte!</span>
+      </p>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{{website_url}}/kontakt" style="display: inline-block; background: linear-gradient(135deg, #dc2626 0%, #ea580c 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 30px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);">
+        🎁 Jetzt 50% sichern!
+      </a>
+    </div>
+    
+    <p style="color: #666; font-size: 13px; text-align: center; margin-top: 25px;">
+      <em>* Angebot gültig für Neuprojekte. Nicht kombinierbar mit anderen Rabatten.</em>
+    </p>
+    
+    <div style="border-top: 1px solid #eee; margin-top: 25px; padding-top: 20px;">
+      <p style="color: #666; font-size: 14px; margin: 0;">
+        Haben Sie Fragen? Wir sind für Sie da!<br><br>
+        Herzliche Grüße,<br>
+        <strong>Ihr {{company_name}} Team</strong>
+      </p>
+    </div>
+  </div>
+</div>`
   }
 ];
 

@@ -9,7 +9,14 @@ import {
   Heart,
   Sparkles,
   Star,
-  Zap
+  Zap,
+  Globe,
+  Palette,
+  Monitor,
+  Smartphone,
+  Search,
+  Mail,
+  Users
 } from 'lucide-react';
 
 interface QuickTemplate {

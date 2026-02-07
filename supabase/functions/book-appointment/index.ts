@@ -1,10 +1,11 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
-import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { z } from 'https://esm.sh/zod@3.22.4';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
 };
 
 const appointmentSchema = z.object({
@@ -44,18 +45,18 @@ function isTimeWithinWorkingHours(
   const appt = parseTime(appointmentTime);
   const start = parseTime(workingStart);
   const end = parseTime(workingEnd);
-  
+
   const apptMinutes = appt.hours * 60 + appt.minutes;
   const startMinutes = start.hours * 60 + start.minutes;
   const endMinutes = end.hours * 60 + end.minutes;
-  
+
   return apptMinutes >= startMinutes && apptMinutes < endMinutes;
 }
 
 function isWorkingDay(dateStr: string, workingDays: string[]): boolean {
   const date = new Date(dateStr);
   const dayOfWeek = date.getDay();
-  
+
   // Find the day name for this number
   for (const [dayName, dayNum] of Object.entries(DAYS_MAP)) {
     if (dayNum === dayOfWeek && workingDays.includes(dayName)) {
@@ -68,7 +69,7 @@ function isWorkingDay(dateStr: string, workingDays: string[]): boolean {
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
@@ -78,27 +79,37 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
     // Rate Limiting: 10 Buchungen pro IP pro Stunde
-    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-                     req.headers.get('x-real-ip') || 
-                     'unknown';
+    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      req.headers.get('x-real-ip') ||
+      'unknown';
     const rateLimitKey = `booking:${clientIP}`;
-    
-    const { data: isAllowed, error: rateLimitError } = await supabase.rpc('check_rate_limit', {
-      p_key: rateLimitKey,
-      p_max_requests: 10,
-      p_window_minutes: 60
-    });
 
-    if (rateLimitError) {
-      console.error('Rate limit check error:', rateLimitError);
+    // Using maybeSingle to avoid errors if RPC doesn't exist yet in older migrations
+    // But for now keeping as is assuming the DB function exists.
+    // Ideally we wrap this too.
+    let isAllowed = true;
+    try {
+      const { data: allowed, error: rateLimitError } = await supabase.rpc('check_rate_limit', {
+        p_key: rateLimitKey,
+        p_max_requests: 10,
+        p_window_minutes: 60
+      });
+      if (rateLimitError) {
+        console.error('Rate limit check error:', rateLimitError);
+        // Fail open if rate limit check fails, or log only
+      } else if (allowed === false) {
+        isAllowed = false;
+      }
+    } catch (err) {
+      console.error("Rate limit exception:", err);
     }
 
-    if (isAllowed === false) {
+    if (!isAllowed) {
       console.warn(`Rate limit exceeded for IP: ${clientIP}`);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'Zu viele Buchungsanfragen. Bitte versuchen Sie es später erneut.' 
+        JSON.stringify({
+          success: false,
+          error: 'Zu viele Buchungsanfragen. Bitte versuchen Sie es später erneut.'
         }),
         {
           status: 429,
@@ -108,10 +119,10 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const rawData = await req.json();
-    
+
     // Validate input data
     const bookingData = appointmentSchema.parse(rawData);
-    
+
     console.log('Received appointment booking:', bookingData);
 
     // Get calendar settings for working hours validation
@@ -136,11 +147,11 @@ const handler = async (req: Request): Promise<Response> => {
           'sunday': 'Sonntag',
         };
         const workingDaysList = calendarSettings.working_days.map((d: string) => dayNames[d] || d).join(', ');
-        
+
         return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error: `Termine sind nur an folgenden Tagen verfügbar: ${workingDaysList}` 
+          JSON.stringify({
+            success: false,
+            error: `Termine sind nur an folgenden Tagen verfügbar: ${workingDaysList}`
           }),
           {
             status: 400,
@@ -158,9 +169,9 @@ const handler = async (req: Request): Promise<Response> => {
         calendarSettings.working_hours_end
       )) {
         return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error: `Termine sind nur zwischen ${calendarSettings.working_hours_start} und ${calendarSettings.working_hours_end} möglich.` 
+          JSON.stringify({
+            success: false,
+            error: `Termine sind nur zwischen ${calendarSettings.working_hours_start} und ${calendarSettings.working_hours_end} möglich.`
           }),
           {
             status: 400,
@@ -180,9 +191,9 @@ const handler = async (req: Request): Promise<Response> => {
       for (const blocked of blockedDates) {
         if (blocked.date === bookingData.appointment_date) {
           return new Response(
-            JSON.stringify({ 
-              success: false, 
-              error: `Dieser Tag ist nicht verfügbar: ${blocked.name}` 
+            JSON.stringify({
+              success: false,
+              error: `Dieser Tag ist nicht verfügbar: ${blocked.name}`
             }),
             {
               status: 400,
@@ -196,9 +207,9 @@ const handler = async (req: Request): Promise<Response> => {
           const appointmentMonthDay = bookingData.appointment_date.substring(5);
           if (blockedMonthDay === appointmentMonthDay) {
             return new Response(
-              JSON.stringify({ 
-                success: false, 
-                error: `Dieser Tag ist nicht verfügbar: ${blocked.name}` 
+              JSON.stringify({
+                success: false,
+                error: `Dieser Tag ist nicht verfügbar: ${blocked.name}`
               }),
               {
                 status: 400,
@@ -220,9 +231,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (existingAppointments && existingAppointments.length > 0) {
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'Dieser Termin ist bereits vergeben. Bitte wählen Sie eine andere Zeit.' 
+        JSON.stringify({
+          success: false,
+          error: 'Dieser Termin ist bereits vergeben. Bitte wählen Sie eine andere Zeit.'
         }),
         {
           status: 400,
@@ -242,21 +253,21 @@ const handler = async (req: Request): Promise<Response> => {
       if (nearbyAppointments) {
         const requestedTime = parseTime(bookingData.appointment_time);
         const requestedMinutes = requestedTime.hours * 60 + requestedTime.minutes;
-        
+
         for (const appt of nearbyAppointments) {
           const existingTime = parseTime(appt.scheduled_time);
           const existingMinutes = existingTime.hours * 60 + existingTime.minutes;
           const duration = appt.duration_minutes || 60;
-          
+
           // Check if requested time conflicts with existing appointment + buffer
           const existingEnd = existingMinutes + duration + calendarSettings.buffer_minutes;
           const existingStart = existingMinutes - calendarSettings.buffer_minutes;
-          
+
           if (requestedMinutes > existingStart && requestedMinutes < existingEnd) {
             return new Response(
-              JSON.stringify({ 
-                success: false, 
-                error: 'Dieser Zeitraum ist wegen eines anderen Termins nicht verfügbar. Bitte wählen Sie eine andere Zeit.' 
+              JSON.stringify({
+                success: false,
+                error: 'Dieser Zeitraum ist wegen eines anderen Termins nicht verfügbar. Bitte wählen Sie eine andere Zeit.'
               }),
               {
                 status: 400,
@@ -356,8 +367,8 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Successfully created appointment:', appointment);
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         message: 'Termin erfolgreich gebucht',
         appointment: appointment
       }),
@@ -369,14 +380,17 @@ const handler = async (req: Request): Promise<Response> => {
 
   } catch (error: unknown) {
     console.error('Error in book-appointment function:', error);
-    
-    const isZodError = error instanceof Error && error.name === 'ZodError';
-    const errorMessage = error instanceof Error ? error.message : 'Ein Fehler ist aufgetreten';
-    
+
+    // Explicitly handle Zod errors for better client feedback
+    const isZodError = error instanceof z.ZodError;
+    // @ts-ignore: error is unknown
+    const errorMessage = error?.message || 'Ein Fehler ist aufgetreten';
+
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: isZodError ? 'Ungültige Eingabedaten' : errorMessage,
+      JSON.stringify({
+        success: false,
+        // @ts-ignore: error is unknown
+        error: isZodError ? 'Ungültige Eingabedaten: ' + JSON.stringify(error.errors) : errorMessage,
       }),
       {
         status: isZodError ? 400 : 500,

@@ -124,16 +124,67 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
         is_active: automation.is_active
       });
 
-      // Load automation steps
-      const { data: stepsData, error } = await supabase
+      // Load automation steps (simple mode)
+      const { data: stepsData, error: stepsError } = await supabase
         .from('email_automation_steps')
         .select('*')
         .eq('automation_id', automation.id)
         .order('step_number');
 
-      if (error) throw error;
-      setSteps(stepsData || []);
+      if (stepsError) throw stepsError;
+      
+      // Load workflow actions (advanced mode)
+      const { data: actionsData, error: actionsError } = await supabase
+        .from('workflow_actions')
+        .select('*')
+        .eq('automation_id', automation.id)
+        .order('step_number');
+
+      if (actionsError) throw actionsError;
+
+      // Determine which mode to use based on existing data
+      if (actionsData && actionsData.length > 0) {
+        // Has workflow actions - use advanced mode
+        setEditorMode('advanced');
+        
+        // Build workflow action tree
+        const buildActionTree = (actions: any[], parentId: string | null = null): WorkflowAction[] => {
+          return actions
+            .filter(a => a.parent_action_id === parentId)
+            .map(a => ({
+              id: a.id,
+              action_type: a.action_type,
+              step_number: a.step_number,
+              branch_type: a.branch_type,
+              condition_field: a.condition_field,
+              condition_operator: a.condition_operator,
+              condition_value: a.condition_value,
+              subject: a.subject,
+              html_content: a.html_content,
+              text_content: a.text_content,
+              delay_minutes: a.delay_minutes,
+              action_config: a.action_config,
+              is_active: a.is_active,
+              if_actions: a.action_type === 'condition' 
+                ? buildActionTree(actions.filter(child => child.branch_type === 'if'), a.id)
+                : undefined,
+              else_actions: a.action_type === 'condition'
+                ? buildActionTree(actions.filter(child => child.branch_type === 'else'), a.id)
+                : undefined
+            }));
+        };
+        
+        const rootActions = buildActionTree(actionsData);
+        setWorkflowActions(rootActions);
+        setSteps([]);
+      } else {
+        // Use simple steps mode
+        setEditorMode('simple');
+        setSteps(stepsData || []);
+        setWorkflowActions([]);
+      }
     } catch (error: any) {
+      console.error('Load error:', error);
       toast({
         title: "Fehler",
         description: "Automatisierung konnte nicht geladen werden.",
@@ -239,13 +290,26 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
       return;
     }
 
-    if (steps.length === 0 || !steps[0].subject) {
-      toast({
-        title: "Fehler",
-        description: "Bitte fügen Sie mindestens einen Automatisierungsschritt hinzu.",
-        variant: "destructive"
-      });
-      return;
+    // Validate based on editor mode
+    if (editorMode === 'simple') {
+      if (steps.length === 0 || !steps[0].subject) {
+        toast({
+          title: "Fehler",
+          description: "Bitte fügen Sie mindestens einen Automatisierungsschritt hinzu.",
+          variant: "destructive"
+        });
+        return;
+      }
+    } else {
+      // Advanced mode - need at least one action
+      if (workflowActions.length === 0) {
+        toast({
+          title: "Fehler",
+          description: "Bitte fügen Sie mindestens eine Workflow-Aktion hinzu.",
+          variant: "destructive"
+        });
+        return;
+      }
     }
 
     try {
@@ -262,6 +326,8 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
         };
       }
 
+      let automationId: string;
+
       if (automation) {
         // Update existing automation
         const { error: automationError } = await supabase
@@ -276,34 +342,20 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
           .eq('id', automation.id);
 
         if (automationError) throw automationError;
+        automationId = automation.id;
 
         // Delete existing steps
-        const { error: deleteError } = await supabase
+        await supabase
           .from('email_automation_steps')
           .delete()
           .eq('automation_id', automation.id);
 
-        if (deleteError) throw deleteError;
+        // Delete existing workflow actions
+        await supabase
+          .from('workflow_actions')
+          .delete()
+          .eq('automation_id', automation.id);
 
-        // Insert updated steps
-        const stepData = steps
-          .filter(step => step.subject && step.html_content && step.step_number) // Only include valid steps
-          .map(step => ({
-            automation_id: automation.id,
-            step_number: step.step_number!,
-            template_id: step.template_id || null,
-            delay_minutes: step.delay_minutes || 0,
-            subject: step.subject!,
-            html_content: step.html_content!,
-            text_content: step.text_content || '',
-            is_active: step.is_active !== false
-          }));
-
-        const { error: stepsError } = await supabase
-          .from('email_automation_steps')
-          .insert(stepData);
-
-        if (stepsError) throw stepsError;
       } else {
         // Create new automation
         const { data: newAutomation, error: automationError } = await supabase
@@ -319,12 +371,16 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
           .single();
 
         if (automationError) throw automationError;
+        automationId = newAutomation.id;
+      }
 
-        // Insert steps
+      // Save based on editor mode
+      if (editorMode === 'simple') {
+        // Insert simple steps
         const stepData = steps
-          .filter(step => step.subject && step.html_content && step.step_number) // Only include valid steps
+          .filter(step => step.subject && step.html_content && step.step_number)
           .map(step => ({
-            automation_id: newAutomation.id,
+            automation_id: automationId,
             step_number: step.step_number!,
             template_id: step.template_id || null,
             delay_minutes: step.delay_minutes || 0,
@@ -334,11 +390,59 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
             is_active: step.is_active !== false
           }));
 
-        const { error: stepsError } = await supabase
-          .from('email_automation_steps')
-          .insert(stepData);
+        if (stepData.length > 0) {
+          const { error: stepsError } = await supabase
+            .from('email_automation_steps')
+            .insert(stepData);
 
-        if (stepsError) throw stepsError;
+          if (stepsError) throw stepsError;
+        }
+      } else {
+        // Insert advanced workflow actions
+        const saveWorkflowActions = async (actions: typeof workflowActions, parentId: string | null = null) => {
+          for (let i = 0; i < actions.length; i++) {
+            const action = actions[i];
+            
+            const actionData = {
+              automation_id: automationId,
+              action_type: action.action_type,
+              step_number: i + 1,
+              parent_action_id: parentId,
+              branch_type: action.branch_type || null,
+              condition_field: action.condition_field || null,
+              condition_operator: action.condition_operator || null,
+              condition_value: action.condition_value || null,
+              subject: action.subject || null,
+              html_content: action.html_content || null,
+              text_content: action.text_content || null,
+              delay_minutes: action.delay_minutes || 0,
+              action_config: action.action_config || {},
+              is_active: action.is_active !== false
+            };
+
+            const { data: insertedAction, error } = await supabase
+              .from('workflow_actions')
+              .insert([actionData])
+              .select()
+              .single();
+
+            if (error) throw error;
+
+            // Recursively save nested actions for conditions
+            if (action.action_type === 'condition' && insertedAction) {
+              if (action.if_actions && action.if_actions.length > 0) {
+                const ifActions = action.if_actions.map(a => ({ ...a, branch_type: 'if' as const }));
+                await saveWorkflowActions(ifActions, insertedAction.id);
+              }
+              if (action.else_actions && action.else_actions.length > 0) {
+                const elseActions = action.else_actions.map(a => ({ ...a, branch_type: 'else' as const }));
+                await saveWorkflowActions(elseActions, insertedAction.id);
+              }
+            }
+          }
+        };
+
+        await saveWorkflowActions(workflowActions);
       }
 
       toast({
@@ -349,6 +453,7 @@ export default function AutomationScheduler({ automation, isOpen, onClose, onSav
       onSave();
       onClose();
     } catch (error: any) {
+      console.error('Save error:', error);
       toast({
         title: "Fehler",
         description: error.message,

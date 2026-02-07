@@ -55,6 +55,8 @@ export interface WorkflowAction {
     list_id?: string;
     // Status fields
     new_status?: 'active' | 'unsubscribed' | 'bounced';
+    // Template reference
+    template_id?: string;
   };
   is_active?: boolean;
   // Nested actions for conditions
@@ -337,6 +339,47 @@ export default function WorkflowActionBuilder({ actions, onChange, templates = [
           {/* Email Action */}
           {action.action_type === 'email' && (
             <>
+              {/* Template Selection */}
+              {templates.length > 0 && (
+                <div>
+                  <Label>Template auswählen (optional)</Label>
+                  <Select 
+                    value={action.action_config?.template_id || ''} 
+                    onValueChange={(value) => {
+                      const template = templates.find(t => t.id === value);
+                      if (template) {
+                        const updates = { 
+                          subject: template.subject,
+                          html_content: template.html_content || action.html_content || '',
+                          action_config: { 
+                            ...action.action_config, 
+                            template_id: value 
+                          }
+                        };
+                        if (isNested && parentIndex !== undefined && branchType) {
+                          updateBranchAction(parentIndex, branchType, index, updates);
+                        } else {
+                          updateAction(index, updates);
+                        }
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Template auswählen..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border shadow-lg z-50">
+                      {templates.map(template => (
+                        <SelectItem key={template.id} value={template.id}>
+                          <div className="flex flex-col">
+                            <span>{template.name}</span>
+                            <span className="text-xs text-muted-foreground">{template.subject}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div>
                 <Label>E-Mail Betreff</Label>
                 <Input

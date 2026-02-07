@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// Build configuration v6 - service templates added
+// Build configuration v7 - templates in DB
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
